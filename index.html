@@ -415,6 +415,81 @@
     (function(){
       const endpoint="https://script.google.com/macros/s/AKfycbxYeLAcfko8GGql3vlFMgE8tPGk2sycn9NDj_1QQACf_Op3u3Xjhz6A_0AhyvmJYo0N/exec";
 
+      // ======== NUEVO: Persistencia local (no perder al reabrir) ========
+      const CACHE_KEY = "soteloVisaForm.v1";
+      let cacheTimer=null;
+      function by(id){ return document.getElementById(id); }
+      function scheduleLocalSave(){ clearTimeout(cacheTimer); cacheTimer = setTimeout(saveLocalCache, 400); }
+      function saveLocalCache(){
+        try{
+          const data = gather();
+          const cache = { updatedAt: new Date().toISOString(), data };
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        }catch(e){ /* almacenamiento puede fallar en modo privado */ }
+      }
+      function loadLocalCache(){
+        try{
+          const raw = localStorage.getItem(CACHE_KEY);
+          if(!raw) return null;
+          const obj = JSON.parse(raw);
+          return (obj && obj.data) ? obj : null;
+        }catch(e){ return null; }
+      }
+      function setSelectByText(id, text){
+        const el = by(id); if(!el || !text) return;
+        const target = text.trim().toUpperCase();
+        for(const opt of el.options){
+          const t = (opt.textContent || "").trim().toUpperCase();
+          if(t === target){ el.value = opt.value; return; }
+        }
+      }
+      function applyDataToUI(d){
+        if(!d) return;
+        const set = (id, v)=>{ const el=by(id); if(el!=null) el.value = (v==null?"":String(v)); };
+        const setSel = (id, v)=>{ const el=by(id); if(el!=null) el.value = (v||""); };
+        const setCB = (id, v)=>{ const el=by(id); if(el!=null) el.checked = !!v; };
+        const setRadio = (name, v)=>{ const r=document.querySelector(`input[name="${name}"][value="${v||"N"}"]`); if(r) r.checked=true; };
+
+        set("GIVEN_NAME", d.GIVEN_NAME);
+        set("SURNAME", d.SURNAME);
+        set("FULL_NAME_NATIVE", d.FULL_NAME_NATIVE);
+        setCB("FULL_NAME_NATIVE_NA", d.FULL_NAME_NATIVE_NA);
+
+        setSel("SEX", d.SEX);
+        setSel("MARITAL", d.MARITAL);
+
+        const dd = d.DOB_DAY ? String(d.DOB_DAY).padStart(2,"0") : "";
+        setSel("DOB_DAY", dd);
+        setSel("DOB_MONTH", d.DOB_MONTH);
+        set("DOB_YEAR", d.DOB_YEAR);
+
+        set("POB_CITY", d.POB_CITY);
+        set("POB_STATE_PROVINCE", d.POB_STATE_PROVINCE);
+        setCB("POB_STATE_NA", d.POB_STATE_NA);
+        setSelectByText("POB_CNTRY", d.POB_CNTRY);
+
+        setSelectByText("NATL", d.NATL);
+        setRadio("OTHER_NATL_IND", d.OTHER_NATL_IND || "N");
+        set("OTHER_NATL_LIST", d.OTHER_NATL_LIST || "");
+        setRadio("PERM_RES_OTHER_IND", d.PERM_RES_OTHER_IND || "N");
+        setSelectByText("PERM_RES_CNTRY", d.PERM_RES_CNTRY || "");
+
+        set("NATIONAL_ID", d.NATIONAL_ID || "");
+        setCB("NATIONAL_ID_NA", d.NATIONAL_ID_NA);
+
+        setCB("SSN_NA", d.SSN_NA);
+        if(d.SSN && !d.SSN_NA){
+          const parts = String(d.SSN).split("-");
+          set("SSN_1", parts[0] || "");
+          set("SSN_2", parts[1] || "");
+          set("SSN_3", parts[2] || "");
+        }
+
+        set("TAX_ID", d.TAX_ID || "");
+        setCB("TAX_ID_NA", d.TAX_ID_NA);
+      }
+      // ======== FIN Persistencia local ========
+
       let lastData="";
       let STATUS="EN_PROGRESO";
       let FINISHED_AT=null;
@@ -423,7 +498,6 @@
       let uploading=false;
       let uploadsTotal=0, uploadsDone=0, uploadsFailed=0;
 
-      function by(id){ return document.getElementById(id); }
       function up(v){ return (v||"").toString().trim().toUpperCase(); }
       function setMsg(t){ const m=by("msg"); if(m) m.textContent=t||""; }
       function setUploadStatus(t){ const u=by("uploadStatus"); if(u) u.textContent=t||""; }
@@ -760,20 +834,43 @@
 
       // ========= Registro de eventos =========
       document.addEventListener("DOMContentLoaded", ()=>{
+        // Restaurar borrador local si existe
+        const cached = loadLocalCache();
+        if(cached && cached.data){
+          applyDataToUI(cached.data);
+          refreshConditional();
+          toggleLock();
+          try{
+            const d = new Date(cached.updatedAt);
+            setMsg(`Borrador restaurado de este navegador (${d.toLocaleString()}).`);
+          }catch(_){ setMsg("Borrador restaurado de este navegador."); }
+        }
+
         ["GIVEN_NAME","SURNAME","FULL_NAME_NATIVE"].forEach(id=>{
-          const el=by(id); if(el) el.addEventListener("input", toggleLock);
+          const el=by(id); if(el) el.addEventListener("input", ()=>{ toggleLock(); scheduleLocalSave(); });
         });
 
+        // Guardar local en cualquier cambio de formulario
+        document.addEventListener("input", (e)=>{
+          if(e.target && (e.target.matches('input, textarea'))) scheduleLocalSave();
+        }, true);
+        document.addEventListener("change", (e)=>{
+          if(e.target && (e.target.matches('input, select, textarea'))){
+            refreshConditional();
+            scheduleLocalSave();
+          }
+        }, true);
+
         // Radios y checkboxes nuevos
-        document.querySelectorAll('input[name="OTHER_NATL_IND"]').forEach(r=>r.addEventListener("change", refreshConditional));
-        document.querySelectorAll('input[name="PERM_RES_OTHER_IND"]').forEach(r=>r.addEventListener("change", refreshConditional));
+        document.querySelectorAll('input[name="OTHER_NATL_IND"]').forEach(r=>r.addEventListener("change", ()=>{ refreshConditional(); scheduleLocalSave(); }));
+        document.querySelectorAll('input[name="PERM_RES_OTHER_IND"]').forEach(r=>r.addEventListener("change", ()=>{ refreshConditional(); scheduleLocalSave(); }));
         ["NATIONAL_ID_NA","SSN_NA","TAX_ID_NA"].forEach(id=>{
-          const el=by(id); if(el) el.addEventListener("change", refreshConditional);
+          const el=by(id); if(el) el.addEventListener("change", ()=>{ refreshConditional(); scheduleLocalSave(); });
         });
 
         // Validación numérica SSN
         ["SSN_1","SSN_2","SSN_3"].forEach(id=>{
-          const el=by(id); if(el) el.addEventListener("input", ()=>digitsOnly(el));
+          const el=by(id); if(el) el.addEventListener("input", ()=>{ digitsOnly(el); scheduleLocalSave(); });
         });
 
         // Botón Resumen
@@ -794,8 +891,11 @@
         refreshConditional();
         toggleLock();
 
-        // Guardado automático
-        setInterval(()=>{ saveIfChanged(false); }, 30000);
+        // Guardado automático remoto (cada 30s) y también a cache local
+        setInterval(()=>{
+          saveLocalCache();
+          saveIfChanged(false);
+        }, 30000);
 
         // Botón limpiar
         const clearBtn=by("clear");
@@ -818,6 +918,8 @@
             const list=by("uploadList"); if(list) list.innerHTML="";
             STATUS="EN_PROGRESO"; FINISHED_AT=null;
             toggleLock();
+
+            try{ localStorage.removeItem(CACHE_KEY); }catch(_){}
           });
         }
 
@@ -841,6 +943,7 @@
             STATUS="FINALIZADO";
             if(!FINISHED_AT) FINISHED_AT=new Date().toISOString();
 
+            saveLocalCache();
             await saveIfChanged(true);
             alert("Formulario finalizado. Puedes seguir editando (finalizado — editable).");
             toggleLock();
