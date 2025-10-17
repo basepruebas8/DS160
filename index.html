@@ -733,6 +733,45 @@
     (function(){
       const endpoint="https://script.google.com/macros/s/AKfycbxYeLAcfko8GGql3vlFMgE8tPGk2sycn9NDj_1QQACf_Op3u3Xjhz6A_0AhyvmJYo0N/exec";
 
+      // === PATCH hacia Apps Script (misma URL y clave que en Code.gs) ===
+      const API_URL = endpoint;
+      const API_KEY = "pon_un_secreto_largo_aqui"; // ⚠️ reemplaza por tu secreto
+
+      function setMsg(t){ const m=document.getElementById("msg"); if(m) m.textContent=t||""; }
+
+      // lee/guarda el FOLDER_ID desde ?fid=... o desde localStorage
+      function getFolderId(){
+        const p = new URLSearchParams(location.search);
+        const fid = p.get('fid');
+        if (fid) localStorage.setItem('st_folder_id', fid);
+        return fid || localStorage.getItem('st_folder_id') || "";
+      }
+
+      // manda SOLO lo que le pases en "fields"
+      async function sendPatch(fields, source){
+        const FOLDER_ID = getFolderId();
+        if(!FOLDER_ID){
+          setMsg("Falta FOLDER_ID. Abre esta página con ?fid=ID o guarda uno en localStorage.");
+          throw new Error("Falta FOLDER_ID");
+        }
+        const body = {
+          MODE: "PATCH",
+          API_KEY,
+          FOLDER_ID,
+          PATCH: fields,
+          SOURCE: source || "form"
+        };
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type":"text/plain" },
+          body: JSON.stringify(body)
+        });
+        const txt = await res.text();
+        let data; try{ data = JSON.parse(txt); }catch(_){ throw new Error("Respuesta no JSON: "+txt); }
+        if(!data.ok) throw new Error(data.error || "Error PATCH");
+        return data;
+      }
+
       // ======== NUEVO: Persistencia local (no perder al reabrir) ========
       const CACHE_KEY = "soteloVisaForm.v1";
       let cacheTimer=null;
@@ -872,7 +911,6 @@
       let uploadsTotal=0, uploadsDone=0, uploadsFailed=0;
 
       function up(v){ return (v||"").toString().trim().toUpperCase(); }
-      function setMsg(t){ const m=by("msg"); if(m) m.textContent=t||""; }
       function setUploadStatus(t){ const u=by("uploadStatus"); if(u) u.textContent=t||""; }
 
       /* UI de progreso */
@@ -1193,24 +1231,27 @@
         setMsg(ok ? "" : "Escribe Nombres, Apellidos y Nombre completo para habilitar subida y envío.");
       }
 
+      // === AHORA usa PATCH al guardar ===
       async function saveIfChanged(force=false){
-        const base=gather();
+        const base = gather();
         if(!hasMinimum(base)){
           setMsg("Escribe Nombres, Apellidos y Nombre completo para comenzar a guardar.");
           toggleLock();
           return;
         }
-        base.STATUS=STATUS;
-        if(FINISHED_AT) base.FINISHED_AT=FINISHED_AT;
-        const payload=JSON.stringify(base);
-        if(!force && payload===lastData) return;
-        lastData=payload;
+        base.STATUS = STATUS;
+        if (FINISHED_AT) base.FINISHED_AT = FINISHED_AT;
+
+        const payload = JSON.stringify(base);
+        if(!force && payload === lastData) return;
+        lastData = payload;
+
         try{
-          await fetch(endpoint,{method:"POST",body:payload,headers:{"Content-Type":"text/plain"}});
-          setMsg((STATUS==="FINALIZADO")?"Guardado (finalizado — editable).":"Guardado automático.");
+          await sendPatch(base, STATUS === "FINALIZADO" ? "finalizar" : "autosave");
+          setMsg(STATUS === "FINALIZADO" ? "Guardado (finalizado — editable)." : "Guardado automático.");
         }catch(e){
           setMsg("No se pudo guardar ahora. Se reintentará.");
-          console.warn("Error al guardar:", e);
+          console.warn("Error al guardar (PATCH):", e);
         }
       }
 
