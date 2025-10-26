@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DS-160 · Información personal 2</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 920px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .inline.nowrap { flex-wrap: nowrap; }
+
+    input[type="text"], select {
+      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    input[type="text"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
+    input.small { width: 64px; text-align: center; }
+
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Información personal 2</strong></div>
+      </header>
+
+      <form id="ds160-personal2" action="#" method="post">
+        <fieldset>
+          <legend>Información personal 2</legend>
+
+          <div class="row">
+            <label for="APP_NATL">País/Región de origen (nacionalidad)</label>
+            <select id="APP_NATL" name="APP_NATL" required>
+              <option value="">- Seleccione -</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label>¿Cuenta o ha contado con alguna otra nacionalidad distinta a la indicada arriba en “Nacionalidad”?</label>
+            <div class="inline" role="radiogroup" aria-label="Otra nacionalidad">
+              <label style="font-weight:400;"><input type="radio" name="OtherNationality" value="Y" id="OtherNationalityY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="OtherNationality" value="N" id="OtherNationalityN"> No</label>
+            </div>
+
+            <div id="otherNationalitySection" class="row" hidden>
+              <div class="row">
+                <label for="OTHER_NATL">Otra nacionalidad</label>
+                <select id="OTHER_NATL" name="OTHER_NATL"></select>
+              </div>
+              <p class="help">Indique cada otra nacionalidad que tenga o haya tenido.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>¿Es residente permanente de algún país/región diferente a su país/región de origen (nacionalidad) indicado arriba?</label>
+            <div class="inline" role="radiogroup" aria-label="Residente permanente en otro país/región">
+              <label style="font-weight:400;"><input type="radio" name="PermResidentOtherCountry" value="Y" id="PermResidentY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="PermResidentOtherCountry" value="N" id="PermResidentN"> No</label>
+            </div>
+
+            <div id="permResSection" class="row" hidden>
+              <div class="row">
+                <label for="PERM_RES_COUNTRY">País/Región donde es residente permanente</label>
+                <select id="PERM_RES_COUNTRY" name="PERM_RES_COUNTRY"></select>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Números de identificación</legend>
+
+          <div class="row">
+            <label for="APP_NATIONAL_ID">CURP</label>
+            <div class="inline nowrap">
+              <input type="text" id="APP_NATIONAL_ID" name="APP_NATIONAL_ID" maxlength="20" />
+              <label style="font-weight:400;">
+                <input type="checkbox" id="APP_NATIONAL_ID_NA" name="APP_NATIONAL_ID_NA"> No aplica
+              </label>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>Número de Seguro Social (EE. UU.)</label>
+            <div class="inline nowrap" aria-label="Número de Seguro Social (EE. UU.)">
+              <input type="text" id="APP_SSN1" class="small" inputmode="numeric" maxlength="3" aria-label="Primera parte del SSN" />
+              <span>-</span>
+              <input type="text" id="APP_SSN2" class="small" inputmode="numeric" maxlength="2" aria-label="Segunda parte del SSN" />
+              <span>-</span>
+              <input type="text" id="APP_SSN3" class="small" inputmode="numeric" maxlength="4" aria-label="Tercera parte del SSN" />
+              <label style="font-weight:400; margin-left:10px;">
+                <input type="checkbox" id="APP_SSN_NA" name="APP_SSN_NA"> No aplica
+              </label>
+            </div>
+            <p class="help" id="ssnHelp" hidden>Si ingresa alguna parte del SSN, complete las tres (3) partes: 3-2-4 dígitos.</p>
+          </div>
+
+          <div class="row">
+            <label for="APP_TAX_ID">Número de identificación del contribuyente (EE. UU.)</label>
+            <div class="inline nowrap">
+              <input type="text" id="APP_TAX_ID" name="APP_TAX_ID" maxlength="20" />
+              <label style="font-weight:400;">
+                <input type="checkbox" id="APP_TAX_ID_NA" name="APP_TAX_ID_NA"> No aplica
+              </label>
+            </div>
+          </div>
+
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const NEXT_URL = new URL('travel_3.html', window.location.href).href;
+    const BACK_URL = new URL('personal1.html', window.location.href).href;
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-personal2';
+
+    // Storage helpers
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else if (field.type === 'checkbox') {
+          localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return;
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else if (field.type === 'checkbox') {
+          field.checked = (v === '1');
+        } else {
+          field.value = v;
+        }
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+    function restoreForm(form) {
+      const fields = form.querySelectorAll('input,select,textarea');
+      fields.forEach(f => restoreField(f));
+    }
+    function digitsOnly(el, max) { el.value = el.value.replace(/\D/g,'').slice(0, max); }
+
+    // Populate countries
+    const COUNTRIES = [
+      "- Seleccione -",
+      "ARGENTINA","BELICE","BOLIVIA",
+      "CANADÁ","CHILE","COLOMBIA","COSTA RICA","CUBA",
+      "DOMINICA","ECUADOR","EL SALVADOR",
+      "ESTADOS UNIDOS","GUATEMALA","HONDURAS","MÉXICO",
+      "NICARAGUA","PANAMÁ","PARAGUAY","PERÚ",
+      "URUGUAY","UZBEKISTÁN","VANUATU","VENEZUELA"
+    ];
+    function fillCountrySelect(selectEl) {
+      selectEl.innerHTML = "";
+      COUNTRIES.forEach((name, i) => {
+        const opt = document.createElement('option');
+        opt.value = i === 0 ? "" : name;
+        opt.textContent = name;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    const form = document.getElementById(FORM_ID);
+    const selNatl = document.getElementById('APP_NATL');
+    const selOtherNatl = document.getElementById('OTHER_NATL');
+    const selPermCountry = document.getElementById('PERM_RES_COUNTRY');
+    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
+
+    function toggleSection(radioY, radioN, section, requiredEls = []) {
+      const update = () => {
+        const show = radioY.checked;
+        section.hidden = !show;
+        requiredEls.forEach(el => {
+          el.required = show;
+          if (!show) { el.value = ''; el.setCustomValidity(''); }
+        });
+      };
+      [radioY, radioN].forEach(r => r.addEventListener('change', update));
+      update();
+      return update;
+    }
+    function toggleNA(textInput, checkbox) {
+      const update = () => {
+        if (checkbox.checked) { textInput.disabled = true; textInput.value = ''; textInput.setCustomValidity(''); }
+        else { textInput.disabled = false; }
+      };
+      checkbox.addEventListener('change', update);
+      update();
+      return update;
+    }
+    function toggleNA3(inputs, checkbox) {
+      const update = () => {
+        inputs.forEach(inp => {
+          if (checkbox.checked) { inp.disabled = true; inp.value = ''; inp.setCustomValidity(''); }
+          else { inp.disabled = false; }
+        });
+        validateSSNGroup();
+      };
+      checkbox.addEventListener('change', update);
+      update();
+      return update;
+    }
+
+    const otherY = document.getElementById('OtherNationalityY');
+    const otherN = document.getElementById('OtherNationalityN');
+    const otherSection = document.getElementById('otherNationalitySection');
+    const permY = document.getElementById('PermResidentY');
+    const permN = document.getElementById('PermResidentN');
+    const permSection = document.getElementById('permResSection');
+    const natId = document.getElementById('APP_NATIONAL_ID');
+    const natIdNA = document.getElementById('APP_NATIONAL_ID_NA');
+    const ssn1 = document.getElementById('APP_SSN1');
+    const ssn2 = document.getElementById('APP_SSN2');
+    const ssn3 = document.getElementById('APP_SSN3');
+    const ssnNA = document.getElementById('APP_SSN_NA');
+    const ssnHelp = document.getElementById('ssnHelp');
+    const taxId = document.getElementById('APP_TAX_ID');
+    const taxIdNA = document.getElementById('APP_TAX_ID_NA');
+
+    // 1) Restore saved values BEFORE wiring UI
+    restoreForm(form);
+
+    // Wire toggles and capture refreshers
+    const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
+    const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
+    const refreshNat   = toggleNA(natId, natIdNA);
+    const refreshTax   = toggleNA(taxId, taxIdNA);
+    const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA);
+
+    // SSN only digits + validation
+    [ssn1, ssn2, ssn3].forEach((el, idx) => {
+      const lens = [3,2,4];
+      el.addEventListener('input', () => { digitsOnly(el, lens[idx]); validateSSNGroup(); });
+      el.addEventListener('blur',  validateSSNGroup);
+    });
+    function validateSSNGroup() {
+      [ssn1, ssn2, ssn3].forEach(el => el.setCustomValidity(''));
+      ssnHelp.hidden = true;
+      if (ssnNA.checked || ssn1.disabled) return;
+      const hasAny = [ssn1, ssn2, ssn3].some(el => el.value.trim().length > 0);
+      if (hasAny) {
+        const ok = (ssn1.value.length === 3 && ssn2.value.length === 2 && ssn3.value.length === 4);
+        if (!ok) { ssn3.setCustomValidity('SSN incompleto.'); ssnHelp.hidden = false; }
+      }
+    }
+
+    // After restore, recompute UI
+    refreshOther(); refreshPerm(); refreshNat(); refreshTax(); refreshSSN(); validateSSNGroup();
+
+    // Autosave on input/change
+    autosave(form);
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      validateSSNGroup();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
+    });
+  </script>
+</body>
+</html>
