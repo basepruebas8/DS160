@@ -1,4 +1,4 @@
-// main.ts — compatible con Deno Deploy (sin filesystem)
+// main.ts — Deno Deploy (sirve assets embebidos en el bundle)
 import { contentType } from "jsr:@std/media-types";
 
 function guessType(path: string) {
@@ -7,17 +7,17 @@ function guessType(path: string) {
 }
 
 async function serveAsset(pathname: string): Promise<Response> {
-  // Mapa de rutas conocidas; "/" -> personal1.html
   const routes: Record<string, string> = {
     "/": "./personal1.html",
     "/personal1.html": "./personal1.html",
     "/personal2.html": "./personal2.html",
+    "/travel_3.html": "./travel_3.html",      // ← NUEVA PÁGINA
     "/finalizar.html": "./finalizar.html",
     "/storage.js": "./storage.js",
     "/personal1.js": "./personal1.js",
   };
 
-  const asset = routes[pathname] ?? ("." + pathname); // fallback: mismo path
+  const asset = routes[pathname] ?? ("." + pathname);
   if (asset.includes("..")) return new Response("Not Found", { status: 404 });
 
   try {
