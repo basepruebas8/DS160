@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal 13</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
+    [hidden] { display: none !important; }
+
+    textarea, input[type="text"]{
+      width: 100%; max-width: 640px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      text-transform: uppercase;
+    }
+    textarea:focus, input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
+
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Seguridad y antecedentes — Parte 2</strong></div>
+      </header>
+
+      <form id="ds160-secback2" action="#" method="post" novalidate>
+        <!-- Campos ocultos extraídos -->
+        <input type="hidden" id="APPLICATION_ID" name="APPLICATION_ID" value="AA00F3A013" />
+        <input type="hidden" id="NODE" name="NODE" value="SecurityandBackground2" />
+
+        <fieldset>
+          <legend>Seguridad y antecedentes: Parte 2</legend>
+          <p class="help">Nota: Proporcione la información solicitada. Marcar “Sí” puede requerir una explicación y, en algunos casos, una comparecencia personal ante un funcionario consular.</p>
+
+          <!-- 1) Arrestos / condenas -->
+          <div class="row">
+            <label>¿Alguna vez ha sido arrestado(a) o condenado(a) por algún delito o crimen, aun cuando haya sido objeto de indulto, amnistía u otra acción similar?</label>
+            <div class="inline" role="radiogroup" aria-label="Arresto o condena">
+              <label style="font-weight:400;"><input type="radio" name="ARREST_IND" value="Y" id="ARREST_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="ARREST_IND" value="N" id="ARREST_N" checked> No</label>
+            </div>
+          </div>
+          <div id="ARREST_EXPLAIN_WRAP" class="row" hidden>
+            <label for="ARREST_EXPL">Explique</label>
+            <textarea id="ARREST_EXPL" name="ARREST_EXPL" rows="4" maxlength="4000" placeholder="DETALLES / FECHAS / JURISDICCIÓN / SITUACIÓN ACTUAL"></textarea>
+          </div>
+
+          <!-- 2) Sustancias controladas -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha violado alguna vez, o conspirado para violar, alguna ley relacionada con sustancias controladas?</label>
+            <div class="inline" role="radiogroup" aria-label="Sustancias controladas">
+              <label style="font-weight:400;"><input type="radio" name="SUBSTANCE_IND" value="Y" id="SUBSTANCE_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="SUBSTANCE_IND" value="N" id="SUBSTANCE_N" checked> No</label>
+            </div>
+          </div>
+          <div id="SUBSTANCE_EXPLAIN_WRAP" class="row" hidden>
+            <label for="SUBSTANCE_EXPL">Explique</label>
+            <textarea id="SUBSTANCE_EXPL" name="SUBSTANCE_EXPL" rows="4" maxlength="4000" placeholder="LEY / HECHOS / FECHAS / RESULTADO"></textarea>
+          </div>
+
+          <!-- 3) Prostitución / vicio comercializado -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Viene a Estados Unidos a participar en prostitución o vicio comercializado ilegal, o ha participado en prostitución o en el proxenetismo en los últimos 10 años?</label>
+            <div class="inline" role="radiogroup" aria-label="Prostitución o vicio">
+              <label style="font-weight:400;"><input type="radio" name="VICE_IND" value="Y" id="VICE_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="VICE_IND" value="N" id="VICE_N" checked> No</label>
+            </div>
+          </div>
+          <div id="VICE_EXPLAIN_WRAP" class="row" hidden>
+            <label for="VICE_EXPL">Explique</label>
+            <textarea id="VICE_EXPL" name="VICE_EXPL" rows="4" maxlength="4000" placeholder="DETALLES / FECHAS / LUGARES / PAPEL"></textarea>
+          </div>
+
+          <!-- 4) Lavado de dinero -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha estado involucrado(a) en lavado de dinero o busca realizarlo?</label>
+            <div class="inline" role="radiogroup" aria-label="Lavado de dinero">
+              <label style="font-weight:400;"><input type="radio" name="MONEY_LAUNDER_IND" value="Y" id="ML_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="MONEY_LAUNDER_IND" value="N" id="ML_N" checked> No</label>
+            </div>
+          </div>
+          <div id="MONEY_LAUNDER_EXPLAIN_WRAP" class="row" hidden>
+            <label for="MONEY_LAUNDER_EXPL">Explique</label>
+            <textarea id="MONEY_LAUNDER_EXPL" name="MONEY_LAUNDER_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / FECHAS / ORGANISMOS / ESTADO DEL CASO"></textarea>
+          </div>
+
+          <!-- 5) Tráfico de personas (autoría / conspiración) -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha cometido o conspirado para cometer un delito de tráfico de personas dentro o fuera de Estados Unidos?</label>
+            <div class="inline" role="radiogroup" aria-label="Tráfico de personas">
+              <label style="font-weight:400;"><input type="radio" name="HUMAN_TRAFFICKING_IND" value="Y" id="HT_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="HUMAN_TRAFFICKING_IND" value="N" id="HT_N" checked> No</label>
+            </div>
+          </div>
+          <div id="HUMAN_TRAFFICKING_EXPLAIN_WRAP" class="row" hidden>
+            <label for="HUMAN_TRAFFICKING_EXPL">Explique</label>
+            <textarea id="HUMAN_TRAFFICKING_EXPL" name="HUMAN_TRAFFICKING_EXPL" rows="4" maxlength="4000" placeholder="DELITO / LUGAR / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 6) Ayuda/complicidad en tráfico de personas grave -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha ayudado, instigado, asistido o coludido a sabiendas con una persona que haya cometido o conspirado para cometer un delito grave de tráfico de personas dentro o fuera de Estados Unidos?</label>
+            <div class="inline" role="radiogroup" aria-label="Asistencia en tráfico de personas grave">
+              <label style="font-weight:400;"><input type="radio" name="ASSIST_PERSON_TRAFFIC_IND" value="Y" id="APT_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="ASSIST_PERSON_TRAFFIC_IND" value="N" id="APT_N" checked> No</label>
+            </div>
+          </div>
+          <div id="ASSIST_PERSON_TRAFFIC_EXPLAIN_WRAP" class="row" hidden>
+            <label for="ASSIST_PERSON_TRAFFIC_EXPL">Explique</label>
+            <textarea id="ASSIST_PERSON_TRAFFIC_EXPL" name="ASSIST_PERSON_TRAFFIC_EXPL" rows="4" maxlength="4000" placeholder="PERSONA / CONDUCTA / FECHAS / CONTEXTO"></textarea>
+          </div>
+
+          <!-- 7) Familiar que se beneficia del tráfico de personas -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Es usted cónyuge, hijo o hija de una persona que ha cometido o conspirado para cometer tráfico de personas y, dentro de los últimos 5 años, se ha beneficiado a sabiendas de dichas actividades?</label>
+            <div class="inline" role="radiogroup" aria-label="Pariente beneficiado de tráfico de personas">
+              <label style="font-weight:400;"><input type="radio" name="HUMAN_TRAFFICKING_RELATED_IND" value="Y" id="HTR_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="HUMAN_TRAFFICKING_RELATED_IND" value="N" id="HTR_N" checked> No</label>
+            </div>
+          </div>
+          <div id="HUMAN_TRAFFICKING_RELATED_EXPLAIN_WRAP" class="row" hidden>
+            <label for="HUMAN_TRAFFICKING_RELATED_EXPL">Explique</label>
+            <textarea id="HUMAN_TRAFFICKING_RELATED_EXPL" name="HUMAN_TRAFFICKING_RELATED_EXPL" rows="4" maxlength="4000" placeholder="RELACIÓN / BENEFICIO / FECHAS / DETALLES"></textarea>
+          </div>
+
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navegación solicitada
+    const NEXT_URL = new URL('personal14.html', window.location.href).href;
+    const BACK_URL = new URL('personal12.html', window.location.href).href;
+
+    // Autosave en localStorage (mismo patrón del archivo de referencia)
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-secback2';
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else if (field.type === 'checkbox') {
+          localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return;
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else if (field.type === 'checkbox') {
+          field.checked = (v === '1');
+        } else {
+          field.value = v;
+        }
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+
+    // Referencias
+    const form = document.getElementById(FORM_ID);
+
+    const ARREST_Y = document.getElementById('ARREST_Y');
+    const ARREST_N = document.getElementById('ARREST_N');
+    const ARREST_WRAP = document.getElementById('ARREST_EXPLAIN_WRAP');
+    const ARREST_EXPL = document.getElementById('ARREST_EXPL');
+
+    const SUB_Y = document.getElementById('SUBSTANCE_Y');
+    const SUB_N = document.getElementById('SUBSTANCE_N');
+    const SUB_WRAP = document.getElementById('SUBSTANCE_EXPLAIN_WRAP');
+    const SUB_EXPL = document.getElementById('SUBSTANCE_EXPL');
+
+    const VICE_Y = document.getElementById('VICE_Y');
+    const VICE_N = document.getElementById('VICE_N');
+    const VICE_WRAP = document.getElementById('VICE_EXPLAIN_WRAP');
+    const VICE_EXPL = document.getElementById('VICE_EXPL');
+
+    const ML_Y = document.getElementById('ML_Y');
+    const ML_N = document.getElementById('ML_N');
+    const ML_WRAP = document.getElementById('MONEY_LAUNDER_EXPLAIN_WRAP');
+    const ML_EXPL = document.getElementById('MONEY_LAUNDER_EXPL');
+
+    const HT_Y = document.getElementById('HT_Y');
+    const HT_N = document.getElementById('HT_N');
+    const HT_WRAP = document.getElementById('HUMAN_TRAFFICKING_EXPLAIN_WRAP');
+    const HT_EXPL = document.getElementById('HUMAN_TRAFFICKING_EXPL');
+
+    const APT_Y = document.getElementById('APT_Y');
+    const APT_N = document.getElementById('APT_N');
+    const APT_WRAP = document.getElementById('ASSIST_PERSON_TRAFFIC_EXPLAIN_WRAP');
+    const APT_EXPL = document.getElementById('ASSIST_PERSON_TRAFFIC_EXPL');
+
+    const HTR_Y = document.getElementById('HTR_Y');
+    const HTR_N = document.getElementById('HTR_N');
+    const HTR_WRAP = document.getElementById('HUMAN_TRAFFICKING_RELATED_EXPLAIN_WRAP');
+    const HTR_EXPL = document.getElementById('HUMAN_TRAFFICKING_RELATED_EXPL');
+
+    // Sólo MAYÚSCULAS en campos de escritura
+    function upperize(el){
+      const start = el.selectionStart, end = el.selectionEnd;
+      el.value = (el.value || '').toUpperCase();
+      try { el.setSelectionRange(start, end); } catch(e){}
+    }
+    [ARREST_EXPL, SUB_EXPL, VICE_EXPL, ML_EXPL, HT_EXPL, APT_EXPL, HTR_EXPL].forEach(el => {
+      el.addEventListener('input', () => upperize(el));
+      if (el && el.value) upperize(el);
+    });
+
+    // Mostrar/ocultar secciones de explicación + required según "Sí/No"
+    function toggleExplain(radioYes, wrap, textarea){
+      const show = radioYes.checked;
+      wrap.hidden = !show;
+      textarea.required = show;
+      if (!show){ textarea.setCustomValidity(''); }
+    }
+    function attachGroup(rYes, rNo, wrap, txt){
+      const update = () => toggleExplain(rYes, wrap, txt);
+      rYes.addEventListener('change', update);
+      rNo.addEventListener('change', update);
+      update();
+    }
+
+    // Restaurar valores guardados
+    (function restoreForm(){
+      const fields = form.querySelectorAll('input,select,textarea');
+      fields.forEach(f => restoreField(f));
+    })();
+
+    // Asegurar por defecto "No" tildado si no hay dato guardado
+    const defaults = [
+      ['ARREST_IND', ARREST_N],
+      ['SUBSTANCE_IND', SUB_N],
+      ['VICE_IND', VICE_N],
+      ['MONEY_LAUNDER_IND', ML_N],
+      ['HUMAN_TRAFFICKING_IND', HT_N],
+      ['ASSIST_PERSON_TRAFFIC_IND', APT_N],
+      ['HUMAN_TRAFFICKING_RELATED_IND', HTR_N],
+    ];
+    defaults.forEach(([name, rNo]) => {
+      if (!localStorage.getItem(STORAGE_PREFIX + FORM_ID + ':' + name)) rNo.checked = true;
+    });
+
+    // Enlazar lógicas de despliegue
+    attachGroup(ARREST_Y, ARREST_N, ARREST_WRAP, ARREST_EXPL);
+    attachGroup(SUB_Y,    SUB_N,    SUB_WRAP,    SUB_EXPL);
+    attachGroup(VICE_Y,   VICE_N,   VICE_WRAP,   VICE_EXPL);
+    attachGroup(ML_Y,     ML_N,     ML_WRAP,     ML_EXPL);
+    attachGroup(HT_Y,     HT_N,     HT_WRAP,     HT_EXPL);
+    attachGroup(APT_Y,    APT_N,    APT_WRAP,    APT_EXPL);
+    attachGroup(HTR_Y,    HTR_N,    HTR_WRAP,    HTR_EXPL);
+
+    // Activar autosave
+    autosave(form);
+
+    // Validación ligera antes de continuar
+    function checkForm(){
+      return form.checkValidity();
+    }
+
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (!checkForm()){
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
+    });
+  </script>
+</body>
+</html>
