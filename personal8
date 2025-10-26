@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal 8</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height:1.45;
+      color:var(--text);
+      background:var(--bg);
+      background-image: var(--bg-grad);
+    }
+    .wrap{max-width:960px;margin:32px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);backdrop-filter:saturate(120%) blur(4px)}
+
+    header h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:-.01em}
+    .subtle{color:var(--muted);font-size:.95rem;margin-bottom:18px}
+
+    fieldset{border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
+    legend{font-weight:700;padding:0 10px;font-size:.98rem}
+    legend::after{
+      content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:999px;
+      background:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+    label{display:inline-block;margin:8px 0 6px;font-weight:600}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .help{font-size:.9rem;color:var(--muted);margin-top:2px}
+    .note{font-size:.9rem;color:var(--muted)}
+
+    select,input[type="text"],input[type="number"]{
+      width:100%;max-width:560px;padding:10px 12px;border:1px solid var(--border);
+      border-radius:12px;background:var(--card);color:var(--text);outline:none;
+      transition:border-color .15s ease, box-shadow .15s ease, transform .06s ease;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent)}
+    .date{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .date select{max-width:110px}
+
+    .hide{display:none !important;}
+
+    /* listas dinámicas */
+    .list-item{display:grid;grid-template-columns:1.1fr 1.1fr auto;gap:10px;align-items:end}
+    .remove{border-color:#ef4444;color:#ef4444}
+    .remove:hover{background:#ef44441a}
+
+    /* acciones */
+    .actions{margin-top:18px;display:flex;gap:12px;align-items:center;border-top:1px dashed var(--border);padding-top:16px}
+    button{
+      padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);
+      cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;
+      transition:transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary{background:linear-gradient(180deg, var(--accent), var(--accent-600));color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(37,99,235,.35)}
+    button.primary:hover{background:linear-gradient(180deg, var(--accent-600), var(--accent-700));transform:translateY(-0.5px)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Familia — Parientes</strong></div>
+      </header>
+
+      <form id="ds160-family-relatives">
+        <!-- PADRE -->
+        <fieldset>
+          <legend>Padre</legend>
+
+          <div class="grid-2">
+            <div>
+              <label>Fecha de nacimiento del padre</label>
+              <div class="date">
+                <select name="FATHER_DOB_DAY" id="FATHER_DOB_DAY" required aria-required="true">
+                  <option value="">- DD -</option>
+                  <option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
+                  <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
+                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
+                  <option>31</option>
+                </select>
+                <select name="FATHER_DOB_MON" id="FATHER_DOB_MON" required aria-required="true">
+                  <option value="">- MMM -</option>
+                  <option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option><option>MAY</option><option>JUN</option>
+                  <option>JUL</option><option>AUG</option><option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
+                </select>
+                <select name="FATHER_DOB_YEAR" id="FATHER_DOB_YEAR" required aria-required="true"></select>
+              </div>
+              <p class="help">Formato: DD-MMM-YYYY (ej.: 07-MAY-1970)</p>
+            </div>
+            <div>
+              <label>¿Su padre se encuentra en los Estados Unidos?</label>
+              <div class="inline" role="radiogroup" aria-label="Padre en EE. UU.">
+                <label style="font-weight:400;"><input type="radio" name="FATHER_IN_US" id="FATHER_Y" value="Y"> Sí</label>
+                <label style="font-weight:400;"><input type="radio" name="FATHER_IN_US" id="FATHER_N" value="N" checked required> No</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desplegable si “Sí” -->
+          <div id="FatherUSDetails" class="row hide">
+            <div>
+              <label for="FATHER_US_STATUS">Estatus del padre en EE. UU.</label>
+              <select id="FATHER_US_STATUS" name="FATHER_US_STATUS">
+                <option value="">- Selecciona -</option>
+                <option value="US_CITIZEN">Ciudadano estadounidense</option>
+                <option value="LPR">Residente permanente legal (Green Card)</option>
+                <option value="OTHER">Otro (no inmigrante / se desconoce)</option>
+              </select>
+              <p class="note">Se muestra solo si respondió “Sí”.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- MADRE -->
+        <fieldset>
+          <legend>Madre</legend>
+
+          <div class="grid-2">
+            <div>
+              <label>Fecha de nacimiento de la madre</label>
+              <div class="date">
+                <select name="MOTHER_DOB_DAY" id="MOTHER_DOB_DAY" required aria-required="true">
+                  <option value="">- DD -</option>
+                  <option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
+                  <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
+                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option>
+                  <option>31</option>
+                </select>
+                <select name="MOTHER_DOB_MON" id="MOTHER_DOB_MON" required aria-required="true">
+                  <option value="">- MMM -</option>
+                  <option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option><option>MAY</option><option>JUN</option>
+                  <option>JUL</option><option>AUG</option><option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
+                </select>
+                <select name="MOTHER_DOB_YEAR" id="MOTHER_DOB_YEAR" required aria-required="true"></select>
+              </div>
+              <p class="help">Formato: DD-MMM-YYYY (ej.: 12-DEC-1975)</p>
+            </div>
+            <div>
+              <label>¿Su madre se encuentra en los Estados Unidos?</label>
+              <div class="inline" role="radiogroup" aria-label="Madre en EE. UU.">
+                <label style="font-weight:400;"><input type="radio" name="MOTHER_IN_US" id="MOTHER_Y" value="Y"> Sí</label>
+                <label style="font-weight:400;"><input type="radio" name="MOTHER_IN_US" id="MOTHER_N" value="N" checked required> No</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desplegable si “Sí” -->
+          <div id="MotherUSDetails" class="row hide">
+            <div>
+              <label for="MOTHER_US_STATUS">Estatus de la madre en EE. UU.</label>
+              <select id="MOTHER_US_STATUS" name="MOTHER_US_STATUS">
+                <option value="">- Selecciona -</option>
+                <option value="US_CITIZEN">Ciudadana estadounidense</option>
+                <option value="LPR">Residente permanente legal (Green Card)</option>
+                <option value="OTHER">Otro (no inmigrante / se desconoce)</option>
+              </select>
+              <p class="note">Se muestra solo si respondió “Sí”.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- PARIENTES INMEDIATOS EN EE. UU. -->
+        <fieldset>
+          <legend>Parientes inmediatos en EE. UU.</legend>
+          <div class="row">
+            <label>¿Tiene algún pariente inmediato (sin incluir a los padres) en los Estados Unidos?</label>
+            <div class="inline" role="radiogroup" aria-label="Parientes inmediatos en EE. UU.">
+              <label style="font-weight:400;"><input type="radio" name="US_IMMEDIATE_RELATIVE" id="REL_Y" value="Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="US_IMMEDIATE_RELATIVE" id="REL_N" value="N" checked required> No</label>
+            </div>
+            <p class="help">“Pariente inmediato” = prometido/a, cónyuge, hijo/a o hermano/a.</p>
+          </div>
+
+          <!-- Bloque condicional con desplegables -->
+          <div id="RelativesBlock" class="row hide">
+            <div id="RelativesList" class="row"></div>
+            <div class="inline" style="margin-top:8px;">
+              <button type="button" id="AddRelativeBtn">Agregar pariente</button>
+            </div>
+            <p class="note">Agregue cada pariente inmediato. Los campos de <em>Parentesco</em> y <em>Estatus en EE. UU.</em> son obligatorios.</p>
+          </div>
+        </fieldset>
+
+        <!-- OTROS FAMILIARES EN EE. UU. (SOLO SÍ/NO) -->
+        <fieldset>
+          <legend>Otros familiares en EE. UU.</legend>
+          <div class="row">
+            <label>¿Tiene usted otros familiares en los Estados Unidos?</label>
+            <div class="inline" role="radiogroup" aria-label="Otros familiares en EE. UU.">
+              <label style="font-weight:400;"><input type="radio" name="OTHER_RELATIVES_US" id="OTHER_REL_Y" value="Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="OTHER_RELATIVES_US" id="OTHER_REL_N" value="N" checked required> No</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Acciones -->
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ===== Navegación solicitada =====
+    const BACK_URL = 'personal7.html';
+    const NEXT_URL = 'personal9.html';
+
+    // ===== Utilidades =====
+    const STORAGE_KEY = 'DS160_FAMILY_RELATIVES_V1';
+
+    // Años (1900 → actual)
+    function fillYearSelect(id, start=1900){
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const now = new Date().getFullYear();
+      sel.innerHTML = '<option value="">- Año -</option>';
+      for (let y = now; y >= start; y--){
+        const opt = document.createElement('option');
+        opt.value = String(y);
+        opt.textContent = String(y);
+        sel.appendChild(opt);
+      }
+    }
+    fillYearSelect('FATHER_DOB_YEAR', 1900);
+    fillYearSelect('MOTHER_DOB_YEAR', 1900);
+
+    // Siempre MAYÚSCULAS para texto ingresado
+    document.addEventListener('input', (e) => {
+      const t = e.target;
+      if (t.matches('input[type="text"], textarea')){
+        const start = t.selectionStart, end = t.selectionEnd;
+        t.value = t.value.toUpperCase();
+        // Restaurar cursor
+        if (typeof start === 'number' && typeof end === 'number'){
+          t.setSelectionRange(start, end);
+        }
+      }
+    }, {capture:true});
+
+    // ===== Referencias =====
+    const form = document.getElementById('ds160-family-relatives');
+
+    const fatherBlock  = document.getElementById('FatherUSDetails');
+    const fatherStatus = document.getElementById('FATHER_US_STATUS');
+
+    const motherBlock  = document.getElementById('MotherUSDetails');
+    const motherStatus = document.getElementById('MOTHER_US_STATUS');
+
+    const relBlock   = document.getElementById('RelativesBlock');
+    const relList    = document.getElementById('RelativesList');
+    const addRelBtn  = document.getElementById('AddRelativeBtn');
+
+    function setRequired(el, on){
+      if (!el) return;
+      el.required = !!on;
+      if (!on) el.setCustomValidity('');
+    }
+
+    // ===== Mostrar/ocultar bloques condicionales =====
+    function updateFather(){
+      const choice = document.querySelector('input[name="FATHER_IN_US"]:checked');
+      const show = !!choice && choice.value === 'Y';
+      fatherBlock.classList.toggle('hide', !show);
+      setRequired(fatherStatus, show);
+      if (!show) fatherStatus.value = '';
+    }
+    function updateMother(){
+      const choice = document.querySelector('input[name="MOTHER_IN_US"]:checked');
+      const show = !!choice && choice.value === 'Y';
+      motherBlock.classList.toggle('hide', !show);
+      setRequired(motherStatus, show);
+      if (!show) motherStatus.value = '';
+    }
+    function updateRelatives(){
+      const choice = document.querySelector('input[name="US_IMMEDIATE_RELATIVE"]:checked');
+      const show = !!choice && choice.value === 'Y';
+      relBlock.classList.toggle('hide', !show);
+      if (show && relList.children.length === 0) addRelative();
+      if (!show) relList.innerHTML = '';
+    }
+
+    document.addEventListener('change', (e) => {
+      if (e.target && e.target.name === 'FATHER_IN_US') updateFather();
+      if (e.target && e.target.name === 'MOTHER_IN_US') updateMother();
+      if (e.target && e.target.name === 'US_IMMEDIATE_RELATIVE') updateRelatives();
+      // Persistir en cualquier cambio
+      persistNow();
+    });
+
+    // ===== Lista dinámica: Parientes inmediatos =====
+    function relationshipSelectImmediate(){
+      const s = document.createElement('select');
+      s.name = 'REL_TYPE';
+      s.required = true;
+      s.innerHTML = `
+        <option value="">- Parentesco -</option>
+        <option value="FIANCE">PROMETIDO/A</option>
+        <option value="SPOUSE">CÓNYUGE</option>
+        <option value="CHILD">HIJO/A</option>
+        <option value="SIBLING">HERMANO/A</option>
+      `;
+      return s;
+    }
+    function statusSelectCommon(name='REL_US_STATUS'){
+      const s = document.createElement('select');
+      s.name = name;
+      s.required = true;
+      s.innerHTML = `
+        <option value="">- Estatus en EE. UU. -</option>
+        <option value="US_CITIZEN">CIUDADANO/A ESTADOUNIDENSE</option>
+        <option value="LPR">RESIDENTE PERMANENTE LEGAL (GREEN CARD)</option>
+        <option value="OTHER">OTRO (NO INMIGRANTE / SE DESCONOCE)</option>
+      `;
+      return s;
+    }
+    function makeRelativeItem(relValue='', statusValue=''){
+      const wrap = document.createElement('div');
+      wrap.className = 'list-item';
+
+      const f1 = document.createElement('div');
+      const l1 = document.createElement('label'); l1.textContent = 'Parentesco';
+      const s1 = relationshipSelectImmediate();
+      if (relValue) s1.value = relValue;
+
+      const f2 = document.createElement('div');
+      const l2 = document.createElement('label'); l2.textContent = 'Estatus en EE. UU.';
+      const s2 = statusSelectCommon('REL_US_STATUS');
+      if (statusValue) s2.value = statusValue;
+
+      s1.addEventListener('change', persistNow);
+      s2.addEventListener('change', persistNow);
+
+      f1.appendChild(l1); f1.appendChild(s1);
+      f2.appendChild(l2); f2.appendChild(s2);
+
+      const f3 = document.createElement('div');
+      const btn = document.createElement('button'); btn.type='button'; btn.className='remove'; btn.textContent='Eliminar';
+      btn.addEventListener('click', ()=>{
+        relList.removeChild(wrap);
+        refreshRemoveButtons(relList);
+        persistNow();
+      });
+      f3.appendChild(btn);
+
+      wrap.appendChild(f1); wrap.appendChild(f2); wrap.appendChild(f3);
+      return wrap;
+    }
+    function addRelative(){
+      relList.appendChild(makeRelativeItem());
+      refreshRemoveButtons(relList);
+      persistNow();
+    }
+    function refreshRemoveButtons(container){
+      const items = [...container.children];
+      const hide = items.length <= 1;
+      items.forEach(i => {
+        const b = i.querySelector('button.remove'); if (b) b.style.visibility = hide ? 'hidden' : 'visible';
+      });
+    }
+    if (addRelBtn) addRelBtn.addEventListener('click', addRelative);
+
+    // ===== Persistencia localStorage =====
+    function collectData(){
+      const getVal = id => (document.getElementById(id)?.value ?? '');
+
+      const getRadio = name => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : '';
+      };
+
+      const relatives = [...relList.children].map(item => {
+        return {
+          REL_TYPE: item.querySelector('select[name="REL_TYPE"]')?.value || '',
+          REL_US_STATUS: item.querySelector('select[name="REL_US_STATUS"]')?.value || ''
+        };
+      });
+
+      const data = {
+        FATHER_DOB_DAY: getVal('FATHER_DOB_DAY'),
+        FATHER_DOB_MON: getVal('FATHER_DOB_MON'),
+        FATHER_DOB_YEAR: getVal('FATHER_DOB_YEAR'),
+        FATHER_IN_US: getRadio('FATHER_IN_US'),
+        FATHER_US_STATUS: getVal('FATHER_US_STATUS'),
+
+        MOTHER_DOB_DAY: getVal('MOTHER_DOB_DAY'),
+        MOTHER_DOB_MON: getVal('MOTHER_DOB_MON'),
+        MOTHER_DOB_YEAR: getVal('MOTHER_DOB_YEAR'),
+        MOTHER_IN_US: getRadio('MOTHER_IN_US'),
+        MOTHER_US_STATUS: getVal('MOTHER_US_STATUS'),
+
+        US_IMMEDIATE_RELATIVE: getRadio('US_IMMEDIATE_RELATIVE'),
+        OTHER_RELATIVES_US: getRadio('OTHER_RELATIVES_US'),
+
+        relatives
+      };
+      return data;
+    }
+
+    function applyData(data){
+      const setSelect = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      const setRadio  = (name, val) => {
+        if (!val) return;
+        const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+        if (el) el.checked = true;
+      };
+
+      setSelect('FATHER_DOB_DAY',  data.FATHER_DOB_DAY);
+      setSelect('FATHER_DOB_MON',  data.FATHER_DOB_MON);
+      setSelect('FATHER_DOB_YEAR', data.FATHER_DOB_YEAR);
+      setRadio ('FATHER_IN_US',    data.FATHER_IN_US);
+      setSelect('FATHER_US_STATUS',data.FATHER_US_STATUS);
+
+      setSelect('MOTHER_DOB_DAY',  data.MOTHER_DOB_DAY);
+      setSelect('MOTHER_DOB_MON',  data.MOTHER_DOB_MON);
+      setSelect('MOTHER_DOB_YEAR', data.MOTHER_DOB_YEAR);
+      setRadio ('MOTHER_IN_US',    data.MOTHER_IN_US);
+      setSelect('MOTHER_US_STATUS',data.MOTHER_US_STATUS);
+
+      setRadio('US_IMMEDIATE_RELATIVE', data.US_IMMEDIATE_RELATIVE);
+      setRadio('OTHER_RELATIVES_US',    data.OTHER_RELATIVES_US);
+
+      // Reconstruir lista de parientes
+      relList.innerHTML = '';
+      if (Array.isArray(data.relatives) && data.relatives.length){
+        data.relatives.forEach(r => {
+          relList.appendChild(makeRelativeItem(r.REL_TYPE, r.REL_US_STATUS));
+        });
+      }
+      refreshRemoveButtons(relList);
+
+      // Mostrar/ocultar según radios restaurados
+      updateFather(); updateMother(); updateRelatives();
+    }
+
+    function persistNow(){
+      try{
+        const data = collectData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }catch(e){
+        // silencio intencional
+      }
+    }
+
+    function restoreFromStorage(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          // Estado inicial: radios ya vienen en NO
+          updateFather(); updateMother(); updateRelatives();
+          return;
+        }
+        const data = JSON.parse(raw);
+        applyData(data);
+      }catch(e){
+        updateFather(); updateMother(); updateRelatives();
+      }
+    }
+
+    // Guardar al cerrar/recargar
+    window.addEventListener('beforeunload', persistNow);
+
+    // También guardar en cualquier cambio de control
+    document.addEventListener('change', persistNow);
+    document.addEventListener('input', persistNow);
+
+    // ===== Validaciones extra al avanzar =====
+    function radiosOk(){
+      const groups = ['FATHER_IN_US','MOTHER_IN_US','US_IMMEDIATE_RELATIVE','OTHER_RELATIVES_US'];
+      for (const g of groups){
+        if (!document.querySelector(`input[name="${g}"]:checked`)) return false;
+      }
+      return true;
+    }
+    function conditionalOk(){
+      if (document.querySelector('input[name="FATHER_IN_US"]:checked')?.value === 'Y' && !fatherStatus.value) return false;
+      if (document.querySelector('input[name="MOTHER_IN_US"]:checked')?.value === 'Y' && !motherStatus.value) return false;
+
+      if (document.querySelector('input[name="US_IMMEDIATE_RELATIVE"]:checked')?.value === 'Y'){
+        const items = [...relList.children];
+        if (items.length === 0) return false;
+        for (const it of items){
+          const relSel = it.querySelector('select[name="REL_TYPE"]');
+          const stSel  = it.querySelector('select[name="REL_US_STATUS"]');
+          if (!relSel.value || !stSel.value) return false;
+        }
+      }
+      return true;
+    }
+
+    // ===== Botones =====
+    document.getElementById('backBtn').addEventListener('click', () => {
+      persistNow();
+      window.location.href = BACK_URL;
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      // Validación nativa del navegador
+      if (!form.reportValidity()) return;
+
+      // Validaciones personalizadas
+      if (!radiosOk()){
+        alert('Por favor, responda todas las preguntas con opciones SÍ/NO.');
+        return;
+      }
+      if (!conditionalOk()){
+        alert('Complete los campos obligatorios que aparecen al elegir “SÍ”.');
+        return;
+      }
+
+      // Guardar estado y navegar
+      persistNow();
+      window.location.href = NEXT_URL;
+    });
+
+    // ===== Inicializar =====
+    restoreFromStorage();
+  </script>
+</body>
+</html>
