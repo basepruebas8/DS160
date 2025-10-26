@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal 10</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .inline.nowrap { flex-wrap: nowrap; }
+
+    input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select, textarea {
+      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
+    select.small { max-width: 420px; }
+
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
+
+    .item { border:1px dashed var(--border); border-radius:12px; padding:12px; margin:6px 0; }
+    .item-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .item-title { font-weight:700; }
+    .remove { border-color:#ef4444; color:#ef4444; }
+    .remove:hover{ background:#ef44441a; }
+
+    .warn { font-size:.9rem; color:#b91c1c; }
+
+    /* Estilos de botones-enlace */
+    a.btn {
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    a.btn.primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-600));
+      color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35);
+    }
+    a.btn.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Trabajo / Educación / Capacitación — Anteriores</strong></div>
+      </header>
+
+      <form id="ds160-work-previous" action="#" method="post" novalidate>
+        <fieldset>
+          <legend>Empleo anterior</legend>
+          <p class="help">Nota: Proporcione su información de empleo de los últimos cinco años, si corresponde.</p>
+
+          <!-- ¿Previamente empleado? -->
+          <div class="row">
+            <label>¿Ha estado previamente empleado?</label>
+            <div class="inline" role="radiogroup" aria-label="Empleo anterior">
+              <label style="font-weight:400;"><input type="radio" name="PrevEmployed" value="Y" id="PrevEmployedY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="PrevEmployed" value="N" id="PrevEmployedN"> No</label>
+            </div>
+            <p id="dupEmpMsg" class="warn" hidden>Ya existe un empleo con el mismo <em>empleador</em> y <em>periodo</em>. Revise la información.</p>
+          </div>
+
+          <!-- Lista dinámica de empleos -->
+          <div id="employmentSection" class="row" hidden>
+            <div id="employmentList" class="row"></div>
+            <div class="inline">
+              <button type="button" id="addEmploymentBtn">Agregar empleo</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Educación (secundaria o superior)</legend>
+
+          <!-- Pregunta principal -->
+          <div class="row">
+            <label>¿Ha asistido a alguna institución educativa a nivel <em>secundario</em> o superior?</label>
+            <div class="inline" role="radiogroup" aria-label="Educación secundaria o superior">
+              <label style="font-weight:400;"><input type="radio" name="OtherEduc" value="Y" id="OtherEducY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="OtherEduc" value="N" id="OtherEducN"> No</label>
+            </div>
+          </div>
+
+          <div class="help" style="margin-top:-4px;">
+            Debe responder <strong>Sí</strong> si alguna vez asistió, por cualquier periodo, a una escuela secundaria/preparatoria,
+            universidad, posgrado, doctorado o programa técnico/vocacional.
+          </div>
+
+          <div class="row" style="margin-top:8px;">
+            <p id="dupEduMsg" class="warn" hidden>Ya existe una institución con el mismo <em>nombre</em> y <em>periodo</em>. Revise la información.</p>
+          </div>
+
+          <!-- Lista dinámica de educación -->
+          <div id="educationSection" class="row" hidden>
+            <div id="educationList" class="row"></div>
+            <div class="inline">
+              <button type="button" id="addEducationBtn">Agregar institución</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <!-- Enlaces con fallback nativo del navegador -->
+          <a id="backLink" class="btn" href="DS160_9.html">Regresar</a>
+          <a id="nextLink" class="btn primary" href="DS160_11.html">Siguiente</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ===== Persistencia ===== */
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-work-previous';
+
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else if (field.type === 'checkbox') {
+          localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return;
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else if (field.type === 'checkbox') {
+          field.checked = (v === '1');
+        } else {
+          field.value = v;
+        }
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+    function restoreForm(form) {
+      const fields = form.querySelectorAll('input,select,textarea');
+      fields.forEach(f => restoreField(f));
+    }
+
+    /* ===== Catálogos ===== */
+    const US_STATES = [
+      "", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV",
+      "NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC","PR","GU","VI"
+    ];
+
+    const COUNTRIES = [
+      {c:"", n:"- Seleccione -"},
+      {c:"US", n:"ESTADOS UNIDOS"},
+      {c:"MX", n:"MÉXICO"},
+      {c:"CA", n:"CANADÁ"},
+      {c:"AR", n:"ARGENTINA"},
+      {c:"BR", n:"BRASIL"},
+      {c:"CL", n:"CHILE"},
+      {c:"CO", n:"COLOMBIA"},
+      {c:"CR", n:"COSTA RICA"},
+      {c:"ES", n:"ESPAÑA"},
+      {c:"FR", n:"FRANCIA"},
+      {c:"GB", n:"REINO UNIDO"},
+      {c:"DE", n:"ALEMANIA"},
+      {c:"IT", n:"ITALIA"},
+      {c:"JP", n:"JAPÓN"},
+      {c:"CN", n:"CHINA"}
+    ];
+
+    function populateStateSelect(selectEl){
+      selectEl.innerHTML = '';
+      US_STATES.forEach(code => {
+        const o = document.createElement('option');
+        o.value = code;
+        o.textContent = code ? code : "- Seleccione -";
+        selectEl.appendChild(o);
+      });
+    }
+    function populateCountries(selectEl){
+      selectEl.innerHTML = '';
+      COUNTRIES.forEach(k => {
+        const o = document.createElement('option');
+        o.value = k.c;
+        o.textContent = k.n;
+        selectEl.appendChild(o);
+      });
+    }
+
+    /* ===== Formulario ===== */
+    const form = document.getElementById('ds160-work-previous');
+    autosave(form);
+
+    // Radios principales
+    const PrevEmployedY = document.getElementById('PrevEmployedY');
+    const PrevEmployedN = document.getElementById('PrevEmployedN');
+    const OtherEducY = document.getElementById('OtherEducY');
+    const OtherEducN = document.getElementById('OtherEducN');
+
+    // Secciones dinámicas y listas
+    const employmentSection = document.getElementById('employmentSection');
+    const employmentList     = document.getElementById('employmentList');
+    const addEmploymentBtn   = document.getElementById('addEmploymentBtn');
+
+    const educationSection = document.getElementById('educationSection');
+    const educationList     = document.getElementById('educationList');
+    const addEducationBtn   = document.getElementById('addEducationBtn');
+
+    // Mensajes de duplicado
+    const dupEmpMsg = document.getElementById('dupEmpMsg');
+    const dupEduMsg = document.getElementById('dupEduMsg');
+
+    // Contadores persistentes
+    const EMP_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':EMP_COUNT';
+    const EDU_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':EDU_COUNT';
+
+    function getCount(key, def=0){
+      const v = parseInt(localStorage.getItem(key) || String(def), 10);
+      return Number.isFinite(v) && v >= 0 ? v : def;
+    }
+    function setCount(key, n){
+      localStorage.setItem(key, String(Math.max(0, n)));
+    }
+
+    /* ===== Utilidad: bloques por país ===== */
+    function attachCountryBlock(selectCountry, usBlock, nonUsBlock, stateSelect, zipInput, provInput, postalInput){
+      populateCountries(selectCountry);
+      populateStateSelect(stateSelect);
+
+      function update(){
+        const isUS = selectCountry.value === 'US';
+        usBlock.hidden = !isUS;
+        nonUsBlock.hidden = isUS;
+
+        [stateSelect, zipInput].forEach(el => el.required = isUS);
+        [provInput, postalInput].forEach(el => el.required = !isUS);
+      }
+      selectCountry.addEventListener('change', () => { saveField(selectCountry); update(); });
+      update();
+    }
+
+    /* ===== Empleos (dinámico) ===== */
+    function makeEmploymentItem(index){
+      const wrap = document.createElement('div');
+      wrap.className = 'item';
+      wrap.dataset.kind = 'employment';
+
+      const head = document.createElement('div');
+      head.className = 'item-head';
+      const title = document.createElement('div');
+      title.className = 'item-title';
+      title.textContent = `Empleo #${index+1}`;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        employmentList.removeChild(wrap);
+        reindexItems(employmentList, 'employment');
+        setCount(EMP_COUNT_KEY, employmentList.children.length);
+        validateDuplicatesEmployment();
+        refreshRemoveButtons();
+      });
+      head.append(title, remove);
+
+      const gridA = document.createElement('div');
+      gridA.className = 'grid-2';
+      gridA.innerHTML = `
+        <div>
+          <label for="EMPLOYER_NAME_${index}">Nombre del empleador</label>
+          <input type="text" id="EMPLOYER_NAME_${index}" name="EMPLOYER_NAME_${index}" maxlength="120" required>
+        </div>
+        <div>
+          <label for="EMP_OCCUPATION_${index}">Ocupación/Profesión</label>
+          <input type="text" id="EMP_OCCUPATION_${index}" name="EMP_OCCUPATION_${index}" maxlength="120" required>
+        </div>
+      `;
+
+      const addr = document.createElement('div');
+      addr.className = 'row';
+      addr.innerHTML = `
+        <label for="EMP_ADDR1_${index}">Dirección (línea 1)</label>
+        <input type="text" id="EMP_ADDR1_${index}" name="EMP_ADDR1_${index}" maxlength="120" required>
+        <label for="EMP_ADDR2_${index}">Dirección (línea 2) <span class="note">(opcional)</span></label>
+        <input type="text" id="EMP_ADDR2_${index}" name="EMP_ADDR2_${index}" maxlength="120">
+      `;
+
+      const gridB = document.createElement('div');
+      gridB.className = 'grid-2';
+      gridB.innerHTML = `
+        <div>
+          <label for="EMP_CITY_${index}">Ciudad</label>
+          <input type="text" id="EMP_CITY_${index}" name="EMP_CITY_${index}" maxlength="64" required>
+        </div>
+        <div>
+          <label for="EMP_COUNTRY_${index}">País/Región</label>
+          <select id="EMP_COUNTRY_${index}" name="EMP_COUNTRY_${index}" class="small" required></select>
+        </div>
+      `;
+
+      const usBlock = document.createElement('div');
+      usBlock.className = 'grid-2';
+      usBlock.id = `EMP_US_BLOCK_${index}`;
+      usBlock.innerHTML = `
+        <div>
+          <label for="EMP_US_STATE_${index}">Estado (EE. UU.)</label>
+          <select id="EMP_US_STATE_${index}" name="EMP_US_STATE_${index}"></select>
+        </div>
+        <div>
+          <label for="EMP_US_ZIP_${index}">Código postal</label>
+          <input type="text" id="EMP_US_ZIP_${index}" name="EMP_US_ZIP_${index}" inputmode="numeric" maxlength="10" placeholder="##### o #####-####">
+        </div>
+      `;
+
+      const nonUSBlock = document.createElement('div');
+      nonUSBlock.className = 'grid-2';
+      nonUSBlock.id = `EMP_NONUS_BLOCK_${index}`;
+      nonUSBlock.innerHTML = `
+        <div>
+          <label for="EMP_PROVINCE_${index}">Estado/Provincia</label>
+          <input type="text" id="EMP_PROVINCE_${index}" name="EMP_PROVINCE_${index}" maxlength="64">
+        </div>
+        <div>
+          <label for="EMP_POSTAL_${index}">Código postal</label>
+          <input type="text" id="EMP_POSTAL_${index}" name="EMP_POSTAL_${index}" maxlength="16">
+        </div>
+      `;
+
+      const gridC = document.createElement('div');
+      gridC.className = 'grid-2';
+      gridC.innerHTML = `
+        <div>
+          <label for="EMP_FROM_${index}">Fecha de inicio</label>
+          <input type="date" id="EMP_FROM_${index}" name="EMP_FROM_${index}" required>
+        </div>
+        <div>
+          <label for="EMP_TO_${index}">Fecha de finalización</label>
+          <input type="date" id="EMP_TO_${index}" name="EMP_TO_${index}" required>
+        </div>
+      `;
+
+      const duties = document.createElement('div');
+      duties.className = 'row';
+      duties.innerHTML = `
+        <label for="EMP_DUTIES_${index}">Descripción de funciones <span class="note">(opcional)</span></label>
+        <textarea id="EMP_DUTIES_${index}" name="EMP_DUTIES_${index}" maxlength="600"></textarea>
+      `;
+
+      wrap.append(head, gridA, addr, gridB, usBlock, nonUSBlock, gridC, duties);
+      employmentList.appendChild(wrap);
+
+      const EMP_COUNTRY   = wrap.querySelector(`#EMP_COUNTRY_${index}`);
+      const EMP_US_STATE  = wrap.querySelector(`#EMP_US_STATE_${index}`);
+      const EMP_US_ZIP    = wrap.querySelector(`#EMP_US_ZIP_${index}`);
+      const EMP_PROVINCE  = wrap.querySelector(`#EMP_PROVINCE_${index}`);
+      const EMP_POSTAL    = wrap.querySelector(`#EMP_POSTAL_${index}`);
+      attachCountryBlock(EMP_COUNTRY, usBlock, nonUSBlock, EMP_US_STATE, EMP_US_ZIP, EMP_PROVINCE, EMP_POSTAL);
+
+      wrap.querySelectorAll('input,select,textarea').forEach(el => restoreField(el));
+      return wrap;
+    }
+
+    /* ===== Educación (dinámico) ===== */
+    function makeEducationItem(index){
+      const wrap = document.createElement('div');
+      wrap.className = 'item';
+      wrap.dataset.kind = 'education';
+
+      const head = document.createElement('div');
+      head.className = 'item-head';
+      const title = document.createElement('div');
+      title.className = 'item-title';
+      title.textContent = `Institución #${index+1}`;
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        educationList.removeChild(wrap);
+        reindexItems(educationList, 'education');
+        setCount(EDU_COUNT_KEY, educationList.children.length);
+        validateDuplicatesEducation();
+        refreshRemoveButtons();
+      });
+      head.append(title, remove);
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'row';
+      nameRow.innerHTML = `
+        <label for="EDU_NAME_${index}">Nombre de la institución</label>
+        <input type="text" id="EDU_NAME_${index}" name="EDU_NAME_${index}" maxlength="120" required>
+      `;
+
+      const addr = document.createElement('div');
+      addr.className = 'row';
+      addr.innerHTML = `
+        <label for="EDU_ADDR1_${index}">Dirección (línea 1)</label>
+        <input type="text" id="EDU_ADDR1_${index}" name="EDU_ADDR1_${index}" maxlength="120" required>
+        <label for="EDU_ADDR2_${index}">Dirección (línea 2) <span class="note">(opcional)</span></label>
+        <input type="text" id="EDU_ADDR2_${index}" name="EDU_ADDR2_${index}" maxlength="120">
+      `;
+
+      const gridB = document.createElement('div');
+      gridB.className = 'grid-2';
+      gridB.innerHTML = `
+        <div>
+          <label for="EDU_CITY_${index}">Ciudad</label>
+          <input type="text" id="EDU_CITY_${index}" name="EDU_CITY_${index}" maxlength="64" required>
+        </div>
+        <div>
+          <label for="EDU_COUNTRY_${index}">País/Región</label>
+          <select id="EDU_COUNTRY_${index}" name="EDU_COUNTRY_${index}" class="small" required></select>
+        </div>
+      `;
+
+      const usBlock = document.createElement('div');
+      usBlock.className = 'grid-2';
+      usBlock.id = `EDU_US_BLOCK_${index}`;
+      usBlock.innerHTML = `
+        <div>
+          <label for="EDU_US_STATE_${index}">Estado (EE. UU.)</label>
+          <select id="EDU_US_STATE_${index}" name="EDU_US_STATE_${index}"></select>
+        </div>
+        <div>
+          <label for="EDU_US_ZIP_${index}">Código postal</label>
+          <input type="text" id="EDU_US_ZIP_${index}" name="EDU_US_ZIP_${index}" inputmode="numeric" maxlength="10" placeholder="##### o #####-####">
+        </div>
+      `;
+
+      const nonUSBlock = document.createElement('div');
+      nonUSBlock.className = 'grid-2';
+      nonUSBlock.id = `EDU_NONUS_BLOCK_${index}`;
+      nonUSBlock.innerHTML = `
+        <div>
+          <label for="EDU_PROVINCE_${index}">Estado/Provincia</label>
+          <input type="text" id="EDU_PROVINCE_${index}" name="EDU_PROVINCE_${index}" maxlength="64">
+        </div>
+        <div>
+          <label for="EDU_POSTAL_${index}">Código postal</label>
+          <input type="text" id="EDU_POSTAL_${index}" name="EDU_POSTAL_${index}" maxlength="16">
+        </div>
+      `;
+
+      const gridC = document.createElement('div');
+      gridC.className = 'grid-2';
+      gridC.innerHTML = `
+        <div>
+          <label for="EDU_FROM_${index}">Fecha de inicio</label>
+          <input type="date" id="EDU_FROM_${index}" name="EDU_FROM_${index}" required>
+        </div>
+        <div>
+          <label for="EDU_TO_${index}">Fecha de finalización</label>
+          <input type="date" id="EDU_TO_${index}" name="EDU_TO_${index}" required>
+        </div>
+      `;
+
+      const gridD = document.createElement('div');
+      gridD.className = 'grid-2';
+      gridD.innerHTML = `
+        <div>
+          <label for="EDU_COURSE_${index}">Curso/Área de estudio</label>
+          <input type="text" id="EDU_COURSE_${index}" name="EDU_COURSE_${index}" maxlength="120" required>
+        </div>
+        <div>
+          <label for="EDU_DEGREE_${index}">Título/Diploma <span class="note">(opcional)</span></label>
+          <input type="text" id="EDU_DEGREE_${index}" name="EDU_DEGREE_${index}" maxlength="120" placeholder="Ej. Bachillerato, Licenciatura, etc.">
+        </div>
+      `;
+
+      wrap.append(head, nameRow, addr, gridB, usBlock, nonUSBlock, gridC, gridD);
+      educationList.appendChild(wrap);
+
+      const EDU_COUNTRY   = wrap.querySelector(`#EDU_COUNTRY_${index}`);
+      const EDU_US_STATE  = wrap.querySelector(`#EDU_US_STATE_${index}`);
+      const EDU_US_ZIP    = wrap.querySelector(`#EDU_US_ZIP_${index}`);
+      const EDU_PROVINCE  = wrap.querySelector(`#EDU_PROVINCE_${index}`);
+      const EDU_POSTAL    = wrap.querySelector(`#EDU_POSTAL_${index}`);
+      attachCountryBlock(EDU_COUNTRY, usBlock, nonUSBlock, EDU_US_STATE, EDU_US_ZIP, EDU_PROVINCE, EDU_POSTAL);
+
+      wrap.querySelectorAll('input,select,textarea').forEach(el => restoreField(el));
+      return wrap;
+    }
+
+    /* ===== Utilidades de reindexación y UI ===== */
+    function refreshRemoveButtons(){
+      const lists = [employmentList, educationList];
+      lists.forEach(list => {
+        const items = [...list.children];
+        items.forEach(item => {
+          const btn = item.querySelector('.remove');
+          if (btn) btn.hidden = items.length <= 1;
+        });
+      });
+    }
+
+    function reindexItems(container, kind){
+      [...container.children].forEach((item, i) => {
+        const title = item.querySelector('.item-title');
+        if (title){
+          title.textContent = (kind === 'employment') ? `Empleo #${i+1}` : `Institución #${i+1}`;
+        }
+        item.querySelectorAll('[id]').forEach(el => {
+          const oldId = el.id;
+          const newId = oldId.replace(/_(\d+)$/, `_${i}`);
+          if (newId !== oldId) {
+            el.id = newId;
+            if ('name' in el) el.name = newId;
+            const lbl = item.querySelector(`label[for="${oldId}"]`);
+            if (lbl) lbl.setAttribute('for', newId);
+          }
+        });
+      });
+    }
+
+    function validateDuplicatesEmployment(){
+      const seen = new Set();
+      let dup = false;
+      [...employmentList.children].forEach(item => {
+        const name = (item.querySelector('[id^="EMPLOYER_NAME_"]')?.value || '').trim().toUpperCase();
+        const from = (item.querySelector('[id^="EMP_FROM_"]')?.value || '').trim();
+        const to   = (item.querySelector('[id^="EMP_TO_"]')?.value || '').trim();
+        const key = `${name}|${from}|${to}`;
+        if (name && from && to){
+          if (seen.has(key)) dup = true;
+          seen.add(key);
+        }
+      });
+      dupEmpMsg.hidden = !dup;
+      return !dup;
+    }
+
+    function validateDuplicatesEducation(){
+      const seen = new Set();
+      let dup = false;
+      [...educationList.children].forEach(item => {
+        const name = (item.querySelector('[id^="EDU_NAME_"]')?.value || '').trim().toUpperCase();
+        const from = (item.querySelector('[id^="EDU_FROM_"]')?.value || '').trim();
+        const to   = (item.querySelector('[id^="EDU_TO_"]')?.value || '').trim();
+        const key = `${name}|${from}|${to}`;
+        if (name && from && to){
+          if (seen.has(key)) dup = true;
+          seen.add(key);
+        }
+      });
+      dupEduMsg.hidden = !dup;
+      return !dup;
+    }
+
+    /* ===== Mostrar / requeridos por radios ===== */
+    function updateEmploymentSection(){
+      const show = PrevEmployedY.checked;
+      employmentSection.hidden = !show;
+      if (!show){
+        employmentList.querySelectorAll('input,select,textarea').forEach(el => el.required = false);
+      } else {
+        employmentList.querySelectorAll('[id^="EMPLOYER_NAME_"],[id^="EMP_OCCUPATION_"],[id^="EMP_ADDR1_"],[id^="EMP_CITY_"],[id^="EMP_COUNTRY_"],[id^="EMP_FROM_"],[id^="EMP_TO_"]')
+          .forEach(el => el.required = true);
+      }
+    }
+    function updateEducationSection(){
+      const show = OtherEducY.checked;
+      educationSection.hidden = !show;
+      if (!show){
+        educationList.querySelectorAll('input,select,textarea').forEach(el => el.required = false);
+      } else {
+        educationList.querySelectorAll('[id^="EDU_NAME_"],[id^="EDU_ADDR1_"],[id^="EDU_CITY_"],[id^="EDU_COUNTRY_"],[id^="EDU_FROM_"],[id^="EDU_TO_"],[id^="EDU_COURSE_"]')
+          .forEach(el => el.required = true);
+      }
+    }
+
+    [PrevEmployedY, PrevEmployedN].forEach(r => r.addEventListener('change', () => { saveField(r); updateEmploymentSection(); }));
+    [OtherEducY, OtherEducN].forEach(r => r.addEventListener('change', () => { saveField(r); updateEducationSection(); }));
+
+    /* ===== Inicialización ===== */
+    function initEmployment(){
+      const count = Math.max(1, getCount(EMP_COUNT_KEY, 1));
+      employmentList.innerHTML = '';
+      for (let i=0;i<count;i++) makeEmploymentItem(i);
+      refreshRemoveButtons();
+    }
+    function initEducation(){
+      const count = Math.max(1, getCount(EDU_COUNT_KEY, 1));
+      educationList.innerHTML = '';
+      for (let i=0;i<count;i++) makeEducationItem(i);
+      refreshRemoveButtons();
+    }
+
+    addEmploymentBtn.addEventListener('click', () => {
+      const idx = employmentList.children.length;
+      makeEmploymentItem(idx);
+      setCount(EMP_COUNT_KEY, employmentList.children.length);
+      refreshRemoveButtons();
+    });
+    addEducationBtn.addEventListener('click', () => {
+      const idx = educationList.children.length;
+      makeEducationItem(idx);
+      setCount(EDU_COUNT_KEY, educationList.children.length);
+      refreshRemoveButtons();
+    });
+
+    // Restaurar radios y base
+    restoreForm(form);
+
+    // Construir listas (respeta conteos guardados)
+    initEmployment();
+    initEducation();
+
+    // Reaplicar restore sobre campos recién creados
+    [...employmentList.querySelectorAll('input,select,textarea')].forEach(el => restoreField(el));
+    [...educationList.querySelectorAll('input,select,textarea')].forEach(el => restoreField(el));
+
+    updateEmploymentSection();
+    updateEducationSection();
+
+    // Validación de duplicados
+    form.addEventListener('change', (e) => {
+      const t = e.target;
+      if (!t || !(t instanceof HTMLElement)) return;
+      if (t.id?.startsWith('EMPLOYER_NAME_') || t.id?.startsWith('EMP_FROM_') || t.id?.startsWith('EMP_TO_')){
+        validateDuplicatesEmployment();
+      }
+      if (t.id?.startsWith('EDU_NAME_') || t.id?.startsWith('EDU_FROM_') || t.id?.startsWith('EDU_TO_')){
+        validateDuplicatesEducation();
+      }
+    }, true);
+
+    /* ===== Navegación (enlaces con validación/salvado) ===== */
+    const backLink = document.getElementById('backLink');
+    const nextLink = document.getElementById('nextLink');
+
+    backLink.addEventListener('click', () => {
+      // Guardado rápido (sin bloquear la navegación)
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+    });
+
+    function checkForm(){
+      if (PrevEmployedY.checked){
+        if (employmentList.children.length < 1){
+          employmentSection.scrollIntoView({behavior:'smooth', block:'center'});
+          return false;
+        }
+        if (!validateDuplicatesEmployment()) return false;
+      }
+      if (OtherEducY.checked){
+        if (educationList.children.length < 1){
+          educationSection.scrollIntoView({behavior:'smooth', block:'center'});
+          return false;
+        }
+        if (!validateDuplicatesEducation()) return false;
+      }
+      return form.checkValidity();
+    }
+
+    nextLink.addEventListener('click', (e) => {
+      // Si el formulario no pasa validación, cancelamos la navegación del enlace
+      if (!checkForm()){
+        e.preventDefault();
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      // No hacemos nada más: el navegador seguirá el href del enlace.
+    });
+  </script>
+</body>
+</html>
