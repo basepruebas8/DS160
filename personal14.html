@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal 14</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    [hidden] { display: none !important; }
+    textarea, input[type="text"]{
+      width: 100%; max-width: 640px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      text-transform: uppercase;
+    }
+    textarea:focus, input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Seguridad y antecedentes — Parte 3</strong></div>
+      </header>
+
+      <form id="ds160-secback3" action="#" method="post" novalidate>
+        <!-- 🔒 TODOS los campos ocultos del original (placeholders donde aplica) -->
+        <input type="hidden" id="Hidden1" name="Hidden1" value="" />
+
+        <input type="hidden" id="__EVENTTARGET" name="__EVENTTARGET" value="" />
+        <input type="hidden" id="__EVENTARGUMENT" name="__EVENTARGUMENT" value="" />
+        <input type="hidden" id="__LASTFOCUS" name="__LASTFOCUS" value="" />
+
+        <!-- __VIEWSTATE real es muy largo y dinámico en ASP.NET -->
+        <input type="hidden" id="__VIEWSTATE" name="__VIEWSTATE" value="" />
+
+        <input type="hidden" id="__VIEWSTATEGENERATOR" name="__VIEWSTATEGENERATOR" value="40EAE28C" />
+        <input type="hidden" id="__SCROLLPOSITIONX" name="__SCROLLPOSITIONX" value="0" />
+        <input type="hidden" id="__SCROLLPOSITIONY" name="__SCROLLPOSITIONY" value="0" />
+        <input type="hidden" id="__VIEWSTATEENCRYPTED" name="__VIEWSTATEENCRYPTED" value="" />
+
+        <!-- __PREVIOUSPAGE del original (puedes reemplazarlo por el real si lo necesitas) -->
+        <input type="hidden" id="__PREVIOUSPAGE" name="__PREVIOUSPAGE" value="-4Il4pUIZd3lY99eVd_fXvZ_t8hfLElpca0l8OsrUojGY8IgmgRaYvdA5WZFzzbOQ7D-tXLGJu4KdXzBhu4u3CkEi-gVk-PR0WhXK5GrLyFQBP2aaT5EbFHC0SOAk-1CK36thg2" />
+
+        <input type="hidden" id="ctl00_HDClearSession" name="ctl00$HDClearSession" value="" />
+        <input type="hidden" id="ctl00_SiteContentPlaceHolder_HiddenPageValid" name="ctl00$SiteContentPlaceHolder$HiddenPageValid" value="" />
+        <input type="hidden" id="ctl00_HiddenSideBarItemClicked" name="ctl00$HiddenSideBarItemClicked" value="" />
+
+        <!-- Campos ocultos “propios” del archivo de referencia -->
+        <input type="hidden" id="APPLICATION_ID" name="APPLICATION_ID" value="AA00F3A013" />
+        <input type="hidden" id="NODE" name="NODE" value="SecurityandBackground3" />
+
+        <fieldset>
+          <legend>Seguridad y antecedentes: Parte 3</legend>
+          <p class="help">Nota: Proporcione la información solicitada. Marcar “Sí” puede requerir una explicación y, en algunos casos, una comparecencia personal ante un funcionario consular.</p>
+
+          <!-- 1) Actividad ilegal -->
+          <div class="row">
+            <label>¿Busca participar en espionaje, sabotaje, violaciones a los controles de exportación u otra actividad ilegal mientras esté en Estados Unidos?</label>
+            <div class="inline" role="radiogroup" aria-label="Actividad ilegal en EE. UU.">
+              <label style="font-weight:400;"><input type="radio" name="ILLEGAL_ACTIVITY_IND" value="Y" id="ILLEGAL_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="ILLEGAL_ACTIVITY_IND" value="N" id="ILLEGAL_N" checked> No</label>
+            </div>
+          </div>
+          <div id="ILLEGAL_ACTIVITY_EXPLAIN_WRAP" class="row" hidden>
+            <label for="ILLEGAL_ACTIVITY_EXPL">Explique</label>
+            <textarea id="ILLEGAL_ACTIVITY_EXPL" name="ILLEGAL_ACTIVITY_EXPL" rows="4" maxlength="4000" placeholder="DETALLES / FECHAS / LUGARES / PAPEL"></textarea>
+          </div>
+
+          <!-- 2) Actividad terrorista -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Busca participar en actividades terroristas mientras está en Estados Unidos o alguna vez ha participado en actividades terroristas?</label>
+            <div class="inline" role="radiogroup" aria-label="Actividad terrorista">
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_ACTIVITY_IND" value="Y" id="TERRACT_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_ACTIVITY_IND" value="N" id="TERRACT_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TERRORIST_ACTIVITY_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TERRORIST_ACTIVITY_EXPL">Explique</label>
+            <textarea id="TERRORIST_ACTIVITY_EXPL" name="TERRORIST_ACTIVITY_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / ORGANIZACIÓN / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 3) Apoyo a terrorismo -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha proporcionado o piensa proporcionar asistencia financiera u otro apoyo a terroristas u organizaciones terroristas?</label>
+            <div class="inline" role="radiogroup" aria-label="Apoyo a terrorismo">
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_SUPPORT_IND" value="Y" id="TERRSUP_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_SUPPORT_IND" value="N" id="TERRSUP_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TERRORIST_SUPPORT_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TERRORIST_SUPPORT_EXPL">Explique</label>
+            <textarea id="TERRORIST_SUPPORT_EXPL" name="TERRORIST_SUPPORT_EXPL" rows="4" maxlength="4000" placeholder="TIPO DE APOYO / MONTOS / FECHAS / CONTEXTO"></textarea>
+          </div>
+
+          <!-- 4) Miembro/representante de organización terrorista -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Es miembro o representante de una organización terrorista?</label>
+            <div class="inline" role="radiogroup" aria-label="Miembro de organización terrorista">
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_ORG_IND" value="Y" id="TERRORG_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_ORG_IND" value="N" id="TERRORG_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TERRORIST_ORG_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TERRORIST_ORG_EXPL">Explique</label>
+            <textarea id="TERRORIST_ORG_EXPL" name="TERRORIST_ORG_EXPL" rows="4" maxlength="4000" placeholder="NOMBRE / PAPEL / FECHAS / ACTIVIDADES"></textarea>
+          </div>
+
+          <!-- 5) Familiar de individuo con actividad terrorista -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Es usted cónyuge, hijo o hija de una persona que, en los últimos 5 años, haya participado en actividad terrorista (incluido brindar apoyo o financiamiento a terroristas u organizaciones terroristas)?</label>
+            <div class="inline" role="radiogroup" aria-label="Familiar de individuo con actividad terrorista">
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_REL_IND" value="Y" id="TERRREL_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TERRORIST_REL_IND" value="N" id="TERRREL_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TERRORIST_REL_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TERRORIST_REL_EXPL">Explique</label>
+            <textarea id="TERRORIST_REL_EXPL" name="TERRORIST_REL_EXPL" rows="4" maxlength="4000" placeholder="RELACIÓN / ACTIVIDAD / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 6) Genocidio -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha ordenado, incitado, cometido, asistido o participado de otra manera en genocidio?</label>
+            <div class="inline" role="radiogroup" aria-label="Genocidio">
+              <label style="font-weight:400;"><input type="radio" name="GENOCIDE_IND" value="Y" id="GENOCIDE_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="GENOCIDE_IND" value="N" id="GENOCIDE_N" checked> No</label>
+            </div>
+          </div>
+          <div id="GENOCIDE_EXPLAIN_WRAP" class="row" hidden>
+            <label for="GENOCIDE_EXPL">Explique</label>
+            <textarea id="GENOCIDE_EXPL" name="GENOCIDE_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / LUGAR / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 7) Tortura -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha cometido, ordenado, incitado, asistido o participado de otra manera en tortura?</label>
+            <div class="inline" role="radiogroup" aria-label="Tortura">
+              <label style="font-weight:400;"><input type="radio" name="TORTURE_IND" value="Y" id="TORTURE_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TORTURE_IND" value="N" id="TORTURE_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TORTURE_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TORTURE_EXPL">Explique</label>
+            <textarea id="TORTURE_EXPL" name="TORTURE_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / VÍCTIMAS / FECHAS / CONTEXTO"></textarea>
+          </div>
+
+          <!-- 8) Actos de violencia -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha cometido, ordenado, incitado, asistido o participado de otra manera en ejecuciones extrajudiciales, asesinatos políticos u otros actos de violencia?</label>
+            <div class="inline" role="radiogroup" aria-label="Actos de violencia">
+              <label style="font-weight:400;"><input type="radio" name="EX_VIOLENCE_IND" value="Y" id="EXVIOL_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="EX_VIOLENCE_IND" value="N" id="EXVIOL_N" checked> No</label>
+            </div>
+          </div>
+          <div id="EX_VIOLENCE_EXPLAIN_WRAP" class="row" hidden>
+            <label for="EX_VIOLENCE_EXPL">Explique</label>
+            <textarea id="EX_VIOLENCE_EXPL" name="EX_VIOLENCE_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / LUGAR / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 9) Niños soldados -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha participado en el reclutamiento o el uso de niños soldados?</label>
+            <div class="inline" role="radiogroup" aria-label="Niños soldados">
+              <label style="font-weight:400;"><input type="radio" name="CHILD_SOLDIER_IND" value="Y" id="CHILDS_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="CHILD_SOLDIER_IND" value="N" id="CHILDS_N" checked> No</label>
+            </div>
+          </div>
+          <div id="CHILD_SOLDIER_EXPLAIN_WRAP" class="row" hidden>
+            <label for="CHILD_SOLDIER_EXPL">Explique</label>
+            <textarea id="CHILD_SOLDIER_EXPL" name="CHILD_SOLDIER_EXPL" rows="4" maxlength="4000" placeholder="GRUPO / EDADES / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 10) Libertad religiosa -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha sido responsable de, o ejecutado directamente, en cualquier momento, violaciones particularmente graves de la libertad religiosa mientras se desempeñaba como funcionario público?</label>
+            <div class="inline" role="radiogroup" aria-label="Violaciones a libertad religiosa">
+              <label style="font-weight:400;"><input type="radio" name="RELIGIOUS_FREEDOM_IND" value="Y" id="RELFR_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="RELIGIOUS_FREEDOM_IND" value="N" id="RELFR_N" checked> No</label>
+            </div>
+          </div>
+          <div id="RELIGIOUS_FREEDOM_EXPLAIN_WRAP" class="row" hidden>
+            <label for="RELIGIOUS_FREEDOM_EXPL">Explique</label>
+            <textarea id="RELIGIOUS_FREEDOM_EXPL" name="RELIGIOUS_FREEDOM_EXPL" rows="4" maxlength="4000" placeholder="CARGO / HECHOS / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 11) Controles de población coactivos -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha estado directamente involucrado(a) en la creación o aplicación de controles de población que obliguen a una mujer a someterse a un aborto contra su voluntad o a una mujer u hombre a someterse a una esterilización contra su voluntad?</label>
+            <div class="inline" role="radiogroup" aria-label="Controles de población coactivos">
+              <label style="font-weight:400;"><input type="radio" name="POPULATION_CONTROLS_IND" value="Y" id="POPCON_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="POPULATION_CONTROLS_IND" value="N" id="POPCON_N" checked> No</label>
+            </div>
+          </div>
+          <div id="POPULATION_CONTROLS_EXPLAIN_WRAP" class="row" hidden>
+            <label for="POPULATION_CONTROLS_EXPL">Explique</label>
+            <textarea id="POPULATION_CONTROLS_EXPL" name="POPULATION_CONTROLS_EXPL" rows="4" maxlength="4000" placeholder="ROL / PROCEDIMIENTO / FECHAS / DETALLES"></textarea>
+          </div>
+
+          <!-- 12) Trasplante coercitivo -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Alguna vez ha estado directamente involucrado(a) en el trasplante coercitivo de órganos o tejido humano?</label>
+            <div class="inline" role="radiogroup" aria-label="Trasplante coercitivo">
+              <label style="font-weight:400;"><input type="radio" name="TRANSPLANT_IND" value="Y" id="TRANSPL_Y"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TRANSPLANT_IND" value="N" id="TRANSPL_N" checked> No</label>
+            </div>
+          </div>
+          <div id="TRANSPLANT_EXPLAIN_WRAP" class="row" hidden>
+            <label for="TRANSPLANT_EXPL">Explique</label>
+            <textarea id="TRANSPLANT_EXPL" name="TRANSPLANT_EXPL" rows="4" maxlength="4000" placeholder="HECHOS / INSTITUCIÓN / FECHAS / DETALLES"></textarea>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+
+        <noscript>
+          <p class="help">La navegación requiere JavaScript. Use estos enlaces: <a href="DS160_13.html">Regresar</a> | <a href="DS160_15.html">Siguiente</a></p>
+        </noscript>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navegación solicitada
+    const NEXT_URL = new URL('personal15.html', window.location.href).href;
+    const BACK_URL = new URL('personal13.html', window.location.href).href;
+
+    // Autosave en localStorage
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-secback3';
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else if (field.type === 'checkbox') {
+          localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return;
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else if (field.type === 'checkbox') {
+          field.checked = (v === '1');
+        } else {
+          field.value = v;
+        }
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+
+    // Referencias
+    const form = document.getElementById(FORM_ID);
+
+    const ILLEGAL_Y = document.getElementById('ILLEGAL_Y');
+    const ILLEGAL_N = document.getElementById('ILLEGAL_N');
+    const ILLEGAL_WRAP = document.getElementById('ILLEGAL_ACTIVITY_EXPLAIN_WRAP');
+    const ILLEGAL_EXPL = document.getElementById('ILLEGAL_ACTIVITY_EXPL');
+
+    const TERRACT_Y = document.getElementById('TERRACT_Y');
+    const TERRACT_N = document.getElementById('TERRACT_N');
+    const TERRACT_WRAP = document.getElementById('TERRORIST_ACTIVITY_EXPLAIN_WRAP');
+    const TERRACT_EXPL = document.getElementById('TERRORIST_ACTIVITY_EXPL');
+
+    const TERRSUP_Y = document.getElementById('TERRSUP_Y');
+    const TERRSUP_N = document.getElementById('TERRSUP_N');
+    const TERRSUP_WRAP = document.getElementById('TERRORIST_SUPPORT_EXPLAIN_WRAP');
+    const TERRSUP_EXPL = document.getElementById('TERRORIST_SUPPORT_EXPL');
+
+    const TERRORG_Y = document.getElementById('TERRORG_Y');
+    const TERRORG_N = document.getElementById('TERRORG_N');
+    const TERRORG_WRAP = document.getElementById('TERRORIST_ORG_EXPLAIN_WRAP');
+    const TERRORG_EXPL = document.getElementById('TERRORIST_ORG_EXPL');
+
+    const TERRREL_Y = document.getElementById('TERRREL_Y');
+    const TERRREL_N = document.getElementById('TERRREL_N');
+    const TERRREL_WRAP = document.getElementById('TERRORIST_REL_EXPLAIN_WRAP');
+    const TERRREL_EXPL = document.getElementById('TERRORIST_REL_EXPL');
+
+    const GENOCIDE_Y = document.getElementById('GENOCIDE_Y');
+    const GENOCIDE_N = document.getElementById('GENOCIDE_N');
+    const GENOCIDE_WRAP = document.getElementById('GENOCIDE_EXPLAIN_WRAP');
+    const GENOCIDE_EXPL = document.getElementById('GENOCIDE_EXPL');
+
+    const TORTURE_Y = document.getElementById('TORTURE_Y');
+    const TORTURE_N = document.getElementById('TORTURE_N');
+    const TORTURE_WRAP = document.getElementById('TORTURE_EXPLAIN_WRAP');
+    const TORTURE_EXPL = document.getElementById('TORTURE_EXPL');
+
+    const EXVIOL_Y = document.getElementById('EXVIOL_Y');
+    const EXVIOL_N = document.getElementById('EXVIOL_N');
+    const EXVIOL_WRAP = document.getElementById('EX_VIOLENCE_EXPLAIN_WRAP');
+    const EXVIOL_EXPL = document.getElementById('EX_VIOLENCE_EXPL');
+
+    const CHILDS_Y = document.getElementById('CHILDS_Y');
+    const CHILDS_N = document.getElementById('CHILDS_N');
+    const CHILDS_WRAP = document.getElementById('CHILD_SOLDIER_EXPLAIN_WRAP');
+    const CHILDS_EXPL = document.getElementById('CHILD_SOLDIER_EXPL');
+
+    const RELFR_Y = document.getElementById('RELFR_Y');
+    const RELFR_N = document.getElementById('RELFR_N');
+    const RELFR_WRAP = document.getElementById('RELIGIOUS_FREEDOM_EXPLAIN_WRAP');
+    const RELFR_EXPL = document.getElementById('RELIGIOUS_FREEDOM_EXPL');
+
+    const POPCON_Y = document.getElementById('POPCON_Y');
+    const POPCON_N = document.getElementById('POPCON_N');
+    const POPCON_WRAP = document.getElementById('POPULATION_CONTROLS_EXPLAIN_WRAP');
+    const POPCON_EXPL = document.getElementById('POPULATION_CONTROLS_EXPL');
+
+    const TRANSPL_Y = document.getElementById('TRANSPL_Y');
+    const TRANSPL_N = document.getElementById('TRANSPL_N');
+    const TRANSPL_WRAP = document.getElementById('TRANSPLANT_EXPLAIN_WRAP');
+    const TRANSPL_EXPL = document.getElementById('TRANSPLANT_EXPL');
+
+    // Sólo MAYÚSCULAS en campos de escritura
+    function upperize(el){
+      const start = el.selectionStart, end = el.selectionEnd;
+      el.value = (el.value || '').toUpperCase();
+      try { el.setSelectionRange(start, end); } catch(e){}
+    }
+    [
+      ILLEGAL_EXPL, TERRACT_EXPL, TERRSUP_EXPL, TERRORG_EXPL, TERRREL_EXPL,
+      GENOCIDE_EXPL, TORTURE_EXPL, EXVIOL_EXPL, CHILDS_EXPL, RELFR_EXPL,
+      POPCON_EXPL, TRANSPL_EXPL
+    ].forEach(el => {
+      el.addEventListener('input', () => upperize(el));
+      if (el && el.value) upperize(el);
+    });
+
+    // Mostrar/ocultar secciones de explicación + required según "Sí/No"
+    function toggleExplain(radioYes, wrap, textarea){
+      const show = radioYes.checked;
+      wrap.hidden = !show;
+      textarea.required = show;
+      if (!show){ textarea.setCustomValidity(''); }
+    }
+    function attachGroup(rYes, rNo, wrap, txt){
+      const update = () => toggleExplain(rYes, wrap, txt);
+      rYes.addEventListener('change', update);
+      rNo.addEventListener('change', update);
+      update();
+    }
+
+    // Restaurar valores guardados
+    (function restoreForm(){
+      const fields = form.querySelectorAll('input,select,textarea');
+      fields.forEach(f => restoreField(f));
+    })();
+
+    // Por defecto “No” si no hay dato guardado
+    const defaults = [
+      ['ILLEGAL_ACTIVITY_IND', ILLEGAL_N],
+      ['TERRORIST_ACTIVITY_IND', TERRACT_N],
+      ['TERRORIST_SUPPORT_IND', TERRSUP_N],
+      ['TERRORIST_ORG_IND', TERRORG_N],
+      ['TERRORIST_REL_IND', TERRREL_N],
+      ['GENOCIDE_IND', GENOCIDE_N],
+      ['TORTURE_IND', TORTURE_N],
+      ['EX_VIOLENCE_IND', EXVIOL_N],
+      ['CHILD_SOLDIER_IND', CHILDS_N],
+      ['RELIGIOUS_FREEDOM_IND', RELFR_N],
+      ['POPULATION_CONTROLS_IND', POPCON_N],
+      ['TRANSPLANT_IND', TRANSPL_N],
+    ];
+    defaults.forEach(([name, rNo]) => {
+      if (!localStorage.getItem(STORAGE_PREFIX + FORM_ID + ':' + name)) rNo.checked = true;
+    });
+
+    // Enlazar lógicas de despliegue
+    attachGroup(ILLEGAL_Y,  ILLEGAL_N,  ILLEGAL_WRAP,  ILLEGAL_EXPL);
+    attachGroup(TERRACT_Y,  TERRACT_N,  TERRACT_WRAP,  TERRACT_EXPL);
+    attachGroup(TERRSUP_Y,  TERRSUP_N,  TERRSUP_WRAP,  TERRSUP_EXPL);
+    attachGroup(TERRORG_Y,  TERRORG_N,  TERRORG_WRAP,  TERRORG_EXPL);
+    attachGroup(TERRREL_Y,  TERRREL_N,  TERRREL_WRAP,  TERRREL_EXPL);
+    attachGroup(GENOCIDE_Y, GENOCIDE_N, GENOCIDE_WRAP, GENOCIDE_EXPL);
+    attachGroup(TORTURE_Y,  TORTURE_N,  TORTURE_WRAP,  TORTURE_EXPL);
+    attachGroup(EXVIOL_Y,   EXVIOL_N,   EXVIOL_WRAP,   EXVIOL_EXPL);
+    attachGroup(CHILDS_Y,   CHILDS_N,   CHILDS_WRAP,   CHILDS_EXPL);
+    attachGroup(RELFR_Y,    RELFR_N,    RELFR_WRAP,    RELFR_EXPL);
+    attachGroup(POPCON_Y,   POPCON_N,   POPCON_WRAP,   POPCON_EXPL);
+    attachGroup(TRANSPL_Y,  TRANSPL_N,  TRANSPL_WRAP,  TRANSPL_EXPL);
+
+    // Activar autosave
+    autosave(form);
+
+    // Navegación
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (!form.checkValidity()){
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
+    });
+  </script>
+</body>
+</html>
