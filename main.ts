@@ -1,11 +1,7 @@
-// main.ts — sirve tu index.html y archivos estáticos
-import { serveDir } from "https://deno.land/std@0.173.0/http/file_server.ts";
+// main.ts
+import { serveDir } from "jsr:@std/http/file-server";
 
-Deno.serve((req) =>
-  serveDir(req, {
-    fsRoot: ".",
-    defaultDocument: "index.html",
-    showDirListing: false,
-    quiet: true,
-  })
-);
+Deno.serve((req) => {
+  // Sirve todo el repo; raíz -> personal1.html como "index"
+  return serveDir(req, { fsRoot: ".", index: "personal1.html", quiet: true });
+});
