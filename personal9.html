@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Personal 9</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select, textarea {
+      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
+    select.small { max-width: 420px; }
+
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
+
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Trabajo / Educación / Entrenamiento — Presente</strong></div>
+      </header>
+
+      <form id="ds160-work1" action="#" method="post" novalidate>
+        <fieldset>
+          <legend>Información laboral/educativa actual</legend>
+          <p class="help">Nota: Proporcione la siguiente información sobre su empleo o educación actuales.</p>
+
+          <!-- Ocupación principal -->
+          <div class="row">
+            <label for="PRESENT_OCCUPATION">Ocupación principal</label>
+            <select id="PRESENT_OCCUPATION" name="PRESENT_OCCUPATION" class="small" required>
+              <option value="">— Seleccione —</option>
+              <option value="A">AGRICULTURE</option>
+              <option value="AP">ARTIST/PERFORMER</option>
+              <option value="B">BUSINESS</option>
+              <option value="CM">COMMUNICATIONS</option>
+              <option value="CS">COMPUTER SCIENCE</option>
+              <option value="C">CULINARY/FOOD SERVICES</option>
+              <option value="ED">EDUCATION</option>
+              <option value="EN">ENGINEERING</option>
+              <option value="G">GOVERNMENT</option>
+              <option value="H">HOMEMAKER</option>
+              <option value="LP">LEGAL PROFESSION</option>
+              <option value="MH">MEDICAL/HEALTH</option>
+              <option value="M">MILITARY</option>
+              <option value="NS">NATURAL SCIENCE</option>
+              <option value="N">NOT EMPLOYED</option>
+              <option value="PS">PHYSICAL SCIENCES</option>
+              <option value="RV">RELIGIOUS VOCATION</option>
+              <option value="R">RESEARCH</option>
+              <option value="RT">RETIRED</option>
+              <option value="SS">SOCIAL SCIENCE</option>
+              <option value="S">STUDENT</option>
+              <option value="O">OTHER</option>
+            </select>
+          </div>
+
+          <!-- Empleador o escuela -->
+          <div class="row">
+            <label for="EMP_SCH_NAME">Nombre del empleador o escuela actual</label>
+            <input type="text" id="EMP_SCH_NAME" name="EMP_SCH_NAME" maxlength="75" required />
+          </div>
+
+          <!-- Dirección del empleador/escuela -->
+          <fieldset>
+            <legend>Dirección del empleador o escuela</legend>
+
+            <div class="row">
+              <label for="EMP_ADDR1">Calle y número (línea 1)</label>
+              <input type="text" id="EMP_ADDR1" name="EMP_ADDR1" maxlength="40" required />
+            </div>
+
+            <div class="row">
+              <label for="EMP_ADDR2">Calle y número (línea 2) <span class="note">(opcional)</span></label>
+              <input type="text" id="EMP_ADDR2" name="EMP_ADDR2" maxlength="40" />
+            </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="EMP_CITY">Ciudad</label>
+                <input type="text" id="EMP_CITY" name="EMP_CITY" maxlength="20" required />
+              </div>
+              <div>
+                <label for="EMP_STATE">Estado/Provincia</label>
+                <div class="inline">
+                  <input type="text" id="EMP_STATE" name="EMP_STATE" maxlength="20" />
+                  <label class="inline" style="font-weight:400;">
+                    <input type="checkbox" id="EMP_STATE_NA" name="EMP_STATE_NA" checked> No aplica
+                  </label>
+                </div>
+                <input type="hidden" id="EMP_STATE_NA_HIDDEN" name="EMP_STATE_NA_HIDDEN" value="Y">
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div>
+                <label for="EMP_POSTAL">Zona postal / Código ZIP</label>
+                <div class="inline">
+                  <input type="text" id="EMP_POSTAL" name="EMP_POSTAL" maxlength="10" disabled />
+                  <label class="inline" style="font-weight:400;">
+                    <input type="checkbox" id="EMP_POSTAL_NA" name="EMP_POSTAL_NA" checked> No aplica
+                  </label>
+                </div>
+                <input type="hidden" id="EMP_POSTAL_NA_HIDDEN" name="EMP_POSTAL_NA_HIDDEN" value="Y">
+              </div>
+              <div>
+                <label for="EMP_PHONE">Teléfono</label>
+                <input type="tel" id="EMP_PHONE" name="EMP_PHONE" maxlength="15" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <label for="EMP_COUNTRY">País/Región</label>
+              <select id="EMP_COUNTRY" name="EMP_COUNTRY" required class="small">
+                <option value="">- Seleccione -</option>
+                <option value="AFGH">AFGHANISTAN</option>
+                <option value="ALB">ALBANIA</option>
+                <option value="ALGR">ALGERIA</option>
+                <option value="ASMO">AMERICAN SAMOA</option>
+                <option value="ANDO">ANDORRA</option>
+                <option value="ANGL">ANGOLA</option>
+                <option value="ANGU">ANGUILLA</option>
+                <option value="ANTI">ANTIGUA AND BARBUDA</option>
+                <option value="ARG">ARGENTINA</option>
+                <option value="ARM">ARMENIA</option>
+                <option value="ARB">ARUBA</option>
+                <option value="ASTL">AUSTRALIA</option>
+                <option value="AUST">AUSTRIA</option>
+                <option value="AZR">AZERBAIJAN</option>
+                <option value="BAMA">BAHAMAS</option>
+                <option value="BAHR">BAHRAIN</option>
+                <option value="BANG">BANGLADESH</option>
+                <option value="BRDO">BARBADOS</option>
+                <option value="BYS">BELARUS</option>
+                <option value="BELG">BELGIUM</option>
+                <option value="BLZ">BELIZE</option>
+                <option value="BENN">BENIN</option>
+                <option value="BERM">BERMUDA</option>
+                <option value="BHU">BHUTAN</option>
+                <option value="BOL">BOLIVIA</option>
+                <option value="BON">BONAIRE</option>
+                <option value="BIH">BOSNIA-HERZEGOVINA</option>
+                <option value="BOT">BOTSWANA</option>
+                <option value="BRZL">BRAZIL</option>
+                <option value="IOT">BRITISH INDIAN OCEAN TERRITORY</option>
+                <option value="BRNI">BRUNEI</option>
+                <option value="BULG">BULGARIA</option>
+                <option value="BURK">BURKINA FASO</option>
+                <option value="BURM">BURMA</option>
+                <option value="BRND">BURUNDI</option>
+                <option value="CBDA">CAMBODIA</option>
+                <option value="CMRN">CAMEROON</option>
+                <option value="CAN">CANADA</option>
+                <option value="CAVI">CABO VERDE</option>
+                <option value="CAYI">CAYMAN ISLANDS</option>
+                <option value="CAFR">CENTRAL AFRICAN REPUBLIC</option>
+                <option value="CHAD">CHAD</option>
+                <option value="CHIL">CHILE</option>
+                <option value="CHIN">CHINA</option>
+                <option value="CHRI">CHRISTMAS ISLAND</option>
+                <option value="COCI">COCOS KEELING ISLANDS</option>
+                <option value="COL">COLOMBIA</option>
+                <option value="COMO">COMOROS</option>
+                <option value="COD">CONGO, DEMOCRATIC REPUBLIC OF THE</option>
+                <option value="CONB">CONGO, REPUBLIC OF THE</option>
+                <option value="CKIS">COOK ISLANDS</option>
+                <option value="CSTR">COSTA RICA</option>
+                <option value="IVCO">COTE D`IVOIRE</option>
+                <option value="HRV">CROATIA</option>
+                <option value="CUBA">CUBA</option>
+                <option value="CUR">CURACAO</option>
+                <option value="CYPR">CYPRUS</option>
+                <option value="CZEC">CZECH REPUBLIC</option>
+                <option value="DEN">DENMARK</option>
+                <option value="DJI">DJIBOUTI</option>
+                <option value="DOMN">DOMINICA</option>
+                <option value="DOMR">DOMINICAN REPUBLIC</option>
+                <option value="ECUA">ECUADOR</option>
+                <option value="EGYP">EGYPT</option>
+                <option value="ELSL">EL SALVADOR</option>
+                <option value="EGN">EQUATORIAL GUINEA</option>
+                <option value="ERI">ERITREA</option>
+                <option value="EST">ESTONIA</option>
+                <option value="SZLD">ESWATINI</option>
+                <option value="ETH">ETHIOPIA</option>
+                <option value="FKLI">FALKLAND ISLANDS</option>
+                <option value="FRO">FAROE ISLANDS</option>
+                <option value="FIJI">FIJI</option>
+                <option value="FIN">FINLAND</option>
+                <option value="FRAN">FRANCE</option>
+                <option value="FRGN">FRENCH GUIANA</option>
+                <option value="FPOL">FRENCH POLYNESIA</option>
+                <option value="FSAT">FRENCH SOUTHERN AND ANTARCTIC TERRITORIES</option>
+                <option value="GABN">GABON</option>
+                <option value="GAM">GAMBIA, THE</option>
+                <option value="XGZ">GAZA STRIP</option>
+                <option value="GEO">GEORGIA</option>
+                <option value="GER">GERMANY</option>
+                <option value="GHAN">GHANA</option>
+                <option value="GIB">GIBRALTAR</option>
+                <option value="GRC">GREECE</option>
+                <option value="GRLD">GREENLAND</option>
+                <option value="GREN">GRENADA</option>
+                <option value="GUAD">GUADELOUPE</option>
+                <option value="GUAM">GUAM</option>
+                <option value="GUAT">GUATEMALA</option>
+                <option value="GNEA">GUINEA</option>
+                <option value="GUIB">GUINEA - BISSAU</option>
+                <option value="GUY">GUYANA</option>
+                <option value="HAT">HAITI</option>
+                <option value="HMD">HEARD AND MCDONALD ISLANDS</option>
+                <option value="VAT">HOLY SEE (VATICAN CITY)</option>
+                <option value="HOND">HONDURAS</option>
+                <option value="HNK">HONG KONG</option>
+                <option value="XHI">HOWLAND ISLAND</option>
+                <option value="HUNG">HUNGARY</option>
+                <option value="ICLD">ICELAND</option>
+                <option value="IND">INDIA</option>
+                <option value="IDSA">INDONESIA</option>
+                <option value="IRAN">IRAN</option>
+                <option value="IRAQ">IRAQ</option>
+                <option value="IRE">IRELAND</option>
+                <option value="ISRL">ISRAEL</option>
+                <option value="ITLY">ITALY</option>
+                <option value="JAM">JAMAICA</option>
+                <option value="JPN">JAPAN</option>
+                <option value="JRSM">JERUSALEM</option>
+                <option value="JORD">JORDAN</option>
+                <option value="KAZ">KAZAKHSTAN</option>
+                <option value="KENY">KENYA</option>
+                <option value="KIRI">KIRIBATI</option>
+                <option value="PRK">KOREA, DEMOCRATIC REPUBLIC OF (NORTH)</option>
+                <option value="KOR">KOREA, REPUBLIC OF (SOUTH)</option>
+                <option value="KSV">KOSOVO</option>
+                <option value="KUWT">KUWAIT</option>
+                <option value="KGZ">KYRGYZSTAN</option>
+                <option value="LAOS">LAOS</option>
+                <option value="LATV">LATVIA</option>
+                <option value="LEBN">LEBANON</option>
+                <option value="LES">LESOTHO</option>
+                <option value="LIBR">LIBERIA</option>
+                <option value="LBYA">LIBYA</option>
+                <option value="LCHT">LIECHTENSTEIN</option>
+                <option value="LITH">LITHUANIA</option>
+                <option value="LXM">LUXEMBOURG</option>
+                <option value="MAC">MACAU</option>
+                <option value="MKD">MACEDONIA, NORTH</option>
+                <option value="MADG">MADAGASCAR</option>
+                <option value="MALW">MALAWI</option>
+                <option value="MLAS">MALAYSIA</option>
+                <option value="MLDI">MALDEN ISLAND</option>
+                <option value="MLDV">MALDIVES</option>
+                <option value="MALI">MALI</option>
+                <option value="MLTA">MALTA</option>
+                <option value="RMI">MARSHALL ISLANDS</option>
+                <option value="MART">MARTINIQUE</option>
+                <option value="MAUR">MAURITANIA</option>
+                <option value="MRTS">MAURITIUS</option>
+                <option value="MYT">MAYOTTE</option>
+                <option value="MEX">MEXICO</option>
+                <option value="FSM">MICRONESIA</option>
+                <option value="MDWI">MIDWAY ISLANDS</option>
+                <option value="MLD">MOLDOVA</option>
+                <option value="MON">MONACO</option>
+                <option value="MONG">MONGOLIA</option>
+                <option value="MTG">MONTENEGRO</option>
+                <option value="MONT">MONTSERRAT</option>
+                <option value="MORO">MOROCCO</option>
+                <option value="MOZ">MOZAMBIQUE</option>
+                <option value="NAMB">NAMIBIA</option>
+                <option value="NAU">NAURU</option>
+                <option value="NEP">NEPAL</option>
+                <option value="NETH">NETHERLANDS</option>
+                <option value="NCAL">NEW CALEDONIA</option>
+                <option value="NZLD">NEW ZEALAND</option>
+                <option value="NIC">NICARAGUA</option>
+                <option value="NIR">NIGER</option>
+                <option value="NRA">NIGERIA</option>
+                <option value="NIUE">NIUE</option>
+                <option value="NFK">NORFOLK ISLAND</option>
+                <option value="MNP">NORTH MARIANA ISLANDS</option>
+                <option value="NIRE">NORTHERN IRELAND</option>
+                <option value="NORW">NORWAY</option>
+                <option value="OMAN">OMAN</option>
+                <option value="PKST">PAKISTAN</option>
+                <option value="PALA">PALAU</option>
+                <option value="PLMR">PALMYRA ATOLL</option>
+                <option value="PAN">PANAMA</option>
+                <option value="PNG">PAPUA NEW GUINEA</option>
+                <option value="PARA">PARAGUAY</option>
+                <option value="PERU">PERU</option>
+                <option value="PHIL">PHILIPPINES</option>
+                <option value="PITC">PITCAIRN ISLANDS</option>
+                <option value="POL">POLAND</option>
+                <option value="PORT">PORTUGAL</option>
+                <option value="PR">PUERTO RICO</option>
+                <option value="QTAR">QATAR</option>
+                <option value="REUN">REUNION</option>
+                <option value="ROM">ROMANIA</option>
+                <option value="RUS">RUSSIA</option>
+                <option value="RWND">RWANDA</option>
+                <option value="SABA">SABA ISLAND</option>
+                <option value="MAF">SAINT MARTIN</option>
+                <option value="WSAM">SAMOA</option>
+                <option value="SMAR">SAN MARINO</option>
+                <option value="STPR">SAO TOME AND PRINCIPE</option>
+                <option value="SARB">SAUDI ARABIA</option>
+                <option value="SENG">SENEGAL</option>
+                <option value="SBA">SERBIA</option>
+                <option value="SEYC">SEYCHELLES</option>
+                <option value="SLEO">SIERRA LEONE</option>
+                <option value="SING">SINGAPORE</option>
+                <option value="STM">SINT MAARTEN</option>
+                <option value="SVK">SLOVAKIA</option>
+                <option value="SVN">SLOVENIA</option>
+                <option value="SLMN">SOLOMON ISLANDS</option>
+                <option value="SOMA">SOMALIA</option>
+                <option value="SAFR">SOUTH AFRICA</option>
+                <option value="SGS">SOUTH GEORGIA AND THE SOUTH SANDWICH ISLAND</option>
+                <option value="SSDN">SOUTH SUDAN</option>
+                <option value="SPN">SPAIN</option>
+                <option value="SRL">SRI LANKA</option>
+                <option value="STEU">ST. EUSTATIUS</option>
+                <option value="SHEL">ST. HELENA</option>
+                <option value="STCN">ST. KITTS AND NEVIS</option>
+                <option value="SLCA">ST. LUCIA</option>
+                <option value="SPMI">ST. PIERRE AND MIQUELON</option>
+                <option value="STVN">ST. VINCENT AND THE GRENADINES</option>
+                <option value="SUDA">SUDAN</option>
+                <option value="SURM">SURINAME</option>
+                <option value="SJM">SVALBARD</option>
+                <option value="SWDN">SWEDEN</option>
+                <option value="SWTZ">SWITZERLAND</option>
+                <option value="SYR">SYRIA</option>
+                <option value="TWAN">TAIWAN</option>
+                <option value="TJK">TAJIKISTAN</option>
+                <option value="TAZN">TANZANIA</option>
+                <option value="THAI">THAILAND</option>
+                <option value="TMOR">TIMOR-LESTE</option>
+                <option value="TOGO">TOGO</option>
+                <option value="TKL">TOKELAU</option>
+                <option value="TONG">TONGA</option>
+                <option value="TRIN">TRINIDAD AND TOBAGO</option>
+                <option value="TNSA">TUNISIA</option>
+                <option value="TRKY">TURKEY</option>
+                <option value="TKM">TURKMENISTAN</option>
+                <option value="TCIS">TURKS AND CAICOS ISLANDS</option>
+                <option value="TUV">TUVALU</option>
+                <option value="UGAN">UGANDA</option>
+                <option value="UKR">UKRAINE</option>
+                <option value="UAE">UNITED ARAB EMIRATES</option>
+                <option value="GRBR">UNITED KINGDOM</option>
+                <option value="USA">UNITED STATES OF AMERICA</option>
+                <option value="URU">URUGUAY</option>
+                <option value="UZB">UZBEKISTAN</option>
+                <option value="VANU">VANUATU</option>
+                <option value="VENZ">VENEZUELA</option>
+                <option value="VTNM">VIETNAM</option>
+                <option value="VI">VIRGIN ISLANDS (U.S.)</option>
+                <option value="BRVI">VIRGIN ISLANDS, BRITISH</option>
+                <option value="WKI">WAKE ISLAND</option>
+                <option value="WAFT">WALLIS AND FUTUNA ISLANDS</option>
+                <option value="XWB">WEST BANK</option>
+                <option value="SSAH">WESTERN SAHARA</option>
+                <option value="YEM">YEMEN</option>
+                <option value="ZAMB">ZAMBIA</option>
+                <option value="ZIMB">ZIMBABWE</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <!-- Fecha de inicio -->
+          <div class="row">
+            <label>Fecha de inicio</label>
+            <div class="inline">
+              <select id="EMP_START_DAY" name="EMP_START_DAY" required style="max-width:80px">
+                <option value=""></option>
+                <option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
+                <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
+                <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
+              </select>
+              <select id="EMP_START_MONTH" name="EMP_START_MONTH" required style="max-width:100px">
+                <option value=""></option>
+                <option value="1">ENE</option>
+                <option value="2">FEB</option>
+                <option value="3">MAR</option>
+                <option value="4">ABR</option>
+                <option value="5">MAY</option>
+                <option value="6">JUN</option>
+                <option value="7">JUL</option>
+                <option value="8">AGO</option>
+                <option value="9">SEP</option>
+                <option value="10">OCT</option>
+                <option value="11">NOV</option>
+                <option value="12">DIC</option>
+              </select>
+              <input type="text" id="EMP_START_YEAR" name="EMP_START_YEAR" inputmode="numeric" maxlength="4" required style="max-width:90px" />
+            </div>
+            <p class="help">(Formato: DD-MMM-AAAA)</p>
+          </div>
+
+          <!-- Salario mensual -->
+          <div class="row">
+            <label for="EMP_MONTHLY_SALARY">Ingreso mensual en moneda local <span class="note">(si aplica)</span></label>
+            <div class="inline">
+              <input type="text" id="EMP_MONTHLY_SALARY" name="EMP_MONTHLY_SALARY" maxlength="15" disabled style="max-width:260px;" />
+              <label class="inline" style="font-weight:400;">
+                <input type="checkbox" id="EMP_SALARY_NA" name="EMP_SALARY_NA" checked> No aplica
+              </label>
+            </div>
+            <input type="hidden" id="EMP_SALARY_NA_HIDDEN" name="EMP_SALARY_NA_HIDDEN" value="Y">
+          </div>
+
+          <!-- Descripción de funciones -->
+          <div class="row" style="max-width: 620px;">
+            <label for="EMP_DUTIES">Describa brevemente sus funciones</label>
+            <textarea id="EMP_DUTIES" name="EMP_DUTIES" maxlength="4000"></textarea>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="saveBtn">Guardar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+
+        <!-- Campos ocultos de referencia -->
+        <input type="hidden" id="HiddenPageValid" name="HiddenPageValid" value="" />
+        <input type="hidden" id="HiddenPageChanged" name="HiddenPageChanged" value="" />
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navegación solicitada
+    const NEXT_URL = new URL('personal10.html', window.location.href).href;
+    const BACK_URL = new URL('personal8.html', window.location.href).href;
+
+    // Persistencia en localStorage (igual lógica del archivo de viaje)
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-work1';
+
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else if (field.type === 'checkbox') {
+          localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return; // respeta defaults (campos limpios / checks "Sí")
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else if (field.type === 'checkbox') {
+          field.checked = (v === '1');
+        } else {
+          field.value = v;
+        }
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (t && t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (t && t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+    function restoreForm(form) {
+      form.querySelectorAll('input,select,textarea').forEach(restoreField);
+    }
+
+    // N/A helpers
+    const EMP_STATE = document.getElementById('EMP_STATE');
+    const EMP_STATE_NA = document.getElementById('EMP_STATE_NA');
+    const EMP_STATE_NA_HIDDEN = document.getElementById('EMP_STATE_NA_HIDDEN');
+
+    const EMP_POSTAL = document.getElementById('EMP_POSTAL');
+    const EMP_POSTAL_NA = document.getElementById('EMP_POSTAL_NA');
+    const EMP_POSTAL_NA_HIDDEN = document.getElementById('EMP_POSTAL_NA_HIDDEN');
+
+    const EMP_MONTHLY_SALARY = document.getElementById('EMP_MONTHLY_SALARY');
+    const EMP_SALARY_NA = document.getElementById('EMP_SALARY_NA');
+    const EMP_SALARY_NA_HIDDEN = document.getElementById('EMP_SALARY_NA_HIDDEN');
+
+    function syncNA(checkbox, input, hidden) {
+      const on = checkbox.checked;
+      input.disabled = on;
+      if (on) input.value = '';
+      if (!on && input.hasAttribute('data-required-when-enabled')) {
+        input.required = true;
+      } else if (on) {
+        input.required = false;
+      }
+      hidden.value = on ? 'Y' : 'N';
+    }
+
+    // Marca qué inputs serían requeridos si se habilitan
+    EMP_POSTAL.setAttribute('data-required-when-enabled', '1');
+    EMP_MONTHLY_SALARY.setAttribute('data-required-when-enabled', '1');
+
+    // Restaurar todo primero (para mantener datos tras cerrar/abrir)
+    const form = document.getElementById(FORM_ID);
+    restoreForm(form);
+
+    // Inicialización con "Sí" por default en cuadros de elección (checkboxes) si no hay valor guardado
+    (function initNAWithDefaults(){
+      // Estado/Provincia
+      const vStateNA = localStorage.getItem(storageKey(EMP_STATE_NA));
+      if (vStateNA !== null) EMP_STATE_NA.checked = (vStateNA === '1'); // usa lo guardado
+      else EMP_STATE_NA.checked = true; // "Sí" por default
+      EMP_STATE.disabled = EMP_STATE_NA.checked;
+      if (EMP_STATE_NA.checked) EMP_STATE.value = '';
+      EMP_STATE_NA_HIDDEN.value = EMP_STATE_NA.checked ? 'Y':'N';
+
+      // Postal
+      const vPostalNA = localStorage.getItem(storageKey(EMP_POSTAL_NA));
+      if (vPostalNA !== null) EMP_POSTAL_NA.checked = (vPostalNA === '1');
+      else EMP_POSTAL_NA.checked = true; // "Sí" por default
+      syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
+
+      // Salario
+      const vSalaryNA = localStorage.getItem(storageKey(EMP_SALARY_NA));
+      if (vSalaryNA !== null) EMP_SALARY_NA.checked = (vSalaryNA === '1');
+      else EMP_SALARY_NA.checked = true; // "Sí" por default
+      syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
+    })();
+
+    // Escuchas de cambio para N/A
+    EMP_STATE_NA.addEventListener('change', () => {
+      EMP_STATE.disabled = EMP_STATE_NA.checked;
+      if (EMP_STATE_NA.checked) EMP_STATE.value = '';
+      EMP_STATE_NA_HIDDEN.value = EMP_STATE_NA.checked ? 'Y':'N';
+      saveField(EMP_STATE_NA);
+      saveField(EMP_STATE);
+      saveField(EMP_STATE_NA_HIDDEN);
+    });
+    EMP_POSTAL_NA.addEventListener('change', () => {
+      syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
+      saveField(EMP_POSTAL_NA);
+      saveField(EMP_POSTAL);
+      saveField(EMP_POSTAL_NA_HIDDEN);
+    });
+    EMP_SALARY_NA.addEventListener('change', () => {
+      syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
+      saveField(EMP_SALARY_NA);
+      saveField(EMP_MONTHLY_SALARY);
+      saveField(EMP_SALARY_NA_HIDDEN);
+    });
+
+    // Validación mínima
+    function checkForm(){
+      const d = document.getElementById('EMP_START_DAY');
+      const m = document.getElementById('EMP_START_MONTH');
+      const y = document.getElementById('EMP_START_YEAR');
+      [d,m,y].forEach(el => el.setCustomValidity(''));
+      if (!d.value) d.setCustomValidity('Seleccione día.');
+      if (!m.value) m.setCustomValidity('Seleccione mes.');
+      if (!y.value || y.value.length !== 4) y.setCustomValidity('Capture año de 4 dígitos.');
+      return form.checkValidity();
+    }
+
+    // Autosave
+    autosave(form);
+
+    // Botones
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+    document.getElementById('saveBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      alert('Guardado localmente.');
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (!checkForm()){
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
+    });
+  </script>
+</body>
+</html>
