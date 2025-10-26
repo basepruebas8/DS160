@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DS-160 · Información personal 1</title>
+
+  <!-- CSP: sin JS inline -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data: blob:;
+                 connect-src 'self';
+                 form-action 'self';
+                 object-src 'none'">
+
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff; --text: #0f172a; --muted: #475569; --border: #e2e8f0;
+      --accent: #2563eb; --accent-600: #1d4ed8; --accent-700: #2563eb; --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a; --text: #e5e7eb; --muted: #94a3b8; --border: #233044;
+        --accent: #60a5fa; --accent-600: #3b82f6; --accent-700: #2563eb; --ring:#60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+    }}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;line-height:1.45;color:var(--text);background:var(--bg);background-image:var(--bg-grad)}
+    .wrap{max-width:920px;margin:32px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);backdrop-filter:saturate(120%) blur(4px)}
+    header h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:-.01em}
+    .subtle{color:var(--muted);font-size:.95rem;margin-bottom:12px}
+    fieldset{border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
+    legend{font-weight:700;padding:0 10px;font-size:.98rem}
+    legend::after{content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent)}
+    label{display:inline-block;margin:8px 0 6px;font-weight:600}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    .inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .inline.nowrap{flex-wrap:nowrap}
+    input[type="text"],select,input[type="file"]{width:100%;max-width:560px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);outline:none;transition:border-color .15s ease,box-shadow .15s ease,transform .06s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+    input[type="text"][data-uppercase]{text-transform:uppercase;letter-spacing:.02em}
+    input[type="text"]:focus,select:focus,input[type="file"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent)}
+    input[type="text"]:active,select:active,input[type="file"]:active{transform:translateY(.5px)}
+    .help{font-size:.9rem;color:var(--muted);margin-top:2px}
+    .actions{margin-top:18px;display:flex;gap:12px;align-items:center;border-top:1px dashed var(--border);padding-top:16px}
+    button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;transition:transform .06s ease,box-shadow .15s ease,background .2s ease,border-color .15s ease}
+    button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;border-color:transparent;box-shadow:var(--shadow)}
+    button.primary:hover{background:linear-gradient(180deg,var(--accent-600),var(--accent-700));transform:translateY(-.5px)}
+    [hidden]{display:none!important}
+    #uploadStatus[aria-live]{min-height:1.2em}
+
+    /* UI de archivos */
+    .file-actions{display:flex;gap:8px;align-items:center}
+    .files-wrap{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;overflow:auto;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
+    table.files{width:100%;border-collapse:collapse;font-size:.95rem}
+    table.files th, table.files td{padding:8px 10px;border-bottom:1px solid var(--border)}
+    table.files th{text-align:left;font-weight:700}
+    .muted{color:var(--muted)}
+    .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+    progress{width:260px;height:14px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Información personal 1</strong></div>
+      </header>
+
+      <form id="ds160-personal1" novalidate>
+        <fieldset>
+          <legend>Información personal 1</legend>
+
+          <div class="row">
+            <label for="APP_SURNAME">Apellidos</label>
+            <input type="text" id="APP_SURNAME" name="APP_SURNAME" maxlength="33" data-uppercase required />
+          </div>
+
+          <div class="row">
+            <label for="APP_GIVEN_NAME">Nombres</label>
+            <input type="text" id="APP_GIVEN_NAME" name="APP_GIVEN_NAME" maxlength="33" data-uppercase required />
+          </div>
+
+          <div class="row">
+            <label for="APP_FULL_NAME_NATIVE">Nombre completo en alfabeto nativo</label>
+            <input type="text" id="APP_FULL_NAME_NATIVE" name="APP_FULL_NAME_NATIVE" maxlength="100" required />
+            <div class="inline">
+              <input type="checkbox" id="APP_FULL_NAME_NATIVE_NA" name="APP_FULL_NAME_NATIVE_NA" />
+              <label for="APP_FULL_NAME_NATIVE_NA" style="font-weight:400;">No aplica / Tecnología no disponible</label>
+            </div>
+            <div id="uploadStatus" class="help" aria-live="polite"></div>
+          </div>
+
+          <div class="row">
+            <label>¿Ha utilizado otros nombres?</label>
+            <div class="inline" role="radiogroup" aria-label="Otros nombres">
+              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="Y" id="OtherNamesY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="N" id="OtherNamesN"> No</label>
+            </div>
+            <div id="otherNamesSection" class="row" hidden>
+              <div class="row">
+                <label for="OTHER_SURNAME">Otros apellidos utilizados</label>
+                <input type="text" id="OTHER_SURNAME" name="OTHER_SURNAME" maxlength="33" data-uppercase />
+              </div>
+              <div class="row">
+                <label for="OTHER_GIVEN">Otros nombres utilizados</label>
+                <input type="text" id="OTHER_GIVEN" name="OTHER_GIVEN" maxlength="33" data-uppercase />
+              </div>
+              <p class="help">Ingrese todos los otros nombres que haya usado.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>¿Tiene un telecódigo que represente su nombre?</label>
+            <div class="inline" role="radiogroup" aria-label="Telecódigo">
+              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="Y" id="TelecodeY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="N" id="TelecodeN"> No</label>
+            </div>
+            <div id="telecodeSection" class="row" hidden>
+              <div class="row">
+                <label for="TELECODE_SURNAME">Telecódigo de apellidos</label>
+                <input type="text" id="TELECODE_SURNAME" name="TELECODE_SURNAME" inputmode="numeric" pattern="^(\d{4})(\s\d{4})*$" title="Telecódigos de 4 dígitos separados por espacios" />
+              </div>
+              <div class="row">
+                <label for="TELECODE_GIVEN">Telecódigo de nombres</label>
+                <input type="text" id="TELECODE_GIVEN" name="TELECODE_GIVEN" inputmode="numeric" pattern="^(\d{4})(\s\d{4})*$" title="Telecódigos de 4 dígitos separados por espacios" />
+              </div>
+              <p class="help">Para alfabetos no romanos.</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <label for="APP_GENDER">Sexo</label>
+            <select id="APP_GENDER" name="APP_GENDER" required>
+              <option value="">- Seleccione -</option>
+              <option>MALE</option><option>FEMALE</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <label for="APP_MARITAL_STATUS">Estado civil</label>
+            <select id="APP_MARITAL_STATUS" name="APP_MARITAL_STATUS" required>
+              <option value="">- Seleccione -</option>
+              <option>MARRIED</option><option>COMMON LAW MARRIAGE</option><option>CIVIL UNION/DOMESTIC PARTNERSHIP</option>
+              <option>SINGLE</option><option>WIDOWED</option><option>DIVORCED</option><option>LEGALLY SEPARATED</option><option>OTHER</option>
+            </select>
+          </div>
+
+          <fieldset>
+            <legend>Fecha y lugar de nacimiento</legend>
+            <div class="row">
+              <label>Fecha</label>
+              <div class="inline nowrap">
+                <select id="DOB_DAY" name="DOB_DAY" aria-label="Día" style="min-width:70px;" required>
+                  <option value=""></option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
+                  <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
+                  <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+                  <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
+                  <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
+                  <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
+                </select>
+                <select id="DOB_MONTH" name="DOB_MONTH" aria-label="Mes" style="min-width:90px;" required>
+                  <option value=""></option><option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option><option>MAY</option><option>JUN</option>
+                  <option>JUL</option><option>AUG</option><option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
+                </select>
+                <input type="text" id="DOB_YEAR" name="DOB_YEAR" maxlength="4" placeholder="YYYY" style="width:80px;" inputmode="numeric" pattern="^\d{4}$" data-uppercase required />
+              </div>
+            </div>
+            <div class="row">
+              <label for="POB_CITY">Ciudad</label>
+              <input type="text" id="POB_CITY" name="POB_CITY" maxlength="20" data-uppercase required />
+            </div>
+            <div class="row">
+              <label for="POB_STATE">Estado/Provincia</label>
+              <input type="text" id="POB_STATE" name="POB_STATE" maxlength="20" data-uppercase required />
+              <div class="inline">
+                <input type="checkbox" id="POB_STATE_NA" name="POB_STATE_NA" />
+                <label for="POB_STATE_NA" style="font-weight:400;">No aplica</label>
+              </div>
+            </div>
+            <div class="row">
+              <label for="POB_COUNTRY">País/Región</label>
+              <select id="POB_COUNTRY" name="POB_COUNTRY" required>
+                <option value="">- Seleccione -</option>
+                <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option>MÉXICO</option><option>GROENLANDIA</option>
+                <option>BELICE</option><option>COSTA RICA</option><option>EL SALVADOR</option><option>GUATEMALA</option><option>HONDURAS</option><option>NICARAGUA</option><option>PANAMÁ</option>
+                <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y NIEVES</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
+                <option>ARGENTINA</option><option>BOLIVIA</option><option>BRASIL</option><option>CHILE</option><option>COLOMBIA</option><option>ECUADOR</option><option>GUYANA</option><option>PARAGUAY</option><option>PERÚ</option><option>SURINAM</option><option>URUGUAY</option><option>VENEZUELA</option>
+              </select>
+              <div class="help">Lista acotada a países del continente americano.</div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Imágenes</legend>
+
+            <div class="row">
+              <label for="imagesNow">Selecciona imágenes</label>
+              <input type="file" id="imagesNow" accept="image/*" multiple />
+              <div class="inline file-actions">
+                <button type="button" id="uploadBtn">Guardar seleccionadas (local)</button>
+                <button type="button" id="refreshListBtn">Refrescar lista</button>
+              </div>
+
+              <div class="progress-row">
+                <progress id="uploadProgress" value="0" max="100"></progress>
+                <span id="uploadProgressText" class="muted"></span>
+              </div>
+
+              <div id="uploadStatusImages" class="help" aria-live="polite"></div>
+            </div>
+
+            <div class="row">
+              <label>Archivos guardados</label>
+              <div id="imagesList" class="files-wrap">
+                <div class="muted">Sin archivos.</div>
+              </div>
+            </div>
+          </fieldset>
+
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="clearBtn">Limpiar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+        <div id="saveMsg" class="help" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JS externo -->
+  <script src="./storage.js" defer></script>
+  <script src="./personal1.js" defer></script>
+</body>
+</html>
