@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DS-160 · Compañeros de viaje (ES) · v2</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --ring: #93c5fd;
+      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg: #0b1220;
+        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
+                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
+        --card: #0f172a;
+        --text: #e5e7eb;
+        --muted: #94a3b8;
+        --border: #233044;
+        --accent: #60a5fa;
+        --accent-600: #3b82f6;
+        --accent-700: #2563eb;
+        --ring: #60a5fa;
+        --shadow: 0 12px 36px rgba(0,0,0,.35);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    input[type="text"], input[type="email"], input[type="tel"], select {
+      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
+
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
+
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+
+    .companion-item { display:grid; grid-template-columns: 1.2fr 1.2fr 1fr auto; gap:10px; align-items:end; }
+    .companion-item button.remove { border-color:#ef4444; color:#ef4444; }
+    .companion-item button.remove:hover{ background:#ef44441a; }
+    .hide { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Compañeros de viaje</strong></div>
+      </header>
+
+      <form id="ds160-travelcompanions" action="#" method="post" novalidate>
+        <fieldset>
+          <legend>Información de acompañantes de viaje</legend>
+          <p class="help">Nota: Proporcione la siguiente información de los acompañantes de viaje.</p>
+
+          <!-- ¿Hay otras personas viajando con usted? -->
+          <div class="row">
+            <label>¿Hay otras personas viajando con usted?</label>
+            <div class="inline" role="radiogroup" aria-label="Otras personas viajando con usted">
+              <label style="font-weight:400;">
+                <input type="radio" name="OtherPersonsTravelingWithYou" value="Y" id="OtherY" required> Sí
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="OtherPersonsTravelingWithYou" value="N" id="OtherN"> No
+              </label>
+            </div>
+            <p class="help">
+              Responda “Sí” si viaja con familia, como parte de un tour organizado, o como parte de un grupo artístico o equipo deportivo.
+              No necesita listar personas que viajan con usted por motivos de empleo con el mismo empleador.
+            </p>
+          </div>
+
+          <!-- Sección visible solo si respuesta = Sí -->
+          <div id="withCompanionsSection" class="row hide">
+            <fieldset>
+              <legend>Tipo de acompañamiento</legend>
+              <div class="row">
+                <label>¿Viaja como parte de un grupo u organización?</label>
+                <div class="inline" role="radiogroup" aria-label="Grupo u organización">
+                  <label style="font-weight:400;">
+                    <input type="radio" name="GroupTravel" value="Y" id="GroupY"> Sí
+                  </label>
+                  <label style="font-weight:400;">
+                    <input type="radio" name="GroupTravel" value="N" id="GroupN"> No
+                  </label>
+                </div>
+              </div>
+              <div id="groupNameBlock" class="row hide">
+                <label for="GROUP_NAME">Nombre del grupo u organización</label>
+                <input type="text" id="GROUP_NAME" name="GROUP_NAME" maxlength="120" placeholder="Ej. Tour Ejemplo / Orquesta ABC">
+              </div>
+            </fieldset>
+
+            <fieldset id="companionsListBlock" class="hide">
+              <legend>Personas que viajan con usted</legend>
+              <div id="companionsList" class="row"></div>
+              <div class="inline" style="margin-top:8px;">
+                <button type="button" id="addCompanionBtn">Agregar acompañante</button>
+              </div>
+              <p class="help">Si no viaja como parte de un grupo, liste a cada acompañante.</p>
+            </fieldset>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Navegación
+    const BACK_URL = new URL('personal3.html', window.location.href).href; // ← arreglado
+    const NEXT_URL = new URL('personal5.html', window.location.href).href;
+
+    // Persistencia local
+    const STORAGE_PREFIX = 'ds160:';
+    const FORM_ID = 'ds160-travelcompanions';
+    const COMP_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':COMP_COUNT';
+
+    function storageKey(field) {
+      const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+      return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    }
+    function saveField(field) {
+      try {
+        if (field.type === 'radio') {
+          if (field.checked) localStorage.setItem(storageKey(field), field.value);
+        } else {
+          localStorage.setItem(storageKey(field), field.value);
+        }
+      } catch(e) {}
+    }
+    function restoreField(field) {
+      try {
+        const key = storageKey(field);
+        const v = localStorage.getItem(key);
+        if (v == null) return;
+        if (field.type === 'radio') field.checked = (field.value === v);
+        else field.value = v;
+      } catch(e) {}
+    }
+    function autosave(form) {
+      form.addEventListener('input', (e) => {
+        const t = e.target;
+        if (t && t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('change', (e) => {
+        const t = e.target;
+        if (t && t.matches('input,select,textarea')) saveField(t);
+      }, true);
+    }
+
+    // Relación opciones
+    const REL_OPTS = [
+      {v:"", t:"- Relación -"},
+      {v:"SPOUSE", t:"Esposo/a"},
+      {v:"PARENT", t:"Padre/Madre"},
+      {v:"CHILD", t:"Hijo/a"},
+      {v:"SIBLING", t:"Hermano/a"},
+      {v:"OTHERREL", t:"Otro familiar"},
+      {v:"FRIEND", t:"Amigo/a"},
+      {v:"COWORKER", t:"Colega"},
+      {v:"OTHER", t:"Otro"}
+    ];
+
+    // DOM refs
+    const form = document.getElementById(FORM_ID);
+    const otherY = document.getElementById('OtherY');
+    const otherN = document.getElementById('OtherN');
+    const withCompanionsSection = document.getElementById('withCompanionsSection');
+
+    const groupY = document.getElementById('GroupY');
+    const groupN = document.getElementById('GroupN');
+    const groupNameBlock = document.getElementById('groupNameBlock');
+    const GROUP_NAME = document.getElementById('GROUP_NAME');
+
+    const companionsListBlock = document.getElementById('companionsListBlock');
+    const companionsList = document.getElementById('companionsList');
+    const addCompanionBtn = document.getElementById('addCompanionBtn');
+
+    // Helpers dinámicos
+    function setRequired(el, on){ el.required = !!on; el.setCustomValidity(''); }
+
+    function updateMainVisibility(){
+      const show = otherY.checked;
+      withCompanionsSection.classList.toggle('hide', !show);
+
+      // Limpia requeridos si No
+      if (!show){
+        [groupY, groupN].forEach(r => { r.checked = false; saveField(r); });
+        GROUP_NAME.value = ""; saveField(GROUP_NAME);
+        setRequired(GROUP_NAME, false);
+        companionsList.innerHTML = "";
+        localStorage.setItem(COMP_COUNT_KEY, '0');
+        companionsListBlock.classList.add('hide');
+        groupNameBlock.classList.add('hide');
+      }
+    }
+
+    function updateGroupVisibility(){
+      const isGroup = groupY.checked;
+      groupNameBlock.classList.toggle('hide', !isGroup);
+      companionsListBlock.classList.toggle('hide', isGroup);
+
+      setRequired(GROUP_NAME, isGroup);
+      if (!isGroup){
+        // asegurar al menos 1 compañero visible
+        if (companionsList.children.length === 0) addCompanion();
+      } else {
+        // si es grupo, no forzar lista
+        companionsList.innerHTML = "";
+        localStorage.setItem(COMP_COUNT_KEY, '0');
+      }
+    }
+
+    function relSelect(){
+      const s = document.createElement('select');
+      s.name = 'COMPANION_REL';
+      s.required = true;
+      REL_OPTS.forEach(o=>{
+        const opt = document.createElement('option');
+        opt.value = o.v; opt.textContent = o.t;
+        s.appendChild(opt);
+      });
+      return s;
+    }
+
+    function makeCompanionItem(){
+      const wrap = document.createElement('div');
+      wrap.className = 'companion-item';
+
+      // Apellidos
+      const l1 = document.createElement('div');
+      const lab1 = document.createElement('label');
+      lab1.textContent = 'Apellido(s)';
+      const in1 = document.createElement('input');
+      in1.type = 'text'; in1.name = 'COMPANION_SURNAME'; in1.maxLength = 60; in1.required = true;
+      l1.appendChild(lab1); l1.appendChild(in1);
+
+      // Nombres
+      const l2 = document.createElement('div');
+      const lab2 = document.createElement('label');
+      lab2.textContent = 'Nombre(s)';
+      const in2 = document.createElement('input');
+      in2.type = 'text'; in2.name = 'COMPANION_GIVEN'; in2.maxLength = 60; in2.required = true;
+      l2.appendChild(lab2); l2.appendChild(in2);
+
+      // Relación
+      const l3 = document.createElement('div');
+      const lab3 = document.createElement('label');
+      lab3.textContent = 'Relación';
+      const sel = relSelect();
+      l3.appendChild(lab3); l3.appendChild(sel);
+
+      // Eliminar
+      const l4 = document.createElement('div');
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'remove'; btn.textContent = 'Eliminar';
+      btn.addEventListener('click', () => {
+        companionsList.removeChild(wrap);
+        saveCompanionCount();
+        refreshRemoveButtons();
+      });
+      l4.appendChild(btn);
+
+      wrap.appendChild(l1); wrap.appendChild(l2); wrap.appendChild(l3); wrap.appendChild(l4);
+      return wrap;
+    }
+
+    function refreshRemoveButtons(){
+      const items = [...companionsList.children];
+      const hideRemove = items.length <= 1;
+      items.forEach(i => {
+        const b = i.querySelector('button.remove');
+        if (b) b.style.visibility = hideRemove ? 'hidden' : 'visible';
+      });
+    }
+    function saveCompanionCount(){
+      localStorage.setItem(COMP_COUNT_KEY, String(companionsList.children.length));
+    }
+    function addCompanion(){
+      const item = makeCompanionItem();
+      companionsList.appendChild(item);
+      saveCompanionCount();
+      refreshRemoveButtons();
+    }
+    addCompanionBtn.addEventListener('click', addCompanion);
+
+    // Autosave
+    autosave(form);
+
+    // Restaurar radios y campos
+    form.querySelectorAll('input[type="radio"]').forEach(restoreField);
+    [GROUP_NAME].forEach(restoreField);
+
+    // Estado inicial tras restaurar
+    updateMainVisibility();
+    if (withCompanionsSection.classList.contains('hide') === false){
+      // restaurar radios de grupo
+      [groupY, groupN].forEach(restoreField);
+      updateGroupVisibility();
+
+      // restaurar lista si aplica
+      const count = parseInt(localStorage.getItem(COMP_COUNT_KEY) || '0', 10);
+      if (!groupY.checked){
+        const n = Math.max(1, isFinite(count) ? count : 1);
+        for (let i=0; i<n; i++) addCompanion();
+      }
+    }
+
+    // Eventos de cambio
+    [otherY, otherN].forEach(r => r.addEventListener('change', () => { saveField(r); updateMainVisibility(); }));
+    [groupY, groupN].forEach(r => r.addEventListener('change', () => { saveField(r); updateGroupVisibility(); }));
+
+    // Validación
+    function checkForm(){
+      // Si no hay acompañantes, basta con que esté respondido Sí/No
+      if (!otherY.checked) return form.checkValidity();
+
+      // Si es grupo, exigir nombre de grupo
+      if (groupY.checked){
+        if (!GROUP_NAME.value.trim()){
+          GROUP_NAME.setCustomValidity('Indique el nombre del grupo u organización.');
+        } else {
+          GROUP_NAME.setCustomValidity('');
+        }
+        return form.checkValidity();
+      }
+
+      // Si NO es grupo, exigir al menos 1 acompañante completo
+      const items = [...companionsList.children];
+      if (items.length === 0){
+        alert('Agregue al menos un acompañante o marque que viaja como parte de un grupo.');
+        return false;
+      }
+      let ok = true;
+      for (const item of items){
+        const sname = item.querySelector('input[name="COMPANION_SURNAME"]');
+        const gname = item.querySelector('input[name="COMPANION_GIVEN"]');
+        const rel = item.querySelector('select[name="COMPANION_REL"]');
+        if (!sname.value.trim()) { sname.reportValidity(); sname.focus(); ok = false; break; }
+        if (!gname.value.trim()) { gname.reportValidity(); gname.focus(); ok = false; break; }
+        if (!rel.value) { rel.reportValidity(); rel.focus(); ok = false; break; }
+      }
+      return ok && form.checkValidity();
+    }
+
+    // Botones
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (!checkForm()){
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
+    });
+  </script>
+</body>
+</html>
