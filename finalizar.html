@@ -20,10 +20,7 @@
     .subtle{color:var(--muted);margin-bottom:16px}
     .row{display:grid;gap:10px}
     .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    input[type="text"]{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);max-width:580px}
-    button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-weight:600}
-    button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;border-color:transparent}
-    .help{color:var(--muted);font-size:.95rem}
+    button{padding:12px 18px;border-radius:12px;border:1px solid var(--border);background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;cursor:pointer;font-weight:700}
     .log{margin-top:12px;color:var(--muted);min-height:1.2em}
   </style>
   <script src="./storage.js" defer></script>
@@ -32,21 +29,12 @@
   <div class="wrap">
     <div class="card">
       <h1>Finalizar y enviar</h1>
-      <div class="subtle">Genera <strong>DS-160.json</strong> con todas las respuestas e imágenes embebidas.</div>
+      <div class="subtle">Crea y guarda <strong>DS-160.json</strong> en tu Google Drive con un clic.</div>
 
       <div class="row">
         <div class="inline">
-          <button id="btnExport" class="primary">Descargar JSON (local)</button>
-          <span class="help">Descarga directa al equipo.</span>
+          <button id="btnSend">Guardar en Drive</button>
         </div>
-
-        <hr style="border:none;border-top:1px dashed var(--border)">
-
-        <div class="inline">
-          <input id="endpoint" type="text" placeholder="https://script.google.com/macros/s/AKfycbzHgQTaGiHUqKYUf1Q1-xrL248u65A1Z1BBfVR-xiusWdVuI02aZUZD0khwcXVeEpK-/exec" />
-          <button id="btnSend">Enviar a servidor (JSON)</button>
-        </div>
-        <span class="help">El servidor es tu Web App de Apps Script. Debe incluir <code>?key=TU_SECRETO</code>.</span>
       </div>
 
       <div id="status" class="log" aria-live="polite"></div>
@@ -54,57 +42,43 @@
   </div>
 
   <script>
-    // Solo Apps Script (sin Google Cloud Console)
-    const SERVER_SECRET = "Sotelo_visa_DS160"; // tu secreto; opcional si ya lo pones en la URL
+    // === Configura tu Web App de Apps Script ===
+    // Incluye ?key=TU_SECRETO en la URL:
+    // Ej: const ENDPOINT = "https://script.google.com/macros/s/AKfycbz.../exec?key=Sotelo_visa_DS160";
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbz.../exec?key=Sotelo_visa_DS160"; // ← reemplaza
 
     const statusEl = document.getElementById('status');
+    const btn = document.getElementById('btnSend');
 
-    // Descarga local
-    document.getElementById('btnExport').addEventListener('click', async () => {
-      statusEl.textContent = 'Generando JSON...';
-      const payload = await DS160.exportAll();
-      DS160.downloadJSON(payload, 'DS-160.json');
-      statusEl.textContent = 'Descarga lista.';
-    });
-
-    // Envío a tu Web App de Apps Script
-    document.getElementById('btnSend').addEventListener('click', async () => {
-      const raw = document.getElementById('endpoint').value.trim();
-      if (!raw) { statusEl.textContent = 'Define un endpoint primero.'; return; }
-
-      let url;
+    btn.addEventListener('click', async () => {
       try {
-        const u = new URL(raw);
-        if (!u.searchParams.get('key') && SERVER_SECRET) {
-          u.searchParams.set('key', SERVER_SECRET);
-        }
-        url = u.toString();
-      } catch {
-        statusEl.textContent = 'Endpoint inválido.';
-        return;
-      }
+        btn.disabled = true;
+        statusEl.textContent = 'Generando JSON...';
+        const payload = await DS160.exportAll(); // debe existir en storage.js
 
-      statusEl.textContent = 'Preparando y enviando...';
-      try {
-        const payload = await DS160.exportAll();
-        const res = await fetch(url, {
+        statusEl.textContent = 'Enviando a Apps Script...';
+        const res = await fetch(ENDPOINT, {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
+        // Intentar leer respuesta JSON del servidor
         let data = {};
         try { data = await res.json(); } catch {}
+
         if (!res.ok || data.ok === false) {
           const msg = (data && data.error) ? data.error : `HTTP ${res.status}`;
           throw new Error(msg);
         }
 
         statusEl.innerHTML = data.url
-          ? `Guardado en Drive: <a href="${data.url}" target="_blank" rel="noopener">${data.name}</a>`
-          : 'Envío correcto.';
+          ? `Guardado en Drive: <a href="${data.url}" target="_blank" rel="noopener">${data.name || 'Abrir archivo'}</a>`
+          : 'Guardado correcto.';
       } catch (err) {
-        statusEl.textContent = 'Error al enviar: ' + (err?.message || String(err));
+        statusEl.textContent = 'Error: ' + (err?.message || String(err));
+      } finally {
+        btn.disabled = false;
       }
     });
   </script>
