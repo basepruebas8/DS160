@@ -29,7 +29,7 @@
   <div class="wrap">
     <div class="card">
       <h1>Finalizar y enviar</h1>
-      <div class="subtle">Crea y guarda <strong>DS-160.json</strong> en tu Google Drive con un clic.</div>
+      <div class="subtle">Guarda <strong>DS-160.json</strong> en tu Google Drive con un clic.</div>
 
       <div class="row">
         <div class="inline">
@@ -42,10 +42,8 @@
   </div>
 
   <script>
-    // === Configura tu Web App de Apps Script ===
-    // Incluye ?key=TU_SECRETO en la URL:
-    // Ej: const ENDPOINT = "https://script.google.com/macros/s/AKfycbz.../exec?key=Sotelo_visa_DS160";
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzHgQTaGiHUqKYUf1Q1-xrL248u65A1Z1BBfVR-xiusWdVuI02aZUZD0khwcXVeEpK-/exec?key=Sotelo_visa_DS160"; // ← reemplaza
+    // === Configura tu Web App de Apps Script (usa /exec y agrega ?key=TU_SECRETO) ===
+    const ENDPOINT = "https://script.google.com/macros/s/AKfycbzHgQTaGiHUqKYUf1Q1-xrL248u65A1Z1BBfVR-xiusWdVuI02aZUZD0khwcXVeEpK-/exec?Sotelo_visa_DS160"; // ← reemplaza
 
     const statusEl = document.getElementById('status');
     const btn = document.getElementById('btnSend');
@@ -54,29 +52,23 @@
       try {
         btn.disabled = true;
         statusEl.textContent = 'Generando JSON...';
-        const payload = await DS160.exportAll(); // debe existir en storage.js
 
-        statusEl.textContent = 'Enviando a Apps Script...';
-        const res = await fetch(ENDPOINT, {
+        // Debe existir DS160.exportAll() en storage.js
+        const payload = await DS160.exportAll();
+
+        statusEl.textContent = 'Enviando...';
+        // Evitar preflight CORS: text/plain + mode:"no-cors"
+        await fetch(ENDPOINT, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify(payload)
         });
 
-        // Intentar leer respuesta JSON del servidor
-        let data = {};
-        try { data = await res.json(); } catch {}
-
-        if (!res.ok || data.ok === false) {
-          const msg = (data && data.error) ? data.error : `HTTP ${res.status}`;
-          throw new Error(msg);
-        }
-
-        statusEl.innerHTML = data.url
-          ? `Guardado en Drive: <a href="${data.url}" target="_blank" rel="noopener">${data.name || 'Abrir archivo'}</a>`
-          : 'Guardado correcto.';
+        // Con no-cors la respuesta es opaca; asumimos OK si no hubo error de red.
+        statusEl.textContent = 'Listo. Revisa tu carpeta en Drive.';
       } catch (err) {
-        statusEl.textContent = 'Error: ' + (err?.message || String(err));
+        statusEl.textContent = 'Error de red: ' + (err?.message || String(err));
       } finally {
         btn.disabled = false;
       }
