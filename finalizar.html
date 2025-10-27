@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="es">
 <head>
@@ -6,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Finalizar DS-160</title>
   <style>
-    :root{color-scheme:light dark; --bg:#0b1220; --card:#0f172a; --ink:#e5e7eb; --muted:#9fb0d1; --accent:#60a5fa; --accent-600:#3b82f6}
-    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    .wrap{max-width:720px;margin:32px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid #ffffff22;border-radius:14px;padding:18px}
-    h1{margin:0 0 6px;font-size:16px}
-    .muted{color:var(--muted);margin-bottom:10px}
-    button{padding:12px 16px;border:0;border-radius:10px;background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#081225;font-weight:800;cursor:pointer}
-    .log{margin-top:12px;color:var(--muted);min-height:1.2em}
-    a{color:#a7c7ff}
+    body{margin:0;background:#0b1220;color:#e5e7eb;font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:700px;margin:32px auto;padding:0 16px}
+    .card{background:#0f172a;border:1px solid #233044;border-radius:14px;padding:18px}
+    h1{margin:0 0 8px;font-size:16px}
+    .muted{color:#9fb0d1}
+    button{margin-top:10px;padding:12px 16px;border:0;border-radius:10px;background:#60a5fa;color:#081225;font-weight:800;cursor:pointer}
+    .log{margin-top:12px;color:#9fb0d1;min-height:1.2em}
   </style>
   <script src="./storage.js" defer></script>
 </head>
@@ -22,11 +19,14 @@
   <div class="wrap">
     <div class="card">
       <h1>Finalizar y enviar</h1>
-      <div class="muted">Guarda <b>DS-160.json</b> en Google Drive.</div>
+      <div class="muted">Guarda <b>DS-160.json</b> en tu Google Drive.</div>
       <button id="btn">Guardar en Drive</button>
       <div id="status" class="log">—</div>
     </div>
   </div>
+
+  <!-- Form oculto para POST sin CORS; abre respuesta en otra pestaña -->
+  <form id="uploader" method="POST" target="_blank" style="display:none;"></form>
 
   <script>
     // ⇩⇩⇩ AJUSTA ESTO ⇩⇩⇩
@@ -35,37 +35,37 @@
     // ⇧⇧⇧ AJUSTA ESTO ⇧⇧⇧
 
     const $ = s => document.querySelector(s);
-    async function api(action, payload={}){
-      const res = await fetch(API_URL, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' }, // simple request (sin preflight)
-        body: JSON.stringify({ action, secret: API_KEY, ...payload })
-      });
-      const txt = await res.text();
-      let j; try{ j = JSON.parse(txt); }catch(_){ throw new Error('Respuesta no JSON: '+txt); }
-      if (!res.ok || j.ok === false) throw new Error(j.error || `HTTP ${res.status}`);
-      return j;
+    const st = $('#status');
+    const form = $('#uploader');
+
+    function ensureFields(){
+      form.action = API_URL;
+      let fSecret = document.getElementById('f_secret');
+      let fData   = document.getElementById('f_data');
+      let fAction = document.getElementById('f_action');
+      if(!fSecret){ fSecret = document.createElement('input'); fSecret.type='hidden'; fSecret.name='secret'; fSecret.id='f_secret'; form.appendChild(fSecret); }
+      if(!fData){   fData   = document.createElement('input'); fData.type='hidden'; fData.name='data';   fData.id='f_data';   form.appendChild(fData); }
+      if(!fAction){ fAction = document.createElement('input'); fAction.type='hidden'; fAction.name='action'; fAction.id='f_action'; form.appendChild(fAction); }
+      fSecret.value = API_KEY;
+      fAction.value = ''; // default → save
+      return fData;
     }
 
-    $('#btn').addEventListener('click', async ()=>{
-      const st = $('#status');
+    document.getElementById('btn').addEventListener('click', async ()=>{
       try{
-        $('#btn').disabled = true;
         st.textContent = 'Generando JSON...';
         const data = await DS160.exportAll(); // viene de storage.js
+        const fData = ensureFields();
+        fData.value = JSON.stringify(data);
 
-        st.textContent = 'Guardando en Drive...';
-        const r = await api('save', { data });
-        st.innerHTML = `Listo: <a href="${r.url}" target="_blank" rel="noopener">${r.name}</a>`;
+        st.textContent = 'Enviando...';
+        form.submit(); // verás la respuesta del servidor (ok/url o error) en pestaña nueva
+        st.textContent = 'Enviado. Verifica la pestaña nueva.';
       }catch(e){
         st.textContent = 'Error: ' + e.message;
-      }finally{
-        $('#btn').disabled = false;
       }
     });
   </script>
 </body>
 </html>
-
-
 
