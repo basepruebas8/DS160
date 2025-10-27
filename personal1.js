@@ -1,7 +1,7 @@
 // ds160-app.js
 (() => {
   // ========= Config común (AJUSTA ESTOS VALORES) =========
-  const SHARED_SECRET = 'CAMBIA_ESTE_SECRETO_LARGO_Y_UNICO'; // Debe coincidir con SECRET en Apps Script
+  const SHARED_SECRET = 'Sotelo_visa_DS160'; // Debe coincidir con SECRET en Apps Script
   const NEXT_URL = new URL('personal2.html', window.location.href).href;
 
   // ========= Utiles DOM =========
