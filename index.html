@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DS-160 · Finalizar</title>
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#475569; --border:#e2e8f0;
+      --accent:#2563eb; --accent-600:#1d4ed8; --shadow:0 10px 30px rgba(2,8,23,.08);
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#0b1220; --card:#0f172a; --text:#e5e7eb; --muted:#94a3b8; --border:#233044; --accent:#60a5fa; --accent-600:#3b82f6; --shadow:0 12px 36px rgba(0,0,0,.35)}
+    }
+    body{margin:0;background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+    .wrap{max-width:920px;margin:32px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow)}
+    h1{margin:0 0 10px;font-size:1.35rem}
+    .subtle{color:var(--muted);margin-bottom:16px}
+    .row{display:grid;gap:10px}
+    .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    input[type="text"]{padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);max-width:580px;flex:1}
+    button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-weight:600}
+    button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;border-color:transparent}
+    .help{color:var(--muted);font-size:.95rem}
+    .log{margin-top:12px;color:var(--muted);min-height:1.2em}
+  </style>
+  <script src="./storage.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Finalizar y enviar</h1>
+      <div class="subtle">Genera <strong>DS-160.json</strong> y lo descarga o lo envía a tu Web App de Apps Script.</div>
+
+      <div class="row">
+        <div class="inline">
+          <button id="btnExport" class="primary">Descargar JSON (local)</button>
+          <span class="help">Descarga directa al equipo.</span>
+        </div>
+
+        <hr style="border:none;border-top:1px dashed var(--border)">
+
+        <div class="inline" style="width:100%">
+          <input id="endpoint" type="text"
+                 placeholder="https://script.google.com/macros/s/AKfycbz.../exec"
+                 aria-label="URL del Web App de Apps Script" />
+          <button id="btnSend">Enviar a Apps Script</button>
+        </div>
+        <span class="help">El envío agrega automáticamente <code>?key=SECRETO</code> a la URL.</span>
+      </div>
+
+      <div id="status" class="log" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    // SECRETO COMPARTIDO: debe coincidir con SECRET en Code.gs
+    const SHARED_SECRET = 'CAMBIA_ESTE_SECRETO_LARGO_Y_UNICO'; // ← mismo valor que en Apps Script
+
+    const statusEl = document.getElementById('status');
+    const endpointInput = document.getElementById('endpoint');
+
+    // Descargar local
+    document.getElementById('btnExport').addEventListener('click', async () => {
+      try {
+        statusEl.textContent = 'Generando JSON...';
+        const payload = await DS160.exportAll();
+        DS160.downloadJSON(payload, 'DS-160.json');
+        statusEl.textContent = 'Descarga lista.';
+      } catch (err) {
+        statusEl.textContent = 'Error al generar: ' + (err?.message || String(err));
+      }
+    });
+
+    // Enviar a Apps Script (con secreto)
+    document.getElementById('btnSend').addEventListener('click', async () => {
+      const baseUrl = endpointInput.value.trim();
+      if (!baseUrl) { statusEl.textContent = 'Define el endpoint del Web App.'; return; }
+      if (!SHARED_SECRET || SHARED_SECRET.includes('CAMBIA_')) {
+        statusEl.textContent = 'Configura SHARED_SECRET primero.';
+        return;
+      }
+
+      // Construir URL con ?key=SECRETO (si no está ya)
+      let url;
+      try {
+        const u = new URL(baseUrl);
+        if (!u.searchParams.has('key')) u.searchParams.set('key', SHARED_SECRET);
+        url = u.toString();
+      } catch {
+        statusEl.textContent = 'Endpoint inválido.';
+        return;
+      }
+
+      statusEl.textContent = 'Preparando y enviando...';
+      try {
+        const payload = await DS160.exportAll();
+
+        // Usamos text/plain para request simple (sin preflight)
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
+        });
+
+        // Si Apps Script responde 200 siempre, igual leemos el body
+        let data = null;
+        try { data = await res.json(); } catch { /* no-op */ }
+
+        if (!res.ok || !data || data.ok !== true) {
+          const errMsg = (data && data.error) ? data.error : `HTTP ${res.status}`;
+          throw new Error(errMsg);
+        }
+
+        statusEl.innerHTML = `Enviado. <code>${data.name}</code> (<a href="${data.url}" target="_blank" rel="noopener">ver en Drive</a>)`;
+      } catch (err) {
+        statusEl.textContent = 'Error al enviar: ' + (err?.message || String(err));
+      }
+    });
+  </script>
+</body>
+</html>
