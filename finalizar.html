@@ -26,8 +26,6 @@
     .help{color:var(--muted);font-size:.95rem}
     .log{margin-top:12px;color:var(--muted);min-height:1.2em}
   </style>
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="./storage.js" defer></script>
 </head>
 <body>
@@ -45,16 +43,10 @@
         <hr style="border:none;border-top:1px dashed var(--border)">
 
         <div class="inline">
-          <button id="btnDrive" title="Subir a Google Drive">Enviar a Google Drive</button>
-          <span class="help">Autorizas una vez y sube a tu Drive.</span>
-        </div>
-
-        <hr style="border:none;border-top:1px dashed var(--border)">
-
-        <div class="inline">
           <input id="endpoint" type="text" placeholder="https://script.google.com/macros/s/AKfycbzHgQTaGiHUqKYUf1Q1-xrL248u65A1Z1BBfVR-xiusWdVuI02aZUZD0khwcXVeEpK-/exec" />
           <button id="btnSend">Enviar a servidor (JSON)</button>
         </div>
+        <span class="help">El servidor es tu Web App de Apps Script. Debe incluir <code>?key=TU_SECRETO</code>.</span>
       </div>
 
       <div id="status" class="log" aria-live="polite"></div>
@@ -62,10 +54,8 @@
   </div>
 
   <script>
-    // ===== Configura aquí =====
-    // IMPORTANTE: GIS NO USA "client secret" en frontend. SOLO el CLIENT_ID.
-    const GOOGLE_CLIENT_ID = "Pega_aqui_tu_CLIENT_ID.apps.googleusercontent.com"; // ← REEMPLÁZALO
-    const DRIVE_FOLDER_ID  = "1evBZYBTladCu7Ti6OBG6QSduYJxmMa9E"; // tu carpeta
+    // Solo Apps Script (sin Google Cloud Console)
+    const SERVER_SECRET = "Sotelo_visa_DS160"; // tu secreto; opcional si ya lo pones en la URL
 
     const statusEl = document.getElementById('status');
 
@@ -77,10 +67,23 @@
       statusEl.textContent = 'Descarga lista.';
     });
 
-    // Envío a servidor genérico (opcional)
+    // Envío a tu Web App de Apps Script
     document.getElementById('btnSend').addEventListener('click', async () => {
-      const url = document.getElementById('endpoint').value.trim();
-      if (!url) { statusEl.textContent = 'Define un endpoint primero.'; return; }
+      const raw = document.getElementById('endpoint').value.trim();
+      if (!raw) { statusEl.textContent = 'Define un endpoint primero.'; return; }
+
+      let url;
+      try {
+        const u = new URL(raw);
+        if (!u.searchParams.get('key') && SERVER_SECRET) {
+          u.searchParams.set('key', SERVER_SECRET);
+        }
+        url = u.toString();
+      } catch {
+        statusEl.textContent = 'Endpoint inválido.';
+        return;
+      }
+
       statusEl.textContent = 'Preparando y enviando...';
       try {
         const payload = await DS160.exportAll();
@@ -89,92 +92,19 @@
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify(payload)
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        statusEl.textContent = 'Envío correcto.';
+
+        let data = {};
+        try { data = await res.json(); } catch {}
+        if (!res.ok || data.ok === false) {
+          const msg = (data && data.error) ? data.error : `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
+
+        statusEl.innerHTML = data.url
+          ? `Guardado en Drive: <a href="${data.url}" target="_blank" rel="noopener">${data.name}</a>`
+          : 'Envío correcto.';
       } catch (err) {
         statusEl.textContent = 'Error al enviar: ' + (err?.message || String(err));
-      }
-    });
-
-    // ======= Google Drive (OAuth en cliente) =======
-    let tokenClient, accessToken;
-
-    function initGisClient(){
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: GOOGLE_CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/drive.file',
-        prompt: '',
-        callback: (tok) => { accessToken = tok.access_token; }
-      });
-    }
-
-    function getAccessToken(forceConsent=false){
-      return new Promise((resolve, reject) => {
-        if (accessToken && !forceConsent) return resolve(accessToken);
-        tokenClient.callback = (tok) => { accessToken = tok.access_token; resolve(accessToken); };
-        tokenClient.error_callback = (err) => reject(err);
-        tokenClient.requestAccessToken({ prompt: forceConsent ? 'consent' : '' });
-      });
-    }
-
-    async function uploadJsonToDrive(filename, jsonObj){
-      const token = await getAccessToken();
-      const metadata = { name: filename, mimeType: 'application/json' };
-      if (DRIVE_FOLDER_ID) metadata.parents = [DRIVE_FOLDER_ID];
-
-      const boundary = '-------314159265358979323846';
-      const delimiter = `\r\n--${boundary}\r\n`;
-      const closeDelim = `\r\n--${boundary}--`;
-
-      const body =
-        delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
-        JSON.stringify(metadata) +
-        delimiter + 'Content-Type: application/json\r\n\r\n' +
-        JSON.stringify(jsonObj) +
-        closeDelim;
-
-      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': `multipart/related; boundary=${boundary}`
-        },
-        body
-      });
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          accessToken = undefined;
-          await getAccessToken(true);
-          return uploadJsonToDrive(filename, jsonObj);
-        }
-        throw new Error(`Drive API: HTTP ${res.status} ${await res.text()}`);
-      }
-      return res.json();
-    }
-
-    window.addEventListener('load', () => {
-      const ready = () => (window.google && google.accounts && google.accounts.oauth2);
-      if (ready()) initGisClient();
-      else {
-        const int = setInterval(() => { if (ready()) { clearInterval(int); initGisClient(); } }, 100);
-      }
-    });
-
-    document.getElementById('btnDrive').addEventListener('click', async () => {
-      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.includes("Pega_aqui_")) {
-        statusEl.textContent = 'Falta el Client ID de Google (OAuth).';
-        return;
-      }
-      statusEl.textContent = 'Preparando JSON...';
-      try {
-        const payload = await DS160.exportAll();
-        const filename = 'DS-160_' + new Date().toISOString().replace(/[:.]/g,'-') + '.json';
-        statusEl.textContent = 'Subiendo a Google Drive...';
-        const res = await uploadJsonToDrive(filename, payload);
-        statusEl.innerHTML = `Subido: <code>${res.name}</code> (id: ${res.id})`;
-      } catch (err) {
-        statusEl.textContent = 'Error al subir a Drive: ' + (err?.message || String(err));
       }
     });
   </script>
