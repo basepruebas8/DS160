@@ -23,63 +23,56 @@
       <h1>Finalizar y enviar</h1>
       <div class="subtle">Guarda <strong>DS-160.json</strong> en Google Drive con un clic.</div>
 
-      <div class="inline">
-        <button id="btnSend">Guardar en Drive</button>
-      </div>
-
+      <div class="inline"><button id="btnSend">Guardar en Drive</button></div>
       <div id="status" class="log" aria-live="polite"></div>
 
-      <!-- Form oculto: POST sin CORS; abre la respuesta JSON en nueva pestaña -->
+      <!-- Envío por form para evitar CORS y ver respuesta en pestaña nueva -->
       <form id="uploader" method="POST" target="_blank" style="display:none;"></form>
     </div>
   </div>
 
   <script>
-    // URL del Web App (usa /exec)
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwbPCOxHxXLMZk9IAQFvS1wKECLNcdN7eShmCmercF6B5jzHfEJkIQWN6CfL_Ily6Gx/exec"; // ← tu URL
-    // Secreto que debe coincidir con SECRET de Code.gs
-    const FORM_KEY = "Sotelo_visa_DS160"; // ← el mismo valor que en Code.gs
+    // === Config ===
+    const SECRET   = "Sotelo_visa_DS160"; // DEBE ser idéntico al de Code.gs
+    const EXEC_URL = "https://script.google.com/macros/s/AKfycbwbPCOxHxXLMZk9IAQFvS1wKECLNcdN7eShmCmercF6B5jzHfEJkIQWN6CfL_Ily6Gx/exec"; // tu /exec SIN query
 
     const statusEl = document.getElementById('status');
     const btn = document.getElementById('btnSend');
     const form = document.getElementById('uploader');
 
     function prepareForm(){
-      form.action = ENDPOINT;
-      // Campo 'key' explícito (además de poder ir en query)
-      let keyInput = document.getElementById('keyField');
-      if (!keyInput) {
-        keyInput = document.createElement('input');
-        keyInput.type = 'hidden';
-        keyInput.name = 'key';
-        keyInput.id = 'keyField';
-        form.appendChild(keyInput);
-      }
-      keyInput.value = FORM_KEY;
+      // Añade ?key=... a la acción
+      const url = EXEC_URL + "?key=" + encodeURIComponent(SECRET);
+      form.action = url;
 
-      // Campo 'data' con el JSON
-      let dataInput = document.getElementById('payloadField');
-      if (!dataInput) {
-        dataInput = document.createElement('input');
-        dataInput.type = 'hidden';
-        dataInput.name = 'data';
-        dataInput.id = 'payloadField';
-        form.appendChild(dataInput);
+      // Campo oculto "data" (JSON) y "key" (redundante por si el hosting borra la query)
+      let fData = document.getElementById('payloadField');
+      if (!fData) {
+        fData = document.createElement('input');
+        fData.type = 'hidden'; fData.name = 'data'; fData.id = 'payloadField';
+        form.appendChild(fData);
       }
-      return dataInput;
+      let fKey = document.getElementById('keyField');
+      if (!fKey) {
+        fKey = document.createElement('input');
+        fKey.type = 'hidden'; fKey.name = 'key'; fKey.id = 'keyField';
+        form.appendChild(fKey);
+      }
+      fKey.value = SECRET;
+      return fData;
     }
 
     btn.addEventListener('click', async () => {
       try {
         btn.disabled = true;
         statusEl.textContent = 'Generando JSON...';
-        const payload = await DS160.exportAll(); // definido en storage.js
+        const payload = await DS160.exportAll(); // provisto por storage.js
 
-        const dataInput = prepareForm();
-        dataInput.value = JSON.stringify(payload);
+        const fData = prepareForm();
+        fData.value = JSON.stringify(payload);
 
-        statusEl.textContent = 'Enviando a Apps Script...';
-        form.submit(); // abre nueva pestaña con la respuesta (ok/url o error)
+        statusEl.textContent = 'Enviando...';
+        form.submit(); // abre pestaña con la respuesta JSON del servidor
 
         statusEl.textContent = 'Enviado. Se abrirá la respuesta con el enlace de Drive.';
       } catch (err) {
@@ -91,10 +84,6 @@
   </script>
 </body>
 </html>
-
-
-
-
 
 
 
