@@ -13,49 +13,53 @@
     button{margin-top:10px;padding:12px 16px;border:0;border-radius:10px;background:#60a5fa;color:#081225;font-weight:800;cursor:pointer}
     .log{margin-top:12px;color:#9fb0d1;min-height:1.2em}
   </style>
+  <!-- Asegúrate que este archivo exista y sea el que genera images[].dataURI -->
   <script src="./storage.js" defer></script>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>Finalizar y enviar</h1>
-      <div class="muted">Guarda <b>DS-160.json</b> en tu Google Drive.</div>
+      <div class="muted">Guarda <b>DS-160.json</b> y <b>imagenes/</b> en tu Google Drive.</div>
       <button id="btn">Guardar en Drive</button>
       <div id="status" class="log">—</div>
     </div>
   </div>
 
-  <!-- POST sin CORS; abre respuesta en otra pestaña -->
+  <!-- POST sin CORS -->
   <form id="uploader" method="POST" target="_blank" style="display:none;"></form>
 
   <script>
-    // ⇩⇩⇩ AJUSTA ESTO ⇩⇩⇩
-    const API_URL = "https://script.google.com/macros/s/AKfycbwkow356OT4JrSHRpbjj2G6pftJQF3rNA7xcvCAVgjF7JZcpy-JojH1E2J1xDhRd9HM/exec";
-    const API_KEY = "Epicoco_visa_2_0"; // = SECRET en Code.gs
-    // ⇧⇧⇧ AJUSTA ESTO ⇧⇧⇧
-
+    // Pega aquí tu URL de despliegue (termina en /exec)
+    const API_URL = "https://script.google.com/macros/s/AKfycbwc7FNrviQBSLAdw0OUZ3fUB_LNrUa0vDqXSV5jz2a0UrJOkXy2A_9N6h1aHSWCh8Sp/exec?secret=Epicoco_visa_2_0"; // el nombre de la carpeta lo saca del payload
     const $ = s => document.querySelector(s);
     const st = $('#status');
     const form = $('#uploader');
 
     function ensureFields(){
-      form.action = API_URL + "?secret=" + encodeURIComponent(API_KEY);
-      let fData   = document.getElementById('f_data');
-      if(!fData){ fData = document.createElement('input'); fData.type='hidden'; fData.name='data'; fData.id='f_data'; form.appendChild(fData); }
+      form.action = API_URL;
+      let fData = document.getElementById('f_data');
+      if(!fData){
+        fData = document.createElement('input');
+        fData.type='hidden'; fData.name='data'; fData.id='f_data';
+        form.appendChild(fData);
+      }
       return fData;
     }
 
     document.getElementById('btn').addEventListener('click', async ()=>{
       try{
-        st.textContent = 'Generando JSON...';
-        const data = await DS160.exportAll(); // de storage.js
+        st.textContent = 'Preparando datos...';
+        // Debe incluir: { forms:{...}, images:[{name,type,dataURI,...}] }
+        const payload = await DS160.exportAll();
 
-        const fData = ensureFields();
-        fData.value = JSON.stringify(data);
+        // (Opcional) valida que haya al menos un nombre/apellido
+        // payload.forms?.personal1?.APELLIDOS / .NOMBRE, etc.
 
+        ensureFields().value = JSON.stringify(payload);
         st.textContent = 'Enviando...';
-        form.submit(); // ver respuesta en nueva pestaña
-        st.textContent = 'Enviado. Verifica la pestaña nueva.';
+        form.submit(); // verás el resultado del servidor en pestaña nueva
+        st.textContent = 'Enviado. Revisa la pestaña nueva y tu Drive.';
       }catch(e){
         st.textContent = 'Error: ' + e.message;
       }
