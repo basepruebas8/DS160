@@ -1,3 +1,4 @@
+
 // ds160-app.js
 (() => {
   // ========= Config común (AJUSTA ESTOS VALORES) =========
@@ -231,22 +232,21 @@
 
     async function handleSaveSelected() {
       if (!imagesInput || !window.DS160 || !DS160.imageStore) return;
-      if (!imagesInput.files || imagesInput.files.length === 0) {
+      if (!imagesInput.files || !imagesInput.files.length) {
         if (statusEl) statusEl.textContent = 'Selecciona al menos un archivo.';
         return;
       }
       const files = Array.from(imagesInput.files);
       const allowed = files.filter(f => /^image\//.test(f.type));
-      if (allowed.length === 0) {
+      if (!allowed.length) {
         if (statusEl) statusEl.textContent = 'Los archivos seleccionados no son imágenes.';
         return;
       }
       if (prog) prog.value = 0; if (progTxt) progTxt.textContent = '';
       if (statusEl) statusEl.textContent = 'Guardando en local...';
 
-      let i = 0;
       await DS160.imageStore.saveImages(allowed, (p) => {
-        i = Math.round(p * 100);
+        const i = Math.round(p * 100);
         if (prog) prog.value = i;
         if (progTxt) progTxt.textContent = `${i}%`;
       });
@@ -268,7 +268,6 @@
     const btnSend = byId('btnSend');
     const statusEl = byId('status');
 
-    // Si no hay elementos de finalización, no hacemos nada.
     if (!btnExport && !btnSend) return;
 
     // Descargar local
@@ -286,6 +285,26 @@
           if (statusEl) statusEl.textContent = 'Error al generar: ' + (err?.message || String(err));
         }
       });
+    }
+
+    // ---- NUEVO: recolecta imágenes y envía { form, images } ----
+    async function collectImagesBase64() {
+      if (!window.DS160 || !DS160.imageStore || !DS160.imageStore.listImages) return [];
+      const items = await DS160.imageStore.listImages();
+      const out = [];
+      for (const r of items) {
+        const rec = await DS160.imageStore.getRecord(r.id); // {name, type, data:ArrayBuffer}
+        const bytes = new Uint8Array(rec.data);
+        let binary = '';
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        const b64 = btoa(binary);
+        out.push({
+          name: rec.name || `imagen_${r.id}`,
+          type: rec.type || 'application/octet-stream',
+          base64: b64
+        });
+      }
+      return out;
     }
 
     // Enviar a Apps Script con ?key=SHARED_SECRET
@@ -313,12 +332,13 @@
           if (!window.DS160 || !DS160.exportAll) {
             throw new Error('DS160.exportAll() no disponible.');
           }
-          const payload = await DS160.exportAll();
+          const form = await DS160.exportAll();
+          const images = await collectImagesBase64();
 
           const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' }, // evita preflight
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ form, images })
           });
 
           let data = null;
@@ -331,7 +351,7 @@
 
           if (statusEl) {
             const view = data.url ? ` (<a href="${data.url}" target="_blank" rel="noopener">ver en Drive</a>)` : '';
-            statusEl.innerHTML = `Enviado. <code>${data.name}</code>${view}`;
+            statusEl.innerHTML = `Enviado. Carpeta: <code>${data.name}</code>${view}`;
           }
         } catch (err) {
           if (statusEl) statusEl.textContent = 'Error al enviar: ' + (err?.message || String(err));
