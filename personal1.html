@@ -36,8 +36,8 @@
     }}
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;line-height:1.45;color:var(--text);background:var(--bg);background-image:var(--bg-grad);overflow-x:hidden}
-    .wrap{max-width:920px;margin:32px auto;padding:0 16px;overflow:hidden}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;line-height:1.45;color:var(--text);background:var(--bg);background-image:var(--bg-grad)}
+    .wrap{max-width:920px;margin:32px auto;padding:0 16px}
     .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);backdrop-filter:saturate(120%) blur(4px)}
     header h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:-.01em}
     .subtle{color:var(--muted);font-size:.95rem;margin-bottom:12px}
@@ -45,33 +45,23 @@
     legend{font-weight:700;padding:0 10px;font-size:.98rem}
     legend::after{content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent)}
     label{display:inline-block;margin:8px 0 6px;font-weight:600}
-    .row{display:grid;grid-template-columns:1fr;gap:10px;overflow:hidden}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
     .inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
     .inline.nowrap{flex-wrap:nowrap}
-    input[type="text"],select,input[type="file"]{
-      width:100%;
-      max-width:560px;
-      padding:10px 12px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      background:var(--card);
-      color:var(--text);
-      outline:none;
-      transition:border-color .15s ease,box-shadow .15s ease,transform .06s ease;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
-      display:block;
-    }
+    input[type="text"],select,input[type="file"]{width:100%;max-width:560px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);outline:none;transition:border-color .15s ease,box-shadow .15s ease,transform .06s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
     input[type="text"][data-uppercase]{text-transform:uppercase;letter-spacing:.02em}
     input[type="text"]:focus,select:focus,input[type="file"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent)}
     input[type="text"]:active,select:active,input[type="file"]:active{transform:translateY(.5px)}
     .help{font-size:.9rem;color:var(--muted);margin-top:2px}
-    .actions{margin-top:18px;display:flex;gap:12px;align-items:center;border-top:1px dashed var(--border);padding-top:16px;flex-wrap:wrap}
+    .actions{margin-top:18px;display:flex;gap:12px;align-items:center;border-top:1px dashed var(--border);padding-top:16px}
     button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;transition:transform .06s ease,box-shadow .15s ease,background .2s ease,border-color .15s ease}
     button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;border-color:transparent;box-shadow:var(--shadow)}
     button.primary:hover{background:linear-gradient(180deg,var(--accent-600),var(--accent-700));transform:translateY(-.5px)}
     [hidden]{display:none!important}
     #uploadStatus[aria-live]{min-height:1.2em}
-    .file-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+    /* UI de archivos */
+    .file-actions{display:flex;gap:8px;align-items:center}
     .files-wrap{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;overflow:auto;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
     table.files{width:100%;border-collapse:collapse;font-size:.95rem}
     table.files th, table.files td{padding:8px 10px;border-bottom:1px solid var(--border)}
@@ -79,24 +69,6 @@
     .muted{color:var(--muted)}
     .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
     progress{width:260px;height:14px;border-radius:8px}
-
-    /* --- Fix FINAL para móviles --- */
-    @media (max-width: 768px){
-      html, body {width:100%;overflow-x:hidden;}
-      .wrap {max-width:100%;padding:0 12px;margin:0 auto;}
-      .card {width:100%;padding:16px;box-sizing:border-box;}
-      fieldset {width:100%;padding:14px;box-sizing:border-box;}
-      .row {display:grid;grid-template-columns:1fr;gap:10px;width:100%;}
-      .inline, .inline.nowrap {flex-wrap:wrap;flex-direction:column;align-items:flex-start;width:100%;}
-      input[type="text"], select, input[type="file"] {
-        width:100%!important;
-        max-width:100%!important;
-        box-sizing:border-box;
-        font-size:1rem;
-      }
-      .actions {flex-direction:column;align-items:stretch;width:100%;}
-      button {width:100%;box-sizing:border-box;}
-    }
   </style>
 </head>
 <body>
@@ -224,7 +196,7 @@
                 <option value="">- Seleccione -</option>
                 <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option>MÉXICO</option><option>GROENLANDIA</option>
                 <option>BELICE</option><option>COSTA RICA</option><option>EL SALVADOR</option><option>GUATEMALA</option><option>HONDURAS</option><option>NICARAGUA</option><option>PANAMÁ</option>
-                <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y LAS GRANADINAS</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
+                <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y NIEVES</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
                 <option>ARGENTINA</option><option>BOLIVIA</option><option>BRASIL</option><option>CHILE</option><option>COLOMBIA</option><option>ECUADOR</option><option>GUYANA</option><option>PARAGUAY</option><option>PERÚ</option><option>SURINAM</option><option>URUGUAY</option><option>VENEZUELA</option>
               </select>
               <div class="help">Lista acotada a países del continente americano.</div>
@@ -274,5 +246,6 @@
   <script src="./personal1.js" defer></script>
 </body>
 </html>
+
 
        
