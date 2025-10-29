@@ -68,21 +68,30 @@
     .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
     progress{width:260px;height:14px;border-radius:8px}
 
-    /* --- Fix para móviles --- */
-    @media (max-width:700px){
-      .wrap{padding:0 8px}
-      .card{padding:16px}
-      .inline.nowrap{flex-wrap:wrap}
-      select, input[type="text"], input[type="file"]{
-        max-width:100%;
-        font-size:1rem;
-      }
-      .inline{flex-direction:column;align-items:flex-start}
-      .actions{flex-direction:column;align-items:stretch}
-      button{width:100%}
-      .row{grid-template-columns:1fr}
-      fieldset{padding:14px}
-    }
+    /* --- Fix para móviles: evita que los campos se salgan --- */
+@media (max-width: 700px){
+  body{overflow-x:hidden;}
+  .wrap{padding:0 10px;overflow:hidden;}
+  .card{padding:16px;}
+  fieldset{padding:14px;}
+  .row{grid-template-columns:1fr;}
+  .inline.nowrap{flex-wrap:wrap;}
+  .inline{flex-direction:column;align-items:flex-start;}
+  input[type="text"], select, input[type="file"]{
+    width:100%;
+    max-width:100%;
+    box-sizing:border-box;
+    font-size:1rem;
+  }
+  .actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  button{
+    width:100%;
+  }
+}
+
   </style>
 </head>
 <body>
