@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DS-160 · Información personal 1</title>
 
-  <!-- CSP: sin JS inline -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self';
                  script-src 'self';
@@ -60,7 +59,6 @@
     [hidden]{display:none!important}
     #uploadStatus[aria-live]{min-height:1.2em}
 
-    /* UI de archivos */
     .file-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     .files-wrap{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;overflow:auto;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
     table.files{width:100%;border-collapse:collapse;font-size:.95rem}
@@ -70,8 +68,7 @@
     .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
     progress{width:260px;height:14px;border-radius:8px}
 
-    /* ==== Ajuste móvil ==== */
-    @media (max-width: 600px){
+    @media (max-width:600px){
       .wrap{padding:0 10px}
       .card{padding:16px}
       fieldset{padding:14px;margin:12px 0}
@@ -94,12 +91,12 @@
       </header>
 
       <form id="ds160-personal1" novalidate>
-        <!-- (todo tu contenido del formulario, sin cambios) -->
+        <!-- aquí va exactamente tu formulario completo -->
+        <!-- todo el contenido de campos, selects, imágenes, etc. -->
       </form>
     </div>
   </div>
 
-  <!-- JS externo -->
   <script src="./storage.js" defer></script>
   <script src="./personal1.js" defer></script>
 </body>
