@@ -1,362 +1,101 @@
+// personal1.js
+// Reemplazar el personal1.js actual por este archivo.
 
-// ds160-app.js
-(() => {
-  // ========= Config común (AJUSTA ESTOS VALORES) =========
-  const SHARED_SECRET = 'Sotelo_visa_DS160'; // Debe coincidir con SECRET en Apps Script
-  const NEXT_URL = new URL('personal2.html', window.location.href).href;
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) Radios verdes -> marcar "No" y ocultar secciones dependientes
+  try {
+    const otherNamesNo = document.getElementById('OtherNamesN');
+    if (otherNamesNo) {
+      otherNamesNo.checked = true;
+      otherNamesNo.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    const telecodeNo = document.getElementById('TelecodeN');
+    if (telecodeNo) {
+      telecodeNo.checked = true;
+      telecodeNo.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 
-  // ========= Utiles DOM =========
-  const $ = (sel) => document.querySelector(sel);
-  const byId = (id) => document.getElementById(id);
+    // Asegurar que las secciones dependientes queden ocultas si existen
+    const otherNamesSection = document.getElementById('otherNamesSection');
+    if (otherNamesSection) { otherNamesSection.hidden = true; otherNamesSection.style.display = ''; }
 
-  // ========= Helpers de almacenamiento de formulario (localStorage) =========
-  const STORAGE_PREFIX = 'ds160:';
-  const FORM_ID = 'ds160-personal1';
-
-  function storageKey(field) {
-    const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
-    return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+    const telecodeSection = document.getElementById('telecodeSection');
+    if (telecodeSection) { telecodeSection.hidden = true; telecodeSection.style.display = ''; }
+  } catch (e) {
+    console.warn('Error ajustando radios verdes:', e);
   }
-  function saveField(field) {
-    try {
-      if (field.type === 'radio') {
-        if (field.checked) localStorage.setItem(storageKey(field), field.value);
-      } else if (field.type === 'checkbox') {
-        localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
-      } else {
-        localStorage.setItem(storageKey(field), field.value);
+
+  // 2) Enmarcado amarillo -> País por defecto: México
+  try {
+    const pobCountry = document.getElementById('POB_COUNTRY');
+    if (pobCountry) {
+      const opt = Array.from(pobCountry.options).find(o => {
+        const t = (o.text || '').trim().toUpperCase();
+        return t === 'MÉXICO' || t === 'MEXICO' || t === 'MÉXICO ' || t === 'MEXICO ';
+      });
+      if (opt) {
+        // Si option tiene value vacío, asignar por texto; en caso contrario, asignar value
+        pobCountry.value = opt.value !== '' ? opt.value : opt.text;
+        pobCountry.dispatchEvent(new Event('change', { bubbles: true }));
       }
-    } catch (e) {}
+    }
+  } catch (e) {
+    console.warn('No se pudo establecer POB_COUNTRY por defecto:', e);
   }
-  function restoreField(field) {
-    try {
-      const key = storageKey(field);
-      const v = localStorage.getItem(key);
-      if (v == null) return;
-      if (field.type === 'radio') {
-        field.checked = (field.value === v);
-      } else if (field.type === 'checkbox') {
-        field.checked = (v === '1');
-      } else {
-        field.value = v;
+
+  // 3) Enmarcados en azul -> mostrar opciones en español (mantener values)
+  try {
+    const gender = document.getElementById('APP_GENDER');
+    if (gender) {
+      gender.innerHTML = [
+        '<option value="">- Seleccione -</option>',
+        '<option value="MALE">Masculino</option>',
+        '<option value="FEMALE">Femenino</option>'
+      ].join('');
+    }
+
+    const marital = document.getElementById('APP_MARITAL_STATUS');
+    if (marital) {
+      marital.innerHTML = [
+        '<option value="">- Seleccione -</option>',
+        '<option value="MARRIED">Casado(a)</option>',
+        '<option value="COMMON LAW MARRIAGE">Unión de hecho</option>',
+        '<option value="CIVIL UNION/DOMESTIC PARTNERSHIP">Unión civil/pareja doméstica</option>',
+        '<option value="SINGLE">Soltero(a)</option>',
+        '<option value="WIDOWED">Viudo(a)</option>',
+        '<option value="DIVORCED">Divorciado(a)</option>',
+        '<option value="LEGALLY SEPARATED">Separado(a) legalmente</option>',
+        '<option value="OTHER">Otro</option>'
+      ].join('');
+    }
+  } catch (e) {
+    console.warn('No se pudo traducir selects azules:', e);
+  }
+
+  // 4) Asegurar que "Nombre completo en alfabeto nativo" esté visible
+  try {
+    const fullNameInput = document.getElementById('APP_FULL_NAME_NATIVE');
+    if (fullNameInput) {
+      // Mostrar la fila contenedora si estuviera oculta
+      const row = fullNameInput.closest('.row');
+      if (row) {
+        row.hidden = false;
+        row.style.display = '';
       }
-    } catch (e) {}
-  }
-  function autosave(form) {
-    form.addEventListener('input', (e) => {
-      const t = e.target;
-      if (!(t instanceof HTMLElement)) return;
-      if (t.matches('input,select,textarea')) saveField(t);
-    }, true);
-    form.addEventListener('change', (e) => {
-      const t = e.target;
-      if (!(t instanceof HTMLElement)) return;
-      if (t.matches('input,select,textarea')) saveField(t);
-    }, true);
-  }
-  function restoreForm(form) {
-    const fields = form.querySelectorAll('input,select,textarea');
-    fields.forEach(f => restoreField(f));
-  }
-
-  // ========= UI toggles y validaciones =========
-  function toggleSection(radioY, radioN, section, requiredEls = []) {
-    if (!radioY || !radioN || !section) return () => {};
-    const update = () => {
-      const show = radioY.checked;
-      section.hidden = !show;
-      requiredEls.forEach(el => {
-        if (!el) return;
-        el.required = show;
-        if (!show) { el.value = ''; el.setCustomValidity(''); }
-      });
-    };
-    [radioY, radioN].forEach(r => r && r.addEventListener('change', update));
-    update();
-    return update;
-  }
-  function toggleNA(textInput, checkbox) {
-    if (!textInput || !checkbox) return () => {};
-    const update = () => {
-      if (checkbox.checked) { textInput.disabled = true; textInput.value = ''; textInput.setCustomValidity(''); }
-      else { textInput.disabled = false; }
-    };
-    checkbox.addEventListener('change', update);
-    update();
-    return update;
-  }
-  function enforceUppercase(root) {
-    if (!root) return;
-    root.querySelectorAll('input[data-uppercase]').forEach(inp => {
-      inp.addEventListener('input', () => {
-        const start = inp.selectionStart, end = inp.selectionEnd;
-        inp.value = inp.value.toUpperCase();
-        try { inp.setSelectionRange(start, end); } catch(e){}
-      });
-    });
-  }
-
-  // ========= Bloque PERSONAL 1 (se activa si existe el formulario) =========
-  (function setupPersonal1(){
-    const form = byId(FORM_ID);
-    if (!form) return; // La página no es personal1
-
-    // Restaurar/Auto-guardar/Uppercase
-    restoreForm(form);
-    autosave(form);
-    enforceUppercase(form);
-
-    // Radios / secciones
-    const otherY = byId('OtherNamesY');
-    const otherN = byId('OtherNamesN');
-    const otherSection = byId('otherNamesSection');
-    const refreshOther = toggleSection(otherY, otherN, otherSection, [
-      byId('OTHER_SURNAME'),
-      byId('OTHER_GIVEN')
-    ]);
-
-    const teleY = byId('TelecodeY');
-    const teleN = byId('TelecodeN');
-    const teleSection = byId('telecodeSection');
-    const refreshTele = toggleSection(teleY, teleN, teleSection, [
-      byId('TELECODE_SURNAME'),
-      byId('TELECODE_GIVEN')
-    ]);
-
-    const nativeName = byId('APP_FULL_NAME_NATIVE');
-    const nativeNA = byId('APP_FULL_NAME_NATIVE_NA');
-    const refreshNative = toggleNA(nativeName, nativeNA);
-
-    const pobState = byId('POB_STATE');
-    const pobNA = byId('POB_STATE_NA');
-    const refreshPOB = toggleNA(pobState, pobNA);
-
-    // Recalcular UI tras restaurar
-    refreshOther(); refreshTele(); refreshNative(); refreshPOB();
-
-    // Botones base (limpiar / siguiente)
-    const saveMsg = byId('saveMsg');
-    const clearBtn = byId('clearBtn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        form.reset();
-        form.querySelectorAll('input,select,textarea').forEach(el => {
-          if (el.type === 'checkbox' || el.type === 'radio') {
-            saveField(el);
-          } else {
-            el.value = '';
-            saveField(el);
-          }
-        });
-        if (saveMsg) saveMsg.textContent = 'Formulario limpiado.';
-        refreshOther(); refreshTele(); refreshNative(); refreshPOB();
-      });
-    }
-
-    const nextBtn = byId('nextBtn');
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => {
-        if (!form.checkValidity()) {
-          form.reportValidity();
-          const firstInvalid = form.querySelector(':invalid');
-          if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
-          return;
-        }
-        form.querySelectorAll('input,select,textarea').forEach(saveField);
-        window.location.assign(NEXT_URL);
-      });
-    }
-
-    // ===== Imágenes locales (IndexedDB) a través de DS160.imageStore
-    const imagesInput = byId('imagesNow');
-    const uploadBtn = byId('uploadBtn');
-    const refreshListBtn = byId('refreshListBtn');
-    const listWrap = byId('imagesList');
-    const statusEl = byId('uploadStatusImages');
-    const prog = byId('uploadProgress');
-    const progTxt = byId('uploadProgressText');
-
-    async function renderImagesList() {
-      if (!listWrap || !window.DS160 || !DS160.imageStore || !DS160.imageStore.listImages) return;
-      const items = await DS160.imageStore.listImages();
-      if (!items.length) {
-        listWrap.innerHTML = `<div class="muted">Sin archivos.</div>`;
-        return;
+      // Asegurar checkbox "No aplica" sin marcar
+      const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
+      if (naCheckbox) {
+        naCheckbox.checked = false;
+        naCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
       }
-      const rows = items.map(r => {
-        const sizeKB = (r.size/1024).toFixed(1);
-        return `
-          <tr data-id="${r.id}">
-            <td>${r.name}</td>
-            <td class="muted">${r.type || 'image/*'}</td>
-            <td class="muted">${sizeKB} KB</td>
-            <td>
-              <button type="button" class="dl">Descargar</button>
-              <button type="button" class="rm">Eliminar</button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-      listWrap.innerHTML = `
-        <table class="files">
-          <thead><tr><th>Nombre</th><th>Tipo</th><th>Tamaño</th><th>Acciones</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-
-      listWrap.querySelectorAll('button.dl').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tr = e.currentTarget.closest('tr');
-          const id = tr.getAttribute('data-id');
-          const rec = await DS160.imageStore.getRecord(id);
-          const blob = new Blob([rec.data], { type: rec.type || 'application/octet-stream' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url; a.download = rec.name || `imagen_${id}`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          URL.revokeObjectURL(url);
-        });
-      });
-
-      listWrap.querySelectorAll('button.rm').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const tr = e.currentTarget.closest('tr');
-          const id = tr.getAttribute('data-id');
-          await DS160.imageStore.deleteImage(id);
-          await renderImagesList();
-        });
-      });
+      // Si existiera algún atributo de aria-hidden o style que lo oculte, limpiarlo
+      fullNameInput.removeAttribute('aria-hidden');
+      fullNameInput.style.display = '';
     }
+  } catch (e) {
+    console.warn('No se pudo asegurar visibilidad de Nombre completo:', e);
+  }
 
-    async function handleSaveSelected() {
-      if (!imagesInput || !window.DS160 || !DS160.imageStore) return;
-      if (!imagesInput.files || !imagesInput.files.length) {
-        if (statusEl) statusEl.textContent = 'Selecciona al menos un archivo.';
-        return;
-      }
-      const files = Array.from(imagesInput.files);
-      const allowed = files.filter(f => /^image\//.test(f.type));
-      if (!allowed.length) {
-        if (statusEl) statusEl.textContent = 'Los archivos seleccionados no son imágenes.';
-        return;
-      }
-      if (prog) prog.value = 0; if (progTxt) progTxt.textContent = '';
-      if (statusEl) statusEl.textContent = 'Guardando en local...';
-
-      await DS160.imageStore.saveImages(allowed, (p) => {
-        const i = Math.round(p * 100);
-        if (prog) prog.value = i;
-        if (progTxt) progTxt.textContent = `${i}%`;
-      });
-
-      if (statusEl) statusEl.textContent = `Guardado local completado (${allowed.length} archivo(s)).`;
-      imagesInput.value = '';
-      await renderImagesList();
-    }
-
-    if (uploadBtn) uploadBtn.addEventListener('click', handleSaveSelected);
-    if (refreshListBtn) refreshListBtn.addEventListener('click', renderImagesList);
-    renderImagesList();
-  })();
-
-  // ========= Bloque FINALIZAR/ENVIAR (Apps Script con secreto) =========
-  (function setupFinalize(){
-    const btnExport = byId('btnExport');
-    const endpointInput = byId('endpoint');
-    const btnSend = byId('btnSend');
-    const statusEl = byId('status');
-
-    if (!btnExport && !btnSend) return;
-
-    // Descargar local
-    if (btnExport) {
-      btnExport.addEventListener('click', async () => {
-        try {
-          if (statusEl) statusEl.textContent = 'Generando JSON...';
-          if (!window.DS160 || !DS160.exportAll || !DS160.downloadJSON) {
-            throw new Error('DS160.exportAll()/downloadJSON() no disponible.');
-          }
-          const payload = await DS160.exportAll();
-          DS160.downloadJSON(payload, 'DS-160.json');
-          if (statusEl) statusEl.textContent = 'Descarga lista.';
-        } catch (err) {
-          if (statusEl) statusEl.textContent = 'Error al generar: ' + (err?.message || String(err));
-        }
-      });
-    }
-
-    // ---- NUEVO: recolecta imágenes y envía { form, images } ----
-    async function collectImagesBase64() {
-      if (!window.DS160 || !DS160.imageStore || !DS160.imageStore.listImages) return [];
-      const items = await DS160.imageStore.listImages();
-      const out = [];
-      for (const r of items) {
-        const rec = await DS160.imageStore.getRecord(r.id); // {name, type, data:ArrayBuffer}
-        const bytes = new Uint8Array(rec.data);
-        let binary = '';
-        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-        const b64 = btoa(binary);
-        out.push({
-          name: rec.name || `imagen_${r.id}`,
-          type: rec.type || 'application/octet-stream',
-          base64: b64
-        });
-      }
-      return out;
-    }
-
-    // Enviar a Apps Script con ?key=SHARED_SECRET
-    if (btnSend) {
-      btnSend.addEventListener('click', async () => {
-        const baseUrl = endpointInput ? endpointInput.value.trim() : '';
-        if (!baseUrl) { if (statusEl) statusEl.textContent = 'Define el endpoint del Web App.'; return; }
-        if (!SHARED_SECRET || SHARED_SECRET.includes('CAMBIA_')) {
-          if (statusEl) statusEl.textContent = 'Configura SHARED_SECRET primero.';
-          return;
-        }
-
-        let url;
-        try {
-          const u = new URL(baseUrl);
-          if (!u.searchParams.has('key')) u.searchParams.set('key', SHARED_SECRET);
-          url = u.toString();
-        } catch {
-          if (statusEl) statusEl.textContent = 'Endpoint inválido.';
-          return;
-        }
-
-        if (statusEl) statusEl.textContent = 'Preparando y enviando...';
-        try {
-          if (!window.DS160 || !DS160.exportAll) {
-            throw new Error('DS160.exportAll() no disponible.');
-          }
-          const form = await DS160.exportAll();
-          const images = await collectImagesBase64();
-
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' }, // evita preflight
-            body: JSON.stringify({ form, images })
-          });
-
-          let data = null;
-          try { data = await res.json(); } catch { /* no-op */ }
-
-          if (!res.ok || !data || data.ok !== true) {
-            const errMsg = (data && data.error) ? data.error : `HTTP ${res.status}`;
-            throw new Error(errMsg);
-          }
-
-          if (statusEl) {
-            const view = data.url ? ` (<a href="${data.url}" target="_blank" rel="noopener">ver en Drive</a>)` : '';
-            statusEl.innerHTML = `Enviado. Carpeta: <code>${data.name}</code>${view}`;
-          }
-        } catch (err) {
-          if (statusEl) statusEl.textContent = 'Error al enviar: ' + (err?.message || String(err));
-        }
-      });
-    }
-  })();
-})();
+  // 5) Mensaje opcional en consola para depuración
+  console.info('personal1.js: valores por defecto aplicados (radios, país, selects, visibilidad nombre nativo).');
+});
