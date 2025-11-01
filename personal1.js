@@ -1,41 +1,31 @@
 // personal1.js
 // Reemplazar el personal1.js actual por este archivo.
+// - Mantiene las reglas de visibilidad y autocompletado previas.
+// - Añade un manejador fiable para el botón "Siguiente" que envía el formulario
+//   incluso si no existen los handlers originales.
 
 document.addEventListener('DOMContentLoaded', function () {
   const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
   const hide = el => { if (!el) return; el.style.display = 'none'; el.hidden = true; el.setAttribute('aria-hidden','true'); };
   const show = el => { if (!el) return; el.style.display = ''; el.hidden = false; el.removeAttribute('aria-hidden'); };
 
-  // 1) Radios verdes -> marcar "No" y ocultar sus bloques específicos
+  // --- 1) Reglas UI previas (radios = No, ocultamientos, autocompletado) ---
   safe(() => {
+    // Radios verdes -> No y ocultar bloques
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN) { otherNamesN.checked = true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN) { telecodeN.checked = true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
 
-    // ocultar bloque textual de "¿Ha utilizado otros nombres?"
     const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
-    if (otherLabel) {
-      const otherRow = otherLabel.closest('.row') || otherLabel.parentElement;
-      if (otherRow) hide(otherRow);
-    } else {
-      const otherSection = document.getElementById('otherNamesSection');
-      if (otherSection) hide(otherSection);
-    }
+    if (otherLabel) { const r = otherLabel.closest('.row') || otherLabel.parentElement; if (r) hide(r); }
+    else { const otherSection = document.getElementById('otherNamesSection'); if (otherSection) hide(otherSection); }
 
-    // ocultar bloque textual de "¿Tiene un telecódigo...?"
     const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent));
-    if (teleLabel) {
-      const teleRow = teleLabel.closest('.row') || teleLabel.parentElement;
-      if (teleRow) hide(teleRow);
-    } else {
-      const teleSection = document.getElementById('telecodeSection');
-      if (teleSection) hide(teleSection);
-    }
-  });
+    if (teleLabel) { const r = teleLabel.closest('.row') || teleLabel.parentElement; if (r) hide(r); }
+    else { const teleSection = document.getElementById('telecodeSection'); if (teleSection) hide(teleSection); }
 
-  // 2) Autocompletar Nombre nativo = Nombres + Apellidos (en tiempo real) y mostrar su fila
-  safe(() => {
+    // Nombre nativo: visible y autocompletar Nombres + Apellidos
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
@@ -46,15 +36,13 @@ document.addEventListener('DOMContentLoaded', function () {
       const s = surname && surname.value ? surname.value.trim() : '';
       fullNative.value = [g, s].filter(Boolean).join(' ').trim();
     }
-
     if (fullNative) {
-      const row = fullNative.closest('.row');
-      if (row) show(row);
+      const r = fullNative.closest('.row');
+      if (r) show(r);
       if (given) { given.addEventListener('input', updateFull); given.addEventListener('change', updateFull); }
       if (surname) { surname.addEventListener('input', updateFull); surname.addEventListener('change', updateFull); }
       updateFull();
-
-      // ocultar sólo el checkbox "No aplica / Tecnología no disponible" si existe (no ocultar el campo)
+      // ocultar solo el checkbox "No aplica / Tecnología no disponible" si existe
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox) {
         naCheckbox.checked = false;
@@ -63,10 +51,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (naContainer) hide(naContainer);
       }
     }
-  });
 
-  // 3) Poner MÉXICO por defecto en País/Región y ocultar la fila País/Región + su help
-  safe(() => {
+    // País/Región: poner MÉXICO por defecto y ocultar la fila + help
     const country = document.getElementById('POB_COUNTRY');
     if (country) {
       const mxOpt = Array.from(country.options).find(o => ((o.text||'').trim().toUpperCase()) === 'MÉXICO' || ((o.text||'').trim().toUpperCase()) === 'MEXICO');
@@ -75,56 +61,36 @@ document.addEventListener('DOMContentLoaded', function () {
       const cRow = country.closest('.row') || country.parentElement;
       if (cRow) hide(cRow);
     }
-
-    // ocultar ayuda específica si existe
     Array.from(document.querySelectorAll('.help')).forEach(h => {
       const t = (h.textContent||'').trim();
       if (/Lista acotada a países/i.test(t) || /países del continente americano/i.test(t) || /Lista acotada/i.test(t)) hide(h);
     });
-
-    // ocultar label "País/Región" suelto si existe
     const labelCountry = document.querySelector('label[for="POB_COUNTRY"]') || Array.from(document.querySelectorAll('label')).find(l => /País\/Región/i.test(l.textContent||''));
-    if (labelCountry) {
-      const parent = labelCountry.closest('.row') || labelCountry.parentElement;
-      if (parent) hide(parent);
-    }
-  });
+    if (labelCountry) { const p = labelCountry.closest('.row') || labelCountry.parentElement; if (p) hide(p); }
 
-  // 4) Estado/Provincia: asegurar VISIBLE y OCULTAR únicamente su checkbox "No aplica" (label y contenedor)
-  safe(() => {
+    // Estado/Provincia: visible; ocultar sólo la casilla "No aplica"
     const state = document.getElementById('POB_STATE');
     if (state) {
-      // garantizar fila visible
       const stateRow = state.closest('.row');
       if (stateRow) show(stateRow);
-
-      // ocultar sólo el checkbox "No aplica"
       const naBox = document.getElementById('POB_STATE_NA');
       if (naBox) {
         naBox.checked = false;
         naBox.dispatchEvent(new Event('change',{bubbles:true}));
-        // intentar ubicar el contenedor del checkbox y su label y ocultarlos
         const naContainer = naBox.closest('.inline') || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement;
         if (naContainer) hide(naContainer);
         const naLabel = document.querySelector('label[for="POB_STATE_NA"]');
-        if (naLabel) {
-          const parent = naLabel.closest('.row') || naLabel.parentElement;
-          if (parent && parent !== stateRow) hide(parent); // no ocultar la fila del estado
-        }
+        if (naLabel) { const parent = naLabel.closest('.row') || naLabel.parentElement; if (parent && parent !== stateRow) hide(parent); }
       }
     }
-  });
 
-  // 5) Ocultar fieldset Imágenes si existe
-  safe(() => {
+    // Ocultar fieldset Imágenes si existe
     Array.from(document.querySelectorAll('fieldset')).forEach(fs => {
       const legend = fs.querySelector('legend');
       if (legend && /Imágenes/i.test(legend.textContent)) hide(fs);
     });
-  });
 
-  // 6) Traducción de selects (solo texto visible; values se mantienen)
-  safe(() => {
+    // Traducción selects (texto visible; values se mantienen)
     const gender = document.getElementById('APP_GENDER');
     if (gender) gender.innerHTML = '<option value="">- Seleccione -</option><option value="MALE">Masculino</option><option value="FEMALE">Femenino</option>';
     const ms = document.getElementById('APP_MARITAL_STATUS');
@@ -141,5 +107,74 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join('');
   });
 
-  console.info('personal1.js aplicado: sólo ocultada la casilla "No aplica" del Estado; Estado visible; demás reglas aplicadas.');
+  // --- 2) FIX botón "Siguiente" ---
+  safe(() => {
+    const nextBtn = document.getElementById('nextBtn');
+    const form = document.getElementById('ds160-personal1');
+
+    if (!nextBtn || !form) return;
+
+    // Asegurar botón habilitado
+    nextBtn.disabled = false;
+
+    // Función que limpia required en campos ocultos (evita bloqueos de validación)
+    function removeRequiredFromHidden() {
+      const requiredEls = Array.from(form.querySelectorAll('[required]'));
+      requiredEls.forEach(el => {
+        // si el elemento está oculto por atributo hidden o display none, quitar required
+        const isHidden = el.hidden || (el.closest('[hidden]') !== null) || getComputedStyle(el).display === 'none' || (el.closest && el.closest('.row') && getComputedStyle(el.closest('.row')).display === 'none');
+        if (isHidden) {
+          try { el.removeAttribute('required'); } catch(e){/* no bloquear */ }
+        }
+      });
+    }
+
+    // Intentar delegar a manejadores externos existentes (si los hubiera)
+    function tryCallExternalHandlers() {
+      // si existe alguna función global conocida, llamarla (conservative guess)
+      const candidates = ['goNext', 'nextSection', 'goToNext', 'submitSection', 'onNext'];
+      for (const name of candidates) {
+        if (typeof window[name] === 'function') {
+          try { window[name](); return true; } catch (e) { console.warn('error calling', name, e); }
+        }
+      }
+      return false;
+    }
+
+    nextBtn.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      // 1) limpiar required en ocultos
+      removeRequiredFromHidden();
+
+      // 2) si hay manejador externo conocido, intentar usarlo
+      const delegated = tryCallExternalHandlers();
+      if (delegated) return;
+
+      // 3) intentar disparar 'submit' nativo: requestSubmit (respeta novalidate), fallback a submit()
+      try {
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      } catch (e) {
+        // último recurso: simular navegación forward (intento seguro: enviar evento submit para que cualquier listener lo capture)
+        try {
+          const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+          if (form.dispatchEvent(submitEvent)) {
+            // si no fue evitado, forzamos submit
+            if (typeof form.requestSubmit === 'function') form.requestSubmit();
+            else form.submit();
+          } else {
+            console.warn('submit event cancelled by listener.');
+          }
+        } catch (err) {
+          console.error('No se pudo avanzar: ', err);
+          // no más acciones para no romper la app
+        }
+      }
+    });
+  });
+
+  console.info('personal1.js cargado: UI ajustada y arreglado botón Siguiente.');
 });
