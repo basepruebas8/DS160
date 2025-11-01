@@ -1,21 +1,24 @@
 // personal1.js
 // Reemplazar el personal1.js actual por este archivo.
-// - Evita recarga que borra datos: guarda en sessionStorage antes de enviar.
-// - Envía el formulario con fetch (si hay redirect, navegamos).
-// - Restaura formulario desde sessionStorage al cargar.
-// - Mantiene las modificaciones UI previas (ocultamientos/autocompletado/traducciones).
+// Cambios importantes:
+// - Mantiene ocultamientos, autocompletado y guardado/restauración.
+// - Envía por fetch y, si la respuesta es satisfactoria, navega a "personal2.html".
+// - Intenta seguir redirect/respuesta JSON antes de forzar la navegación.
+// - Evita recargas que pierdan datos.
 
 document.addEventListener('DOMContentLoaded', function () {
   const FORM_KEY = 'ds160-personal1-state-v1';
+  const NEXT_FALLBACK = 'personal2.html'; // página a la que debe avanzar
   const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
   const hide = el => { if (!el) return; el.style.display = 'none'; el.hidden = true; el.setAttribute('aria-hidden','true'); };
   const show = el => { if (!el) return; el.style.display = ''; el.hidden = false; el.removeAttribute('aria-hidden'); };
 
-  // ---------- Utilities ----------
+  /* ---------- Helpers de estado ---------- */
   function removeRequiredFromHidden(form) {
     const requiredEls = Array.from(form.querySelectorAll('[required]'));
     requiredEls.forEach(el => {
-      const isHidden = el.hidden || (el.closest && el.closest('[hidden]') !== null) ||
+      const isHidden = el.hidden ||
+        (el.closest && el.closest('[hidden]') !== null) ||
         getComputedStyle(el).display === 'none' ||
         (el.closest && el.closest('.row') && getComputedStyle(el.closest('.row')).display === 'none');
       if (isHidden) {
@@ -32,16 +35,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!el.name) return;
         if (el.type === 'checkbox' || el.type === 'radio') {
           data[el.name + '::' + (el.id || '')] = el.checked;
-        } else if (el.tagName === 'SELECT') {
-          data[el.name] = el.value;
         } else {
           data[el.name] = el.value;
         }
       });
       sessionStorage.setItem(FORM_KEY, JSON.stringify(data));
-    } catch (e) {
-      console.warn('saveFormState error', e);
-    }
+    } catch (e) { console.warn('saveFormState error', e); }
   }
 
   function restoreFormState(form) {
@@ -58,32 +57,29 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           if (el.name in data) el.value = data[el.name];
         }
-        // dispatch change/input for dependent logic
         el.dispatchEvent(new Event('change', { bubbles: true }));
         el.dispatchEvent(new Event('input', { bubbles: true }));
       });
-    } catch (e) {
-      console.warn('restoreFormState error', e);
-    }
+    } catch (e) { console.warn('restoreFormState error', e); }
   }
 
-  // ---------- UI rules previas ----------
+  /* ---------- Reglas UI (ocultamientos, autocompletado, traducciones) ---------- */
   safe(() => {
-    // Radios verdes -> marcar "No" y ocultar sus bloques
+    // Radios verdes -> marcar "No" y ocultar su bloque textual
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN) { otherNamesN.checked = true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN) { telecodeN.checked = true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
 
-    const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
+    const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent || ''));
     if (otherLabel) { const r = otherLabel.closest('.row') || otherLabel.parentElement; if (r) hide(r); }
     else { const otherSection = document.getElementById('otherNamesSection'); if (otherSection) hide(otherSection); }
 
-    const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent));
+    const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent || ''));
     if (teleLabel) { const r = teleLabel.closest('.row') || teleLabel.parentElement; if (r) hide(r); }
     else { const teleSection = document.getElementById('telecodeSection'); if (teleSection) hide(teleSection); }
 
-    // Nombre nativo: visible y autocompletar Nombres + Apellidos
+    // Nombre nativo: visible y autocompletado = Nombres + Apellidos
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (given) { given.addEventListener('input', updateFull); given.addEventListener('change', updateFull); }
       if (surname) { surname.addEventListener('input', updateFull); surname.addEventListener('change', updateFull); }
       updateFull();
-      // ocultar sólo el checkbox "No aplica / Tecnología no disponible" si existe
+      // ocultar el checkbox "No aplica" si existe (sin ocultar el campo)
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox) {
         naCheckbox.checked = false;
@@ -110,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // País/Región: poner MÉXICO por defecto y ocultar la fila + help
+    // País/Región: poner MÉXICO y ocultar fila + help
     const country = document.getElementById('POB_COUNTRY');
     if (country) {
       const mxOpt = Array.from(country.options).find(o => ((o.text||'').trim().toUpperCase()) === 'MÉXICO' || ((o.text||'').trim().toUpperCase()) === 'MEXICO');
@@ -123,10 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const t = (h.textContent||'').trim();
       if (/Lista acotada a países/i.test(t) || /países del continente americano/i.test(t) || /Lista acotada/i.test(t)) hide(h);
     });
-    const labelCountry = document.querySelector('label[for="POB_COUNTRY"]') || Array.from(document.querySelectorAll('label')).find(l => /País\/Región/i.test(l.textContent||''));
+    const labelCountry = document.querySelector('label[for="POB_COUNTRY"]') || Array.from(document.querySelectorAll('label')).find(l => /País\/Región/i.test(l.textContent || ''));
     if (labelCountry) { const p = labelCountry.closest('.row') || labelCountry.parentElement; if (p) hide(p); }
 
-    // Estado/Provincia: visible; ocultar sólo su checkbox "No aplica"
+    // Estado/Provincia: VISIBLE; ocultar sólo su checkbox "No aplica"
     const state = document.getElementById('POB_STATE');
     if (state) {
       const stateRow = state.closest('.row');
@@ -145,10 +141,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Ocultar fieldset Imágenes si existe
     Array.from(document.querySelectorAll('fieldset')).forEach(fs => {
       const legend = fs.querySelector('legend');
-      if (legend && /Imágenes/i.test(legend.textContent)) hide(fs);
+      if (legend && /Imágenes/i.test(legend.textContent || '')) hide(fs);
     });
 
-    // Traducción selects (solo texto visible; values se mantienen)
+    // Traducción de selects (solo texto visible; values se mantienen)
     const gender = document.getElementById('APP_GENDER');
     if (gender) gender.innerHTML = '<option value="">- Seleccione -</option><option value="MALE">Masculino</option><option value="FEMALE">Femenino</option>';
     const ms = document.getElementById('APP_MARITAL_STATUS');
@@ -165,33 +161,29 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join('');
   });
 
-  // ---------- Restore saved state if exists ----------
+  /* ---------- Restaurar estado guardado al cargar ---------- */
   safe(() => {
     const form = document.getElementById('ds160-personal1');
     if (form) restoreFormState(form);
   });
 
-  // ---------- Next button: save + submit via fetch (no recarga brutal) ----------
+  /* ---------- Manejo del botón "Siguiente" (envío por fetch y navegación garantizada) ---------- */
   safe(() => {
     const nextBtn = document.getElementById('nextBtn');
     const form = document.getElementById('ds160-personal1');
     if (!nextBtn || !form) return;
 
-    // Intercept native submit to avoid default full reload when we handle via fetch
-    form.addEventListener('submit', function (ev) {
-      // prevent double submit via native submit (we handle via fetch)
-      ev.preventDefault();
-    });
+    // prevenir submit nativo
+    form.addEventListener('submit', function (ev) { ev.preventDefault(); });
 
     nextBtn.addEventListener('click', async function (ev) {
       ev.preventDefault();
-      // 1) quitar required en campos ocultos para que no bloqueen
-      removeRequiredFromHidden(form);
 
-      // 2) guardar estado antes de enviar (para recuperación en caso de recarga)
+      // limpiar required en ocultos y guardar estado
+      removeRequiredFromHidden(form);
       saveFormState(form);
 
-      // 3) intentar delegar a handlers globales si existen (mantener compatibilidad)
+      // intentar delegar a handlers globales si existieran
       const candidates = ['goNext', 'nextSection', 'goToNext', 'submitSection', 'onNext'];
       for (const name of candidates) {
         if (typeof window[name] === 'function') {
@@ -199,14 +191,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // 4) construir FormData
+      // construir FormData
       const formData = new FormData(form);
-
-      // 5) enviar por fetch al action del form (o a la URL actual si no hay action)
       const action = form.getAttribute('action') || window.location.href;
       const method = (form.getAttribute('method') || 'POST').toUpperCase();
 
-      // disable button to avoid dobles clicks
       nextBtn.disabled = true;
       const originalText = nextBtn.textContent;
       nextBtn.textContent = 'Enviando...';
@@ -216,22 +205,32 @@ document.addEventListener('DOMContentLoaded', function () {
           method,
           body: formData,
           credentials: 'same-origin',
-          headers: { 'X-Requested-With': 'XMLHttpRequest' } // ayudar al server a distinguir petición XHR
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
 
-        // si el servidor redirige (Location), fetch automáticamente sigue redirect en modo "follow"
+        // 1) Si fetch siguió una redirección, navegar a la URL final
         if (res.redirected) {
-          // guardamos estado y navegamos a la URL final
           sessionStorage.setItem(FORM_KEY, JSON.stringify(Object.assign(JSON.parse(sessionStorage.getItem(FORM_KEY) || '{}'), { lastSentAt: Date.now() })));
           window.location.href = res.url;
           return;
         }
 
-        // si recibimos HTML (200), reemplazamos el documento con la respuesta (suponiendo que es la siguiente página)
+        // 2) Si status 3xx (rara vez visible por fetch), intentar leer location header
+        if (res.status >= 300 && res.status < 400) {
+          const loc = res.headers.get('location');
+          if (loc) {
+            sessionStorage.setItem(FORM_KEY, JSON.stringify(Object.assign(JSON.parse(sessionStorage.getItem(FORM_KEY) || '{}'), { lastSentAt: Date.now() })));
+            const nextUrl = new URL(loc, window.location.href).href;
+            window.location.href = nextUrl;
+            return;
+          }
+        }
+
+        // 3) Si OK y HTML, reemplazar documento (si el servidor devuelve la página siguiente)
         const contentType = res.headers.get('content-type') || '';
         if (res.ok && contentType.indexOf('text/html') !== -1) {
           const text = await res.text();
-          // guardar estado final antes de reemplazar
+          // guardar y reemplazar documento (esto suele llevar al siguiente paso si el server lo envía)
           sessionStorage.setItem(FORM_KEY, JSON.stringify(Object.assign(JSON.parse(sessionStorage.getItem(FORM_KEY) || '{}'), { lastSentAt: Date.now() })));
           document.open();
           document.write(text);
@@ -239,24 +238,33 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        // si no es HTML o no OK, intentar parse JSON con instrucciones del servidor
+        // 4) Si OK y JSON con nextUrl
         if (res.ok) {
           try {
             const j = await res.json();
             if (j && j.nextUrl) {
               sessionStorage.setItem(FORM_KEY, JSON.stringify(Object.assign(JSON.parse(sessionStorage.getItem(FORM_KEY) || '{}'), { lastSentAt: Date.now() })));
-              window.location.href = j.nextUrl;
+              window.location.href = new URL(j.nextUrl, window.location.href).href;
               return;
             }
-          } catch (_) {}
+          } catch (_) { /* no es JSON */ }
         }
 
-        // fallback: si no podemos avanzar automáticamente, restauramos estado y permitimos que el usuario reintente
-        alert('No se pudo avanzar automáticamente. Se han guardado los datos en el formulario; intenta nuevamente o recarga la página.');
+        // 5) FALLBACK: si la petición fue satisfactoria (res.ok) o al menos 2xx, navegar a personal2.html
+        if (res.ok || (res.status >= 200 && res.status < 300)) {
+          sessionStorage.setItem(FORM_KEY, JSON.stringify(Object.assign(JSON.parse(sessionStorage.getItem(FORM_KEY) || '{}'), { lastSentAt: Date.now() })));
+          // construir URL relativa segura
+          const fallback = new URL(NEXT_FALLBACK, window.location.href).href;
+          window.location.href = fallback;
+          return;
+        }
+
+        // 6) Si no fue ok, restaurar estado y mostrar mensaje breve
         restoreFormState(form);
+        alert('No se pudo avanzar automáticamente (respuesta del servidor). Los datos siguen guardados localmente. Revisa la consola.');
       } catch (err) {
         console.error('Error enviando formulario vía fetch:', err);
-        alert('Error de envío. Datos guardados localmente. Revisa la consola para más detalles.');
+        alert('Error de conexión. Los datos se guardaron localmente. Revisa la consola.');
         restoreFormState(form);
       } finally {
         nextBtn.disabled = false;
@@ -265,11 +273,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ---------- Guardado automático periódico (evita perder datos si la página se recarga) ----------
+  /* ---------- Guardado periódico para no perder datos ---------- */
   safe(() => {
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
-    // cada 5s guarda si hay cambios
     let lastSnapshot = '';
     setInterval(() => {
       try {
@@ -289,5 +296,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 5000);
   });
 
-  console.info('personal1.js cargado: guardado/restauración activados; envío por fetch seguro; UI ajustada.');
+  console.info('personal1.js cargado: UI ajustada; envío por fetch con navegación garantizada a personal2.html.');
 });
