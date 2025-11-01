@@ -1,37 +1,34 @@
 // personal1.js
-// Sustituir el personal1.js actual por este archivo.
-// Funciones:
-// - Radios "Otros nombres" y "Telecódigo" = No (ocultos).
-// - Autocompleta "Nombre completo en alfabeto nativo" = Nombres + Apellidos (visible).
-// - Pone MÉXICO en País/Región y oculta la fila País/Región y su help.
-// - Deja Estado/Provincia visible pero OCULTA su checkbox "No aplica".
-// - Oculta fieldset Imágenes.
-// - Traduce selects a español (manteniendo values).
+// Reemplazar el personal1.js actual por este archivo.
 
 document.addEventListener('DOMContentLoaded', function () {
   const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
   const hide = el => { if (!el) return; el.style.display = 'none'; el.hidden = true; el.setAttribute('aria-hidden','true'); };
   const show = el => { if (!el) return; el.style.display = ''; el.hidden = false; el.removeAttribute('aria-hidden'); };
 
-  // 1) Radios verdes -> marcar "No" y ocultar sus filas/sectores
+  // 1) Radios verdes -> marcar "No" y ocultar sus bloques específicos
   safe(() => {
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN) { otherNamesN.checked = true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN) { telecodeN.checked = true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
 
-    // ocultar bloque "¿Ha utilizado otros nombres?"
+    // ocultar bloque textual de "¿Ha utilizado otros nombres?"
     const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
-    if (otherLabel) hide(otherLabel.closest('.row') || otherLabel.parentElement);
-    else {
+    if (otherLabel) {
+      const otherRow = otherLabel.closest('.row') || otherLabel.parentElement;
+      if (otherRow) hide(otherRow);
+    } else {
       const otherSection = document.getElementById('otherNamesSection');
       if (otherSection) hide(otherSection);
     }
 
-    // ocultar bloque "¿Tiene un telecódigo...?"
+    // ocultar bloque textual de "¿Tiene un telecódigo...?"
     const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent));
-    if (teleLabel) hide(teleLabel.closest('.row') || teleLabel.parentElement);
-    else {
+    if (teleLabel) {
+      const teleRow = teleLabel.closest('.row') || teleLabel.parentElement;
+      if (teleRow) hide(teleRow);
+    } else {
       const teleSection = document.getElementById('telecodeSection');
       if (teleSection) hide(teleSection);
     }
@@ -53,11 +50,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (fullNative) {
       const row = fullNative.closest('.row');
       if (row) show(row);
-      // listeners
       if (given) { given.addEventListener('input', updateFull); given.addEventListener('change', updateFull); }
       if (surname) { surname.addEventListener('input', updateFull); surname.addEventListener('change', updateFull); }
       updateFull();
-      // asegurar checkbox "No aplica / Tecnología no disponible" desmarcado; ocultar su contenedor si existe
+
+      // ocultar sólo el checkbox "No aplica / Tecnología no disponible" si existe (no ocultar el campo)
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox) {
         naCheckbox.checked = false;
@@ -68,45 +65,52 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // 3) Poner MÉXICO por defecto en País/Región y ocultar la fila + help relacionado
+  // 3) Poner MÉXICO por defecto en País/Región y ocultar la fila País/Región + su help
   safe(() => {
     const country = document.getElementById('POB_COUNTRY');
     if (country) {
       const mxOpt = Array.from(country.options).find(o => ((o.text||'').trim().toUpperCase()) === 'MÉXICO' || ((o.text||'').trim().toUpperCase()) === 'MEXICO');
       if (mxOpt) country.value = mxOpt.value !== '' ? mxOpt.value : mxOpt.text;
       country.dispatchEvent(new Event('change',{bubbles:true}));
-      // ocultar fila del select
       const cRow = country.closest('.row') || country.parentElement;
       if (cRow) hide(cRow);
     }
-    // ocultar textos de ayuda relacionados
+
+    // ocultar ayuda específica si existe
     Array.from(document.querySelectorAll('.help')).forEach(h => {
       const t = (h.textContent||'').trim();
       if (/Lista acotada a países/i.test(t) || /países del continente americano/i.test(t) || /Lista acotada/i.test(t)) hide(h);
     });
-    // ocultar label suelto si existe
-    Array.from(document.querySelectorAll('label')).forEach(l => {
-      if (/País\/Región/i.test(l.textContent||'')) hide(l.closest('.row')||l.parentElement);
-    });
+
+    // ocultar label "País/Región" suelto si existe
+    const labelCountry = document.querySelector('label[for="POB_COUNTRY"]') || Array.from(document.querySelectorAll('label')).find(l => /País\/Región/i.test(l.textContent||''));
+    if (labelCountry) {
+      const parent = labelCountry.closest('.row') || labelCountry.parentElement;
+      if (parent) hide(parent);
+    }
   });
 
-  // 4) Estado/Provincia: asegurar VISIBLE pero OCULTAR su checkbox "No aplica"
+  // 4) Estado/Provincia: asegurar VISIBLE y OCULTAR únicamente su checkbox "No aplica" (label y contenedor)
   safe(() => {
     const state = document.getElementById('POB_STATE');
     if (state) {
+      // garantizar fila visible
       const stateRow = state.closest('.row');
       if (stateRow) show(stateRow);
 
-      // ocultar checkbox "No aplica" asociado (input y label)
+      // ocultar sólo el checkbox "No aplica"
       const naBox = document.getElementById('POB_STATE_NA');
       if (naBox) {
         naBox.checked = false;
         naBox.dispatchEvent(new Event('change',{bubbles:true}));
+        // intentar ubicar el contenedor del checkbox y su label y ocultarlos
         const naContainer = naBox.closest('.inline') || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement;
         if (naContainer) hide(naContainer);
-        // además ocultar label aislado si existiera
         const naLabel = document.querySelector('label[for="POB_STATE_NA"]');
-        if (naLabel) hide(naLabel.closest('.row') || naLabel.parentElement);
+        if (naLabel) {
+          const parent = naLabel.closest('.row') || naLabel.parentElement;
+          if (parent && parent !== stateRow) hide(parent); // no ocultar la fila del estado
+        }
       }
     }
   });
@@ -137,5 +141,5 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join('');
   });
 
-  console.info('personal1.js aplicado: ocultadas filas solicitadas; POB_STATE mantiene visible pero su "No aplica" oculto; Nombre nativo autocompletado.');
+  console.info('personal1.js aplicado: sólo ocultada la casilla "No aplica" del Estado; Estado visible; demás reglas aplicadas.');
 });
