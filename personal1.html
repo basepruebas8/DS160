@@ -69,6 +69,12 @@
     .muted{color:var(--muted)}
     .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
     progress{width:260px;height:14px;border-radius:8px}
+
+    /* Reglas para ocultar lo enmarcado en rojo (según requerimiento) */
+    .hide-red { display: none !important; }
+
+    /* Asegurar que los grupos de radio (verde) sigan visibles si están fuera de las reglas */
+    /* No es necesario si no están dentro de un contenedor oculto. */
   </style>
 </head>
 <body>
@@ -93,7 +99,8 @@
             <input type="text" id="APP_GIVEN_NAME" name="APP_GIVEN_NAME" maxlength="33" data-uppercase required />
           </div>
 
-          <div class="row">
+          <!-- FILA OCULTA: lo enmarcado en rojo (nombre en alfabeto nativo) -->
+          <div id="row_full_name_native" class="row hide-red">
             <label for="APP_FULL_NAME_NATIVE">Nombre completo en alfabeto nativo</label>
             <input type="text" id="APP_FULL_NAME_NATIVE" name="APP_FULL_NAME_NATIVE" maxlength="100" required />
             <div class="inline">
@@ -103,11 +110,12 @@
             <div id="uploadStatus" class="help" aria-live="polite"></div>
           </div>
 
+          <!-- Grupo de pregunta "¿Ha utilizado otros nombres?" - (verde): por defecto NO -->
           <div class="row">
             <label>¿Ha utilizado otros nombres?</label>
             <div class="inline" role="radiogroup" aria-label="Otros nombres">
-              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="Y" id="OtherNamesY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="N" id="OtherNamesN"> No</label>
+              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="Y" id="OtherNamesY"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="OtherNames" value="N" id="OtherNamesN" checked> No</label>
             </div>
             <div id="otherNamesSection" class="row" hidden>
               <div class="row">
@@ -122,11 +130,12 @@
             </div>
           </div>
 
+          <!-- Grupo de pregunta "¿Tiene un telecódigo...?" - (verde): por defecto NO -->
           <div class="row">
             <label>¿Tiene un telecódigo que represente su nombre?</label>
             <div class="inline" role="radiogroup" aria-label="Telecódigo">
-              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="Y" id="TelecodeY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="N" id="TelecodeN"> No</label>
+              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="Y" id="TelecodeY"> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="N" id="TelecodeN" checked> No</label>
             </div>
             <div id="telecodeSection" class="row" hidden>
               <div class="row">
@@ -141,20 +150,29 @@
             </div>
           </div>
 
+          <!-- Selección Sexo - mostrar en español solo para el cliente (texto), value mantiene inglés -->
           <div class="row">
             <label for="APP_GENDER">Sexo</label>
             <select id="APP_GENDER" name="APP_GENDER" required>
               <option value="">- Seleccione -</option>
-              <option>MALE</option><option>FEMALE</option>
+              <option value="MALE">Masculino</option>
+              <option value="FEMALE">Femenino</option>
             </select>
           </div>
 
+          <!-- Estado civil - mostrar en español solo para el cliente (texto), value mantiene inglés -->
           <div class="row">
             <label for="APP_MARITAL_STATUS">Estado civil</label>
             <select id="APP_MARITAL_STATUS" name="APP_MARITAL_STATUS" required>
               <option value="">- Seleccione -</option>
-              <option>MARRIED</option><option>COMMON LAW MARRIAGE</option><option>CIVIL UNION/DOMESTIC PARTNERSHIP</option>
-              <option>SINGLE</option><option>WIDOWED</option><option>DIVORCED</option><option>LEGALLY SEPARATED</option><option>OTHER</option>
+              <option value="MARRIED">Casado(a)</option>
+              <option value="COMMON LAW MARRIAGE">Unión de hecho</option>
+              <option value="CIVIL UNION/DOMESTIC PARTNERSHIP">Unión civil / Pareja doméstica</option>
+              <option value="SINGLE">Soltero(a)</option>
+              <option value="WIDOWED">Viudo(a)</option>
+              <option value="DIVORCED">Divorciado(a)</option>
+              <option value="LEGALLY SEPARATED">Separado(a) legalmente</option>
+              <option value="OTHER">Otro</option>
             </select>
           </div>
 
@@ -190,17 +208,35 @@
                 <label for="POB_STATE_NA" style="font-weight:400;">No aplica</label>
               </div>
             </div>
-            <div class="row">
+
+            <!-- FILA OCULTA: contenedor rojo inferior (pero país/region amarillo debe mostrarse -> lo separamos) -->
+            <!-- ocultamos el contenedor general pero mostramos la subfila de país con México seleccionado -->
+            <div id="row_pob_country_container" class="row hide-red">
               <label for="POB_COUNTRY">País/Región</label>
               <select id="POB_COUNTRY" name="POB_COUNTRY" required>
                 <option value="">- Seleccione -</option>
-                <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option>MÉXICO</option><option>GROENLANDIA</option>
+                <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option selected>MÉXICO</option><option>GROENLANDIA</option>
                 <option>BELICE</option><option>COSTA RICA</option><option>EL SALVADOR</option><option>GUATEMALA</option><option>HONDURAS</option><option>NICARAGUA</option><option>PANAMÁ</option>
                 <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y NIEVES</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
                 <option>ARGENTINA</option><option>BOLIVIA</option><option>BRASIL</option><option>CHILE</option><option>COLOMBIA</option><option>ECUADOR</option><option>GUYANA</option><option>PARAGUAY</option><option>PERÚ</option><option>SURINAM</option><option>URUGUAY</option><option>VENEZUELA</option>
               </select>
               <div class="help">Lista acotada a países del continente americano.</div>
             </div>
+
+            <!-- Mostrar separadamente la fila País/Región (amarillo) fuera del contenedor rojo oculto,
+                 con México seleccionado por defecto. Esto preserva la instrucción "amarillo por defecto: Mexico" -->
+            <div id="row_pob_country_visible" class="row">
+              <label for="POB_COUNTRY_VISIBLE">País/Región</label>
+              <select id="POB_COUNTRY_VISIBLE" name="POB_COUNTRY_VISIBLE" required>
+                <option value="">- Seleccione -</option>
+                <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option selected>MÉXICO</option><option>GROENLANDIA</option>
+                <option>BELICE</option><option>COSTA RICA</option><option>EL SALVADOR</option><option>GUATEMALA</option><option>HONDURAS</option><option>NICARAGUA</option><option>PANAMÁ</option>
+                <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y NIEVES</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
+                <option>ARGENTINA</option><option>BOLIVIA</option><option>BRASIL</option><option>CHILE</option><option>COLOMBIA</option><option>ECUADOR</option><option>GUYANA</option><option>PARAGUAY</option><option>PERÚ</option><option>SURINAM</option><option>URUGUAY</option><option>VENEZUELA</option>
+              </select>
+              <div class="help">Lista acotada a países del continente americano.</div>
+            </div>
+
           </fieldset>
 
           <fieldset>
@@ -246,6 +282,3 @@
   <script src="./personal1.js" defer></script>
 </body>
 </html>
-
-
-       
