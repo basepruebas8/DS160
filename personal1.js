@@ -1,49 +1,102 @@
 // personal1.js
-// Reemplazar el personal1.js actual por este archivo.
+// Sustituir el personal1.js actual por este.
+// Oculta los bloques "rojos", deja visible "Nombre completo en alfabeto nativo",
+// marca radios verdes en "No" y pone México como país por defecto.
 
 document.addEventListener('DOMContentLoaded', function () {
-  // 1) Radios verdes -> marcar "No" y ocultar secciones dependientes
+  function hideElement(el) {
+    if (!el) return;
+    el.style.display = 'none';
+    el.hidden = true;
+    el.setAttribute('aria-hidden', 'true');
+  }
+
+  function showElement(el) {
+    if (!el) return;
+    el.style.display = '';
+    el.hidden = false;
+    el.removeAttribute('aria-hidden');
+  }
+
+  // 1) Asegurar nombre nativo visible
   try {
+    const fullNameInput = document.getElementById('APP_FULL_NAME_NATIVE');
+    if (fullNameInput) {
+      const row = fullNameInput.closest('.row');
+      showElement(row);
+      // desmarcar checkbox "No aplica / Tecnología no disponible"
+      const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
+      if (naCheckbox) {
+        naCheckbox.checked = false;
+        naCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+        // ocultar sólo el checkbox y su label si estaban dentro del área roja
+        const naContainer = naCheckbox.closest('.inline');
+        if (naContainer) hideElement(naContainer);
+      }
+    }
+  } catch (e) {
+    console.warn('Error preservando nombre nativo visible:', e);
+  }
+
+  // 2) Radios verdes -> marcar "No" y ocultar los radios (fila entera)
+  try {
+    // Otros nombres
     const otherNamesNo = document.getElementById('OtherNamesN');
+    const otherNamesRowLabel = Array.from(document.querySelectorAll('label'))
+      .find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
     if (otherNamesNo) {
       otherNamesNo.checked = true;
       otherNamesNo.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    if (otherNamesRowLabel) {
+      const row = otherNamesRowLabel.closest('.row');
+      hideElement(row);
+    } else {
+      // fallback: ocultar sección por id si existe
+      const otherNamesSection = document.getElementById('otherNamesSection');
+      if (otherNamesSection) hideElement(otherNamesSection);
+    }
+
+    // Telecódigo
     const telecodeNo = document.getElementById('TelecodeN');
+    const telecodeLabel = Array.from(document.querySelectorAll('label'))
+      .find(l => /telecódigo/i.test(l.textContent));
     if (telecodeNo) {
       telecodeNo.checked = true;
       telecodeNo.dispatchEvent(new Event('change', { bubbles: true }));
     }
-
-    // Asegurar que las secciones dependientes queden ocultas si existen
-    const otherNamesSection = document.getElementById('otherNamesSection');
-    if (otherNamesSection) { otherNamesSection.hidden = true; otherNamesSection.style.display = ''; }
-
-    const telecodeSection = document.getElementById('telecodeSection');
-    if (telecodeSection) { telecodeSection.hidden = true; telecodeSection.style.display = ''; }
+    if (telecodeLabel) {
+      const row = telecodeLabel.closest('.row');
+      hideElement(row);
+    } else {
+      const telecodeSection = document.getElementById('telecodeSection');
+      if (telecodeSection) hideElement(telecodeSection);
+    }
   } catch (e) {
-    console.warn('Error ajustando radios verdes:', e);
+    console.warn('Error ocultando radios verdes:', e);
   }
 
-  // 2) Enmarcado amarillo -> País por defecto: México
+  // 3) Enmarcado amarillo -> Poner México por defecto (si existe) pero ocultar la fila si debe ir en rojo
   try {
     const pobCountry = document.getElementById('POB_COUNTRY');
     if (pobCountry) {
       const opt = Array.from(pobCountry.options).find(o => {
         const t = (o.text || '').trim().toUpperCase();
-        return t === 'MÉXICO' || t === 'MEXICO' || t === 'MÉXICO ' || t === 'MEXICO ';
+        return t === 'MÉXICO' || t === 'MEXICO' || t === 'ESTADOS UNIDOS' && false;
       });
       if (opt) {
-        // Si option tiene value vacío, asignar por texto; en caso contrario, asignar value
         pobCountry.value = opt.value !== '' ? opt.value : opt.text;
         pobCountry.dispatchEvent(new Event('change', { bubbles: true }));
       }
+      // ocultar la fila completa de País/Región (porque está en rojo)
+      const countryRow = pobCountry.closest('.row');
+      if (countryRow) hideElement(countryRow);
     }
   } catch (e) {
-    console.warn('No se pudo establecer POB_COUNTRY por defecto:', e);
+    console.warn('Error con POB_COUNTRY:', e);
   }
 
-  // 3) Enmarcados en azul -> mostrar opciones en español (mantener values)
+  // 4) Enmarcados en azul -> asegurarse que los selects estén en español (no los ocultamos)
   try {
     const gender = document.getElementById('APP_GENDER');
     if (gender) {
@@ -53,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function () {
         '<option value="FEMALE">Femenino</option>'
       ].join('');
     }
-
     const marital = document.getElementById('APP_MARITAL_STATUS');
     if (marital) {
       marital.innerHTML = [
@@ -69,33 +121,48 @@ document.addEventListener('DOMContentLoaded', function () {
       ].join('');
     }
   } catch (e) {
-    console.warn('No se pudo traducir selects azules:', e);
+    console.warn('Error traduciendo selects:', e);
   }
 
-  // 4) Asegurar que "Nombre completo en alfabeto nativo" esté visible
+  // 5) Ocultar fieldset de Imágenes si existe (suele ir en rojo)
   try {
-    const fullNameInput = document.getElementById('APP_FULL_NAME_NATIVE');
-    if (fullNameInput) {
-      // Mostrar la fila contenedora si estuviera oculta
-      const row = fullNameInput.closest('.row');
-      if (row) {
-        row.hidden = false;
-        row.style.display = '';
+    const fieldsets = document.querySelectorAll('fieldset');
+    for (const fs of fieldsets) {
+      const legend = fs.querySelector('legend');
+      if (legend && /Imágenes/i.test(legend.textContent)) {
+        hideElement(fs);
       }
-      // Asegurar checkbox "No aplica" sin marcar
-      const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
-      if (naCheckbox) {
-        naCheckbox.checked = false;
-        naCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      // Si existiera algún atributo de aria-hidden o style que lo oculte, limpiarlo
-      fullNameInput.removeAttribute('aria-hidden');
-      fullNameInput.style.display = '';
     }
   } catch (e) {
-    console.warn('No se pudo asegurar visibilidad de Nombre completo:', e);
+    console.warn('Error ocultando fieldset Imágenes:', e);
   }
 
-  // 5) Mensaje opcional en consola para depuración
-  console.info('personal1.js: valores por defecto aplicados (radios, país, selects, visibilidad nombre nativo).');
+  // 6) Como medida extra: ocultar cualquier fila cuya etiqueta contenga palabras que suelen estar en rojo
+  try {
+    const labels = document.querySelectorAll('.row > label, label');
+    const hideKeywords = [
+      'No aplica / Tecnología no disponible',
+      'No aplica',
+      'Archivos guardados',
+      'Selecciona imágenes',
+      'Imágenes',
+      'País/Región'
+    ];
+    labels.forEach(lbl => {
+      const text = (lbl.textContent || '').trim();
+      if (!text) return;
+      for (const kw of hideKeywords) {
+        if (text.includes(kw)) {
+          const row = lbl.closest('.row') || lbl.closest('fieldset') || lbl.parentElement;
+          if (row) hideElement(row);
+          break;
+        }
+      }
+    });
+  } catch (e) {
+    console.warn('Error aplicando ocultamiento por palabras clave:', e);
+  }
+
+  // 7) Mensaje de depuración en consola
+  console.info('personal1.js aplicado: elementos rojos ocultos, nombre nativo visible, radios verdes = No, país por defecto aplicado (si existe).');
 });
