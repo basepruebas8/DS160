@@ -1,197 +1,141 @@
 // personal1.js
-// Reemplazar el personal1.js actual por este archivo.
+// Sustituir el personal1.js actual por este archivo.
+// Funciones:
+// - Radios "Otros nombres" y "Telecódigo" = No (ocultos).
+// - Autocompleta "Nombre completo en alfabeto nativo" = Nombres + Apellidos (visible).
+// - Pone MÉXICO en País/Región y oculta la fila País/Región y su help.
+// - Deja Estado/Provincia visible pero OCULTA su checkbox "No aplica".
+// - Oculta fieldset Imágenes.
+// - Traduce selects a español (manteniendo values).
 
 document.addEventListener('DOMContentLoaded', function () {
-  function hideElement(el) {
-    if (!el) return;
-    el.style.display = 'none';
-    el.hidden = true;
-    el.setAttribute('aria-hidden', 'true');
-  }
-  function showElement(el) {
-    if (!el) return;
-    el.style.display = '';
-    el.hidden = false;
-    el.removeAttribute('aria-hidden');
-  }
-  // marcar "No" en radios verdes y ocultar sus filas
-  try {
-    const otherNamesNo = document.getElementById('OtherNamesN');
-    if (otherNamesNo) {
-      otherNamesNo.checked = true;
-      otherNamesNo.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    const telecodeNo = document.getElementById('TelecodeN');
-    if (telecodeNo) {
-      telecodeNo.checked = true;
-      telecodeNo.dispatchEvent(new Event('change', { bubbles: true }));
+  const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
+  const hide = el => { if (!el) return; el.style.display = 'none'; el.hidden = true; el.setAttribute('aria-hidden','true'); };
+  const show = el => { if (!el) return; el.style.display = ''; el.hidden = false; el.removeAttribute('aria-hidden'); };
+
+  // 1) Radios verdes -> marcar "No" y ocultar sus filas/sectores
+  safe(() => {
+    const otherNamesN = document.getElementById('OtherNamesN');
+    if (otherNamesN) { otherNamesN.checked = true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
+    const telecodeN = document.getElementById('TelecodeN');
+    if (telecodeN) { telecodeN.checked = true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
+
+    // ocultar bloque "¿Ha utilizado otros nombres?"
+    const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
+    if (otherLabel) hide(otherLabel.closest('.row') || otherLabel.parentElement);
+    else {
+      const otherSection = document.getElementById('otherNamesSection');
+      if (otherSection) hide(otherSection);
     }
 
-    // ocultar secciones de "Otros nombres" y "Telecódigo" si existen
-    const otherNamesLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent));
-    if (otherNamesLabel) {
-      const row = otherNamesLabel.closest('.row');
-      if (row) hideElement(row);
-    } else {
-      const otherNamesSection = document.getElementById('otherNamesSection');
-      if (otherNamesSection) hideElement(otherNamesSection);
+    // ocultar bloque "¿Tiene un telecódigo...?"
+    const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent));
+    if (teleLabel) hide(teleLabel.closest('.row') || teleLabel.parentElement);
+    else {
+      const teleSection = document.getElementById('telecodeSection');
+      if (teleSection) hide(teleSection);
     }
+  });
 
-    const telecodeLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent));
-    if (telecodeLabel) {
-      const row = telecodeLabel.closest('.row');
-      if (row) hideElement(row);
-    } else {
-      const telecodeSection = document.getElementById('telecodeSection');
-      if (telecodeSection) hideElement(telecodeSection);
-    }
-  } catch (e) {
-    console.warn('Error radios verdes:', e);
-  }
-
-  // Poner México por defecto en POB_COUNTRY y ocultar la fila si se desea
-  try {
-    const pobCountry = document.getElementById('POB_COUNTRY');
-    if (pobCountry) {
-      const opt = Array.from(pobCountry.options).find(o => {
-        const t = (o.text || '').trim().toUpperCase();
-        return t === 'MÉXICO' || t === 'MEXICO';
-      });
-      if (opt) {
-        pobCountry.value = opt.value !== '' ? opt.value : opt.text;
-        pobCountry.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-      // si quieres ocultar País/Región (rojo) mantenemos ocultamiento:
-      const countryRow = pobCountry.closest('.row');
-      if (countryRow) hideElement(countryRow);
-    }
-  } catch (e) {
-    console.warn('Error POB_COUNTRY:', e);
-  }
-
-  // Asegurar que Estado/Provincia NO quede oculto
-  try {
-    const pobState = document.getElementById('POB_STATE');
-    if (pobState) {
-      const stateRow = pobState.closest('.row');
-      if (stateRow) showElement(stateRow);
-      // también aseguramos que el checkbox relacionado no oculte por accidente
-      const naBox = document.getElementById('POB_STATE_NA');
-      if (naBox) {
-        // dejar sin marcar
-        naBox.checked = false;
-        naBox.dispatchEvent(new Event('change', { bubbles: true }));
-        // no ocultar su contenedor
-        const naContainer = naBox.closest('.inline');
-        if (naContainer) showElement(naContainer);
-      }
-    }
-  } catch (e) {
-    console.warn('Error asegurando Estado/Provincia visible:', e);
-  }
-
-  // Traducir selects azules a español (manteniendo values)
-  try {
-    const gender = document.getElementById('APP_GENDER');
-    if (gender) {
-      gender.innerHTML = [
-        '<option value="">- Seleccione -</option>',
-        '<option value="MALE">Masculino</option>',
-        '<option value="FEMALE">Femenino</option>'
-      ].join('');
-    }
-    const marital = document.getElementById('APP_MARITAL_STATUS');
-    if (marital) {
-      marital.innerHTML = [
-        '<option value="">- Seleccione -</option>',
-        '<option value="MARRIED">Casado(a)</option>',
-        '<option value="COMMON LAW MARRIAGE">Unión de hecho</option>',
-        '<option value="CIVIL UNION/DOMESTIC PARTNERSHIP">Unión civil/pareja doméstica</option>',
-        '<option value="SINGLE">Soltero(a)</option>',
-        '<option value="WIDOWED">Viudo(a)</option>',
-        '<option value="DIVORCED">Divorciado(a)</option>',
-        '<option value="LEGALLY SEPARATED">Separado(a) legalmente</option>',
-        '<option value="OTHER">Otro</option>'
-      ].join('');
-    }
-  } catch (e) {
-    console.warn('Error traducción selects:', e);
-  }
-
-  // Asegurar Nombre completo en alfabeto nativo visible y AUTOCOMPLETAR con Nombres + Apellidos
-  try {
+  // 2) Autocompletar Nombre nativo = Nombres + Apellidos (en tiempo real) y mostrar su fila
+  safe(() => {
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
 
-    function updateFullNative() {
+    function updateFull() {
       if (!fullNative) return;
-      const g = (given && given.value) ? given.value.trim() : '';
-      const s = (surname && surname.value) ? surname.value.trim() : '';
-      const combined = [g, s].filter(Boolean).join(' ').trim();
-      fullNative.value = combined;
-      // marcar required si hay contenido (mantener comportamiento original)
-      if (combined) fullNative.removeAttribute('disabled');
+      const g = given && given.value ? given.value.trim() : '';
+      const s = surname && surname.value ? surname.value.trim() : '';
+      fullNative.value = [g, s].filter(Boolean).join(' ').trim();
     }
 
-    // mostrar fila de full name
     if (fullNative) {
       const row = fullNative.closest('.row');
-      if (row) showElement(row);
-      // aseguramos que checkbox "No aplica" no esté marcado
+      if (row) show(row);
+      // listeners
+      if (given) { given.addEventListener('input', updateFull); given.addEventListener('change', updateFull); }
+      if (surname) { surname.addEventListener('input', updateFull); surname.addEventListener('change', updateFull); }
+      updateFull();
+      // asegurar checkbox "No aplica / Tecnología no disponible" desmarcado; ocultar su contenedor si existe
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox) {
         naCheckbox.checked = false;
-        naCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
-        // ocultar solo el checkbox si antes estaba en rojo (opcional)
-        const naContainer = naCheckbox.closest('.inline');
-        if (naContainer) hideElement(naContainer);
-      }
-      // inicializar valor
-      updateFullNative();
-      // escuchar cambios en nombres para mantener actualizado
-      if (given) {
-        given.addEventListener('input', updateFullNative);
-        given.addEventListener('change', updateFullNative);
-      }
-      if (surname) {
-        surname.addEventListener('input', updateFullNative);
-        surname.addEventListener('change', updateFullNative);
+        naCheckbox.dispatchEvent(new Event('change',{bubbles:true}));
+        const naContainer = naCheckbox.closest('.inline') || document.querySelector('label[for="APP_FULL_NAME_NATIVE_NA"]')?.parentElement;
+        if (naContainer) hide(naContainer);
       }
     }
-  } catch (e) {
-    console.warn('Error autocompletando Nombre completo:', e);
-  }
+  });
 
-  // Ocultar fieldset Imágenes si existe (comportamiento previo)
-  try {
-    const fieldsets = document.querySelectorAll('fieldset');
-    for (const fs of fieldsets) {
+  // 3) Poner MÉXICO por defecto en País/Región y ocultar la fila + help relacionado
+  safe(() => {
+    const country = document.getElementById('POB_COUNTRY');
+    if (country) {
+      const mxOpt = Array.from(country.options).find(o => ((o.text||'').trim().toUpperCase()) === 'MÉXICO' || ((o.text||'').trim().toUpperCase()) === 'MEXICO');
+      if (mxOpt) country.value = mxOpt.value !== '' ? mxOpt.value : mxOpt.text;
+      country.dispatchEvent(new Event('change',{bubbles:true}));
+      // ocultar fila del select
+      const cRow = country.closest('.row') || country.parentElement;
+      if (cRow) hide(cRow);
+    }
+    // ocultar textos de ayuda relacionados
+    Array.from(document.querySelectorAll('.help')).forEach(h => {
+      const t = (h.textContent||'').trim();
+      if (/Lista acotada a países/i.test(t) || /países del continente americano/i.test(t) || /Lista acotada/i.test(t)) hide(h);
+    });
+    // ocultar label suelto si existe
+    Array.from(document.querySelectorAll('label')).forEach(l => {
+      if (/País\/Región/i.test(l.textContent||'')) hide(l.closest('.row')||l.parentElement);
+    });
+  });
+
+  // 4) Estado/Provincia: asegurar VISIBLE pero OCULTAR su checkbox "No aplica"
+  safe(() => {
+    const state = document.getElementById('POB_STATE');
+    if (state) {
+      const stateRow = state.closest('.row');
+      if (stateRow) show(stateRow);
+
+      // ocultar checkbox "No aplica" asociado (input y label)
+      const naBox = document.getElementById('POB_STATE_NA');
+      if (naBox) {
+        naBox.checked = false;
+        naBox.dispatchEvent(new Event('change',{bubbles:true}));
+        const naContainer = naBox.closest('.inline') || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement;
+        if (naContainer) hide(naContainer);
+        // además ocultar label aislado si existiera
+        const naLabel = document.querySelector('label[for="POB_STATE_NA"]');
+        if (naLabel) hide(naLabel.closest('.row') || naLabel.parentElement);
+      }
+    }
+  });
+
+  // 5) Ocultar fieldset Imágenes si existe
+  safe(() => {
+    Array.from(document.querySelectorAll('fieldset')).forEach(fs => {
       const legend = fs.querySelector('legend');
-      if (legend && /Imágenes/i.test(legend.textContent)) {
-        hideElement(fs);
-      }
-    }
-  } catch (e) {
-    console.warn('Error ocultando Imágenes:', e);
-  }
+      if (legend && /Imágenes/i.test(legend.textContent)) hide(fs);
+    });
+  });
 
-  // limpieza final: evitar que algún ocultamiento por palabra clave afecte Estado/Provincia o Nombre
-  try {
-    // mostrar explícitamente Estado/Provincia y Nombre nativo
-    const pobState = document.getElementById('POB_STATE');
-    if (pobState) {
-      const row = pobState.closest('.row');
-      if (row) showElement(row);
-    }
-    const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
-    if (fullNative) {
-      const row = fullNative.closest('.row');
-      if (row) showElement(row);
-    }
-  } catch (e) {
-    console.warn('Error en limpieza final:', e);
-  }
+  // 6) Traducción de selects (solo texto visible; values se mantienen)
+  safe(() => {
+    const gender = document.getElementById('APP_GENDER');
+    if (gender) gender.innerHTML = '<option value="">- Seleccione -</option><option value="MALE">Masculino</option><option value="FEMALE">Femenino</option>';
+    const ms = document.getElementById('APP_MARITAL_STATUS');
+    if (ms) ms.innerHTML = [
+      '<option value="">- Seleccione -</option>',
+      '<option value="MARRIED">Casado(a)</option>',
+      '<option value="COMMON LAW MARRIAGE">Unión de hecho</option>',
+      '<option value="CIVIL UNION/DOMESTIC PARTNERSHIP">Unión civil/pareja doméstica</option>',
+      '<option value="SINGLE">Soltero(a)</option>',
+      '<option value="WIDOWED">Viudo(a)</option>',
+      '<option value="DIVORCED">Divorciado(a)</option>',
+      '<option value="LEGALLY SEPARATED">Separado(a) legalmente</option>',
+      '<option value="OTHER">Otro</option>'
+    ].join('');
+  });
 
-  console.info('personal1.js aplicado: Estado/Provincia visible; Nombre nativo autocompletado con Nombres+Apellidos; radios verdes = No; país por defecto aplicado.');
+  console.info('personal1.js aplicado: ocultadas filas solicitadas; POB_STATE mantiene visible pero su "No aplica" oculto; Nombre nativo autocompletado.');
 });
