@@ -1,10 +1,9 @@
 // personal1.js
 // Reemplazar el personal1.js actual por este archivo.
-// - Autocompleta Nombre nativo = Nombres + Apellidos (visible).
-// - Radios "Otros nombres" y "Telecódigo" = No (ocultos).
-// - Oculta sólo las casillas "No aplica" (estado, nombre nativo), mantiene Estado visible.
-// - Guarda/restaura en sessionStorage.
-// - Al hacer Siguiente construye query string con los valores del formulario y navega a personal2.html (sin recargar la página previo envío).
+// - Mantiene ocultamientos/autocompletado/guardado previos.
+// - Construye query string y hace fetch a personal2.html.
+// - Si la respuesta es HTML la renderiza con document.write() y actualiza la URL.
+// - Si fetch falla, hace window.location.href como fallback.
 
 document.addEventListener('DOMContentLoaded', function () {
   const FORM_KEY = 'ds160-personal1-state-v2';
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const hide = el => { if (!el) return; el.style.display = 'none'; el.hidden = true; el.setAttribute('aria-hidden','true'); };
   const show = el => { if (!el) return; el.style.display = ''; el.hidden = false; el.removeAttribute('aria-hidden'); };
 
-  // ---- utilidades ----
   function removeRequiredFromHidden(form) {
     Array.from(form.querySelectorAll('[required]')).forEach(el => {
       const isHidden = el.hidden || (el.closest && el.closest('[hidden]') !== null) ||
@@ -54,32 +52,30 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { console.warn('restoreFormState', e); }
   }
 
-  // ---- reglas UI (visibilidad, valores por defecto, traducciones) ----
+  // --- UI rules (ocultamientos, defaults, traducciones, autocompletado) ---
   safe(() => {
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
 
-    // Radios verdes -> marcar "No"
+    // Radios verdes -> No
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN) { otherNamesN.checked = true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN) { telecodeN.checked = true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
 
-    // ocultar bloques extra que dependan de esos radios (si aparecen)
+    // ocultar bloques dependientes (si aparecen)
     const otherLabel = Array.from(document.querySelectorAll('label')).find(l => /¿Ha utilizado otros nombres\?/i.test(l.textContent || ''));
     if (otherLabel) { const r = otherLabel.closest('.row') || otherLabel.parentElement; if (r) hide(r); }
     const teleLabel = Array.from(document.querySelectorAll('label')).find(l => /telecódigo/i.test(l.textContent || ''));
     if (teleLabel) { const r = teleLabel.closest('.row') || teleLabel.parentElement; if (r) hide(r); }
 
-    // Nombre nativo: asegurarlo visible y autocompletar Nombres + Apellidos
+    // Nombre nativo: visible y autocompletado Nombres + Apellidos
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
     if (fullNative) {
-      // si existe fila oculta con clase hide-red, forzamos mostrarla
       const row = fullNative.closest('.row') || document.getElementById('row_full_name_native');
       if (row) show(row);
-
       const updateFull = () => {
         const g = given && given.value ? given.value.trim() : '';
         const s = surname && surname.value ? surname.value.trim() : '';
@@ -88,8 +84,6 @@ document.addEventListener('DOMContentLoaded', function () {
       if (given) { given.addEventListener('input', updateFull); given.addEventListener('change', updateFull); }
       if (surname) { surname.addEventListener('input', updateFull); surname.addEventListener('change', updateFull); }
       updateFull();
-
-      // ocultar solo el checkbox "No aplica / Tecnología no disponible" si existe
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox) {
         naCheckbox.checked = false;
@@ -99,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Estado/Provincia: asegurar VISIBLE; ocultar únicamente su checkbox "No aplica"
+    // Estado visible; ocultar sólo su "No aplica"
     const state = document.getElementById('POB_STATE');
     if (state) {
       const stateRow = state.closest('.row');
@@ -110,43 +104,28 @@ document.addEventListener('DOMContentLoaded', function () {
         naBox.dispatchEvent(new Event('change',{bubbles:true}));
         const naContainer = naBox.closest('.inline') || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement;
         if (naContainer) hide(naContainer);
-        const naLabel = document.querySelector('label[for="POB_STATE_NA"]');
-        if (naLabel) { const parent = naLabel.closest('.row') || naLabel.parentElement; if (parent && parent !== stateRow) hide(parent); }
       }
     }
 
-    // País: preferir POB_COUNTRY_VISIBLE (si existe) y dejar seleccionado MÉXICO; si existe POB_COUNTRY también setearlo.
+    // País visible select preferido
+    const visibleCountry = document.getElementById('POB_COUNTRY_VISIBLE');
+    const hiddenCountry = document.getElementById('POB_COUNTRY');
     const setMexicoOn = sel => {
       if (!sel) return;
       const mxOpt = Array.from(sel.options).find(o => ((o.text||'').trim().toUpperCase()) === 'MÉXICO' || ((o.text||'').trim().toUpperCase()) === 'MEXICO');
       if (mxOpt) sel.value = mxOpt.value !== '' ? mxOpt.value : mxOpt.text;
       sel.dispatchEvent(new Event('change',{bubbles:true}));
     };
-    const visibleCountry = document.getElementById('POB_COUNTRY_VISIBLE');
-    if (visibleCountry) {
-      setMexicoOn(visibleCountry);
-      // mostrar su fila por si quedó oculta
-      const crow = visibleCountry.closest('.row');
-      if (crow) show(crow);
-    }
-    const hiddenCountry = document.getElementById('POB_COUNTRY');
-    if (hiddenCountry) {
-      setMexicoOn(hiddenCountry);
-      // si el contenedor original está marcado para oculto (hide-red), dejarlo oculto
-      const cont = hiddenCountry.closest('.row') || document.getElementById('row_pob_country_container');
-      if (cont && cont.classList.contains('hide-red')) hide(cont);
-    }
+    if (visibleCountry) { setMexicoOn(visibleCountry); const crow = visibleCountry.closest('.row'); if (crow) show(crow); }
+    if (hiddenCountry) { setMexicoOn(hiddenCountry); const cont = hiddenCountry.closest('.row') || document.getElementById('row_pob_country_container'); if (cont && cont.classList.contains('hide-red')) hide(cont); }
 
-    // Ocultar fieldset Imágenes si existe
+    // Ocultar fieldset Imágenes
     Array.from(document.querySelectorAll('fieldset')).forEach(fs => {
       const legend = fs.querySelector('legend');
-      if (legend && /Imágenes/i.test(legend.textContent || '')) {
-        // ocultar sólo si es necesario; aquí lo dejamos oculto para seguir reglas previas
-        hide(fs);
-      }
+      if (legend && /Imágenes/i.test(legend.textContent || '')) hide(fs);
     });
 
-    // Traducción de selects (texto visible; values se mantienen)
+    // Traducción selects (texto)
     const gender = document.getElementById('APP_GENDER');
     if (gender) gender.innerHTML = '<option value="">- Seleccione -</option><option value="MALE">Masculino</option><option value="FEMALE">Femenino</option>';
     const ms = document.getElementById('APP_MARITAL_STATUS');
@@ -163,68 +142,65 @@ document.addEventListener('DOMContentLoaded', function () {
     ].join('');
   });
 
-  // ---- restaurar estado al cargar ----
+  // restaurar estado
   safe(() => {
     const form = document.getElementById('ds160-personal1');
     if (form) restoreFormState(form);
   });
 
-  // ---- Siguiente: construir query con FormData y navegar a personal2.html ----
+  // --- Siguiente: construir query, fetch y renderizar HTML (pushState) ---
   safe(() => {
     const nextBtn = document.getElementById('nextBtn');
     const form = document.getElementById('ds160-personal1');
     if (!nextBtn || !form) return;
 
-    // prevenir submit nativo
     form.addEventListener('submit', ev => ev.preventDefault());
 
-    nextBtn.addEventListener('click', ev => {
+    nextBtn.addEventListener('click', async ev => {
       ev.preventDefault();
-
-      // quitar required en ocultos para que no bloquee nada
       removeRequiredFromHidden(form);
-
-      // guardar estado antes de navegar
       saveFormState(form);
 
-      // construir FormData y convertir a query string (incluye radios seleccionados)
+      // construir FormData -> URLSearchParams
       const fd = new FormData(form);
-
-      // Asegurar que si existe POB_COUNTRY_VISIBLE y no existe POB_COUNTRY,
-      // demos también valor a POB_COUNTRY (compatibilidad server)
-      const visibleCountry = document.getElementById('POB_COUNTRY_VISIBLE');
-      const hiddenCountry = document.getElementById('POB_COUNTRY');
-      if (visibleCountry && !hiddenCountry) {
-        // clonar el valor manualmente en los params más abajo
-      }
-
-      // Generar URLSearchParams desde FormData
       const params = new URLSearchParams();
-      for (const pair of fd.entries()) {
-        // Añadir todos los pares; si existe ya el mismo name (ej: varios checks), se acumula
-        params.append(pair[0], pair[1]);
-      }
+      for (const pair of fd.entries()) params.append(pair[0], pair[1]);
 
-      // Si existe POB_COUNTRY_VISIBLE y no existe POB_COUNTRY en params, añadir POB_COUNTRY con mismo valor
+      // si existe visible country, sincronizar POB_COUNTRY en params
+      const visibleCountry = document.getElementById('POB_COUNTRY_VISIBLE');
       if (visibleCountry) {
         const visibleName = visibleCountry.name || 'POB_COUNTRY_VISIBLE';
         const visibleVal = visibleCountry.value || '';
-        // si no hay POB_COUNTRY en params, setear ambos
         if (!params.has('POB_COUNTRY')) params.set('POB_COUNTRY', visibleVal);
-        // asegurar también el campo visible se mantiene
         if (!params.has(visibleName)) params.set(visibleName, visibleVal);
       }
 
-      // Navegar a personal2.html con query string (relativa a la ubicación actual)
       const nextUrl = new URL(NEXT_PAGE, window.location.href);
       nextUrl.search = params.toString();
 
-      // navegar (esto reemplaza la página actual y mantiene el historial)
+      // intentar fetch y renderizar la respuesta HTML (evita que el servidor muestre HTML como texto)
+      try {
+        const res = await fetch(nextUrl.href, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        if (res.ok) {
+          const text = await res.text();
+          // actualizar URL en barra sin recargar
+          try { history.pushState(null, '', nextUrl.href); } catch (e) {}
+          // renderizar HTML recibido
+          document.open();
+          document.write(text);
+          document.close();
+          return;
+        }
+      } catch (e) {
+        console.warn('fetch a personal2 falló, fallback a navigation:', e);
+      }
+
+      // fallback: navegación normal (puede mostrar texto si el servidor responde text/plain)
       window.location.href = nextUrl.href;
     });
   });
 
-  // ---- guardado periódico automático (evita pérdidas) ----
+  // guardado periódico
   safe(() => {
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
@@ -246,5 +222,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 3000);
   });
 
-  console.info('personal1.js listo: autocompleta, ocultamientos, guardado y navegación a personal2.html con query string.');
+  console.info('personal1.js listo: fetch+render para evitar "abrir como texto".');
 });
