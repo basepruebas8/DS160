@@ -230,10 +230,10 @@
             <select id="PAYER" name="PAYER" required class="small" aria-label="Persona o entidad que paga su viaje">
               <option value="">- Seleccione -</option>
               <option value="S">Yo mismo/a</option>
-              <option value="H">Peticionario en EE. UU.</option>
+              <option value="H">Peticionario en EE. U.S.</option>
               <option value="O">Otra persona</option>
               <option value="P">Empleador actual</option>
-              <option value="U">Empleador en EE. UU.</option>
+              <option value="U">Empleador en EE. U.S.</option>
               <option value="C">Otra empresa/organización</option>
             </select>
           </div>
@@ -507,6 +507,9 @@
         const o = document.createElement('option');
         o.value = k.c;
         o.textContent = k.n;
+        if (k.c === "MX") {
+          o.selected = true;
+        }
         selectEl.appendChild(o);
       });
     }
