@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personal 3</title>
+  <title>Personal 5</title>
   <style>
     :root{
       color-scheme: light dark;
@@ -126,6 +126,32 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Botón "Volver a 'Yo mismo/a'" dentro del bloque del pagador */
+    .payer-header-row {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      border: 1px dashed var(--border);
+      border-radius:12px;
+      padding:12px;
+      background: rgba(148,163,184,.06);
+    }
+    .payer-header-row strong{
+      font-size:.95rem;
+      line-height:1.4;
+    }
+    .payer-exit-btn{
+      border-color:#475569;
+      color:#475569;
+      font-size:.9rem;
+      line-height:1.2;
+    }
+    .payer-exit-btn:hover{
+      background:#47556922;
+    }
   </style>
 </head>
 <body>
@@ -232,7 +258,8 @@
         <!-- ===================== PAGOS DEL VIAJE ===================== -->
         <fieldset>
           <legend>Pagos del viaje</legend>
-          <div class="row">
+
+          <div class="row" id="payerSelectRow">
             <label for="PAYER">Persona/entidad que paga su viaje</label>
             <select id="PAYER" name="PAYER" required class="small" aria-label="Persona o entidad que paga su viaje">
               <option value="">- Seleccione -</option>
@@ -246,6 +273,12 @@
           </div>
 
           <div id="payerFields" class="row" hidden>
+            <!-- Header interno con botón para volver a "Yo mismo/a" -->
+            <div class="payer-header-row">
+              <strong>Detalles del pagador</strong>
+              <button type="button" id="payerResetBtn" class="payer-exit-btn">Volver a "Yo mismo/a"</button>
+            </div>
+
             <!-- Persona -->
             <div id="payerPersonFields" class="row" hidden>
               <div class="grid-2">
@@ -309,6 +342,7 @@
             <!-- Dirección del pagador -->
             <fieldset>
               <legend>Dirección del pagador</legend>
+
               <div class="row">
                 <label for="PAYER_ADDR1">Dirección (línea 1)</label>
                 <input type="text" id="PAYER_ADDR1" name="PAYER_ADDR1" maxlength="120" autocomplete="address-line1">
@@ -365,7 +399,7 @@
 
   <script>
     const NEXT_URL = new URL('personal4.html', window.location.href).href;
-    const BACK_URL = new URL('personal2.html', window.location.href).href;
+    const BACK_URL = new URL('personal3.html', window.location.href).href;
 
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-travel';
@@ -405,6 +439,11 @@
         }else{
           localStorage.setItem(storageKey(field), field.value);
         }
+      }catch(e){}
+    }
+    function removeSavedField(field){
+      try{
+        localStorage.removeItem(storageKey(field));
       }catch(e){}
     }
     function restoreField(field){
@@ -548,11 +587,14 @@
 
     [ARRIVAL_STATE, DEPARTURE_STATE, STAY_STATE].forEach(populateStateSelect);
 
-    // Payer refs
+    // Pago del viaje refs
     const PAYER = document.getElementById('PAYER');
+    const payerSelectRow = document.getElementById('payerSelectRow');
     const payerFields = document.getElementById('payerFields');
     const payerPersonFields = document.getElementById('payerPersonFields');
     const payerOrgFields = document.getElementById('payerOrgFields');
+
+    const payerResetBtn = document.getElementById('payerResetBtn');
 
     const PAYER_SURNAME = document.getElementById('PAYER_SURNAME');
     const PAYER_GIVEN = document.getElementById('PAYER_GIVEN');
@@ -699,6 +741,7 @@
       const isOrg = isOrgType(code);
       const show = !!code && code !== 'S';
 
+      // mostrar/ocultar bloque detalles
       payerFields.hidden = !show;
       payerPersonFields.hidden = !isPerson;
       payerOrgFields.hidden = !isOrg;
@@ -711,8 +754,8 @@
         PAYER_PROVINCE, PAYER_POSTAL
       ];
 
-      // Si el pagador NO es "Yo mismo/a", mostramos y activamos campos.
       if (show) {
+        // modo "alguien más paga"
         allFields.forEach(el => {
           el.disabled = false;
         });
@@ -730,12 +773,11 @@
           el.setCustomValidity('');
         });
         ORG_CONTACT.required = false;
+
         return;
       }
 
-      // Si selecciona "Yo mismo/a" otra vez:
-      // - ocultar bloque
-      // - deshabilitar TODO para que deje pasar validación aunque tenga info inválida
+      // modo "Yo mismo/a" o vacío -> ocultar y desactivar
       allFields.forEach(el => {
         el.disabled = true;
         el.required = false;
@@ -746,11 +788,54 @@
       payerNonUSBlock.hidden = true;
     }
 
+    // Limpia todos los campos del pagador y borra su copia en localStorage
+    function clearPayerFields(){
+      const fieldsToClear = [
+        PAYER_SURNAME, PAYER_GIVEN, PAYER_REL, PAYER_PHONE, PAYER_EMAIL,
+        ORG_NAME, ORG_PHONE, ORG_EMAIL, ORG_CONTACT,
+        PAYER_ADDR1, PAYER_ADDR2, PAYER_CITY, PAYER_COUNTRY,
+        PAYER_US_STATE, PAYER_US_ZIP,
+        PAYER_PROVINCE, PAYER_POSTAL
+      ];
+
+      fieldsToClear.forEach(f => {
+        f.value = '';
+        removeSavedField(f);
+        f.setCustomValidity('');
+      });
+
+      // También borro selección de país del pagador
+      if (PAYER_COUNTRY) {
+        PAYER_COUNTRY.value = '';
+      }
+      if (PAYER_US_STATE) {
+        PAYER_US_STATE.value = '';
+      }
+    }
+
+    // Evento del select pagador
     PAYER.addEventListener('change', () => {
       saveField(PAYER);
       setRequiredForPayer(PAYER.value);
     });
 
+    // Botón interno "Volver a 'Yo mismo/a'"
+    payerResetBtn.addEventListener('click', () => {
+      // 1. limpiar campos del pagador
+      clearPayerFields();
+
+      // 2. volver a "Yo mismo/a"
+      PAYER.value = 'S';
+      saveField(PAYER);
+
+      // 3. aplicar reglas de "Yo mismo/a"
+      setRequiredForPayer('S');
+
+      // 4. subir scroll para que se vea el select principal
+      payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+
+    // País del pagador (para bloquear/mostrar ZIP vs Provincia)
     PAYER_COUNTRY.addEventListener('change', () => {
       saveField(PAYER_COUNTRY);
       updatePayerCountryBlock();
@@ -759,7 +844,7 @@
     // ------- RESTORE / DEFAULTS -------
     restoreForm(form);
 
-    // Forzar propósito = B
+    // Forzar propósito = B (turismo/negocios)
     const fixedPurposeSel = purposeList.querySelector('select');
     if (fixedPurposeSel){
       fixedPurposeSel.value = "B";
@@ -773,7 +858,7 @@
     specificPlansSection.hidden = true;
     setRequiredForSpecific(false);
 
-    // Ocultar bloque de viaje (queda fijo y sin required)
+    // Ocultar bloque de viaje en pantalla
     hideEl(purposeRow);
     hideEl(specificPlansRow);
     hideEl(specificPlansSection);
