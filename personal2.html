@@ -112,14 +112,14 @@
         <fieldset>
           <legend>Información personal 2</legend>
 
-          <div class="row">
+          <div class="row" id="row_nationality">
             <label for="APP_NATL">País/Región de origen (nacionalidad)</label>
             <select id="APP_NATL" name="APP_NATL" required>
               <option value="">- Seleccione -</option>
             </select>
           </div>
 
-          <div class="row">
+          <div class="row" id="row_otherNationality">
             <label>¿Cuenta o ha contado con alguna otra nacionalidad distinta a la indicada arriba en “Nacionalidad”?</label>
             <div class="inline" role="radiogroup" aria-label="Otra nacionalidad">
               <label style="font-weight:400;"><input type="radio" name="OtherNationality" value="Y" id="OtherNationalityY" required> Sí</label>
@@ -135,7 +135,7 @@
             </div>
           </div>
 
-          <div class="row">
+          <div class="row" id="row_permResident">
             <label>¿Es residente permanente de algún país/región diferente a su país/región de origen (nacionalidad) indicado arriba?</label>
             <div class="inline" role="radiogroup" aria-label="Residente permanente en otro país/región">
               <label style="font-weight:400;"><input type="radio" name="PermResidentOtherCountry" value="Y" id="PermResidentY" required> Sí</label>
@@ -158,7 +158,7 @@
             <label for="APP_NATIONAL_ID">CURP</label>
             <div class="inline nowrap">
               <input type="text" id="APP_NATIONAL_ID" name="APP_NATIONAL_ID" maxlength="20" />
-              <label style="font-weight:400;">
+              <label style="font-weight:400;" id="curp_na_label">
                 <input type="checkbox" id="APP_NATIONAL_ID_NA" name="APP_NATIONAL_ID_NA"> No aplica
               </label>
             </div>
@@ -204,6 +204,20 @@
     const BACK_URL = new URL('personal1.html', window.location.href).href;
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-personal2';
+
+    // Helpers
+    function hideEl(el) {
+      if (!el) return;
+      el.style.display = 'none';
+      el.hidden = true;
+      el.setAttribute('aria-hidden','true');
+    }
+    function showEl(el) {
+      if (!el) return;
+      el.style.display = '';
+      el.hidden = false;
+      el.removeAttribute('aria-hidden');
+    }
 
     // Storage helpers
     function storageKey(field) {
@@ -253,7 +267,7 @@
     }
     function digitsOnly(el, max) { el.value = el.value.replace(/\D/g,'').slice(0, max); }
 
-    // Populate countries
+    // Países
     const COUNTRIES = [
       "- Seleccione -",
       "ARGENTINA","BELICE","BOLIVIA",
@@ -264,6 +278,7 @@
       "URUGUAY","UZBEKISTÁN","VANUATU","VENEZUELA"
     ];
     function fillCountrySelect(selectEl) {
+      if (!selectEl) return;
       selectEl.innerHTML = "";
       COUNTRIES.forEach((name, i) => {
         const opt = document.createElement('option');
@@ -272,20 +287,30 @@
         selectEl.appendChild(opt);
       });
     }
+    function setDefaultMexicoIfEmpty(selectEl) {
+      if (!selectEl) return;
+      if (!selectEl.value || selectEl.value === "") {
+        const mxOpt = Array.from(selectEl.options).find(o => {
+          const t = (o.textContent || '').trim().toUpperCase();
+          return t === 'MÉXICO' || t === 'MEXICO';
+        });
+        if (mxOpt) {
+          selectEl.value = mxOpt.value || mxOpt.textContent;
+        }
+      }
+    }
 
-    const form = document.getElementById(FORM_ID);
-    const selNatl = document.getElementById('APP_NATL');
-    const selOtherNatl = document.getElementById('OTHER_NATL');
-    const selPermCountry = document.getElementById('PERM_RES_COUNTRY');
-    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
-
+    // Secciones dependientes
     function toggleSection(radioY, radioN, section, requiredEls = []) {
       const update = () => {
         const show = radioY.checked;
         section.hidden = !show;
         requiredEls.forEach(el => {
           el.required = show;
-          if (!show) { el.value = ''; el.setCustomValidity(''); }
+          if (!show) {
+            el.value = '';
+            el.setCustomValidity('');
+          }
         });
       };
       [radioY, radioN].forEach(r => r.addEventListener('change', update));
@@ -294,80 +319,149 @@
     }
     function toggleNA(textInput, checkbox) {
       const update = () => {
-        if (checkbox.checked) { textInput.disabled = true; textInput.value = ''; textInput.setCustomValidity(''); }
-        else { textInput.disabled = false; }
+        if (checkbox.checked) {
+          textInput.disabled = true;
+          textInput.value = '';
+          textInput.setCustomValidity('');
+        } else {
+          textInput.disabled = false;
+        }
       };
       checkbox.addEventListener('change', update);
       update();
       return update;
     }
-    function toggleNA3(inputs, checkbox) {
+    function toggleNA3(inputs, checkbox, validateFn) {
       const update = () => {
         inputs.forEach(inp => {
-          if (checkbox.checked) { inp.disabled = true; inp.value = ''; inp.setCustomValidity(''); }
-          else { inp.disabled = false; }
+          if (checkbox.checked) {
+            inp.disabled = true;
+            inp.value = '';
+            inp.setCustomValidity('');
+          } else {
+            inp.disabled = false;
+          }
         });
-        validateSSNGroup();
+        validateFn();
       };
       checkbox.addEventListener('change', update);
       update();
       return update;
     }
 
-    const otherY = document.getElementById('OtherNationalityY');
-    const otherN = document.getElementById('OtherNationalityN');
-    const otherSection = document.getElementById('otherNationalitySection');
-    const permY = document.getElementById('PermResidentY');
-    const permN = document.getElementById('PermResidentN');
-    const permSection = document.getElementById('permResSection');
-    const natId = document.getElementById('APP_NATIONAL_ID');
-    const natIdNA = document.getElementById('APP_NATIONAL_ID_NA');
-    const ssn1 = document.getElementById('APP_SSN1');
-    const ssn2 = document.getElementById('APP_SSN2');
-    const ssn3 = document.getElementById('APP_SSN3');
-    const ssnNA = document.getElementById('APP_SSN_NA');
-    const ssnHelp = document.getElementById('ssnHelp');
-    const taxId = document.getElementById('APP_TAX_ID');
-    const taxIdNA = document.getElementById('APP_TAX_ID_NA');
+    // Validación SSN
+    function makeSSNValidator(parts, helpEl, naCheckbox) {
+      return function validateSSNGroup() {
+        parts.forEach(el => el.setCustomValidity(''));
+        helpEl.hidden = true;
+        if (naCheckbox.checked || parts[0].disabled) return;
+        const hasAny = parts.some(el => el.value.trim().length > 0);
+        if (hasAny) {
+          const ok =
+            (parts[0].value.length === 3 &&
+             parts[1].value.length === 2 &&
+             parts[2].value.length === 4);
+          if (!ok) {
+            parts[2].setCustomValidity('SSN incompleto.');
+            helpEl.hidden = false;
+          }
+        }
+      };
+    }
 
-    // 1) Restore saved values BEFORE wiring UI
+    // DOM
+    const form = document.getElementById(FORM_ID);
+
+    const selNatl         = document.getElementById('APP_NATL');
+    const selOtherNatl    = document.getElementById('OTHER_NATL');
+    const selPermCountry  = document.getElementById('PERM_RES_COUNTRY');
+
+    // llenar selects país
+    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
+
+    // default nacionalidad MÉXICO antes de restaurar
+    setDefaultMexicoIfEmpty(selNatl);
+
+    // radios / campos
+    const otherY          = document.getElementById('OtherNationalityY');
+    const otherN          = document.getElementById('OtherNationalityN');
+    const otherSection    = document.getElementById('otherNationalitySection');
+    const rowOtherNat     = document.getElementById('row_otherNationality');
+
+    const permY           = document.getElementById('PermResidentY');
+    const permN           = document.getElementById('PermResidentN');
+    const permSection     = document.getElementById('permResSection');
+    const rowPermRes      = document.getElementById('row_permResident');
+
+    const natId           = document.getElementById('APP_NATIONAL_ID');
+    const natIdNA         = document.getElementById('APP_NATIONAL_ID_NA');
+    const curpNaLabel     = document.getElementById('curp_na_label');
+
+    const ssn1            = document.getElementById('APP_SSN1');
+    const ssn2            = document.getElementById('APP_SSN2');
+    const ssn3            = document.getElementById('APP_SSN3');
+    const ssnNA           = document.getElementById('APP_SSN_NA');
+    const ssnHelp         = document.getElementById('ssnHelp');
+
+    const taxId           = document.getElementById('APP_TAX_ID');
+    const taxIdNA         = document.getElementById('APP_TAX_ID_NA');
+
+    // Restaurar valores guardados
     restoreForm(form);
 
-    // Wire toggles and capture refreshers
-    const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
-    const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
-    const refreshNat   = toggleNA(natId, natIdNA);
-    const refreshTax   = toggleNA(taxId, taxIdNA);
-    const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA);
+    // Asegurar nacionalidad MÉXICO si sigue vacío tras restaurar
+    setDefaultMexicoIfEmpty(selNatl);
 
-    // SSN only digits + validation
+    // Forzar por defecto: Otra nacionalidad = No, ocultar pregunta completa
+    if (otherN) otherN.checked = true;
+    if (rowOtherNat) hideEl(rowOtherNat);
+
+    // Forzar por defecto: Residente permanente = No, ocultar pregunta completa
+    if (permN) permN.checked = true;
+    if (rowPermRes) hideEl(rowPermRes);
+
+    // CURP: ocultar "No aplica", dejar campo CURP activo
+    if (natIdNA) {
+      natIdNA.checked = false;
+      const lbl = curpNaLabel || natIdNA.closest('label');
+      hideEl(lbl);
+    }
+
+    // Validación SSN
+    const validateSSNGroup = makeSSNValidator([ssn1, ssn2, ssn3], ssnHelp, ssnNA);
+
+    // Listeners de formato numérico para SSN
     [ssn1, ssn2, ssn3].forEach((el, idx) => {
       const lens = [3,2,4];
       el.addEventListener('input', () => { digitsOnly(el, lens[idx]); validateSSNGroup(); });
       el.addEventListener('blur',  validateSSNGroup);
     });
-    function validateSSNGroup() {
-      [ssn1, ssn2, ssn3].forEach(el => el.setCustomValidity(''));
-      ssnHelp.hidden = true;
-      if (ssnNA.checked || ssn1.disabled) return;
-      const hasAny = [ssn1, ssn2, ssn3].some(el => el.value.trim().length > 0);
-      if (hasAny) {
-        const ok = (ssn1.value.length === 3 && ssn2.value.length === 2 && ssn3.value.length === 4);
-        if (!ok) { ssn3.setCustomValidity('SSN incompleto.'); ssnHelp.hidden = false; }
-      }
-    }
 
-    // After restore, recompute UI
-    refreshOther(); refreshPerm(); refreshNat(); refreshTax(); refreshSSN(); validateSSNGroup();
+    // Conectar toggles dinámicos
+    const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
+    const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
+    const refreshNat   = toggleNA(natId, natIdNA);
+    const refreshTax   = toggleNA(taxId, taxIdNA);
+    const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA, validateSSNGroup);
 
-    // Autosave on input/change
+    // Recalcular UI inicial
+    refreshOther();
+    refreshPerm();
+    refreshNat();
+    refreshTax();
+    refreshSSN();
+    validateSSNGroup();
+
+    // Autosave
     autosave(form);
 
+    // Botón Regresar
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
     });
 
+    // Botón Siguiente
     document.getElementById('nextBtn').addEventListener('click', () => {
       validateSSNGroup();
       if (!form.checkValidity()) {
