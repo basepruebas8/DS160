@@ -112,7 +112,7 @@
         <fieldset>
           <legend>Información personal 2</legend>
 
-          <!-- Nacionalidad: ahora se oculta por JS pero se mantiene en el DOM -->
+          <!-- Nacionalidad (forzada a MÉXICO y luego oculta) -->
           <div class="row" id="row_nationality">
             <label for="APP_NATL">País/Región de origen (nacionalidad)</label>
             <select id="APP_NATL" name="APP_NATL" required>
@@ -120,6 +120,7 @@
             </select>
           </div>
 
+          <!-- Otra nacionalidad (default No y oculto) -->
           <div class="row" id="row_otherNationality">
             <label>¿Cuenta o ha contado con alguna otra nacionalidad distinta a la indicada arriba en “Nacionalidad”?</label>
             <div class="inline" role="radiogroup" aria-label="Otra nacionalidad">
@@ -136,6 +137,7 @@
             </div>
           </div>
 
+          <!-- Residente permanente (default No y oculto) -->
           <div class="row" id="row_permResident">
             <label>¿Es residente permanente de algún país/región diferente a su país/región de origen (nacionalidad) indicado arriba?</label>
             <div class="inline" role="radiogroup" aria-label="Residente permanente en otro país/región">
@@ -155,6 +157,7 @@
         <fieldset>
           <legend>Números de identificación</legend>
 
+          <!-- CURP; "No aplica" se oculta para obligar dato -->
           <div class="row">
             <label for="APP_NATIONAL_ID">CURP</label>
             <div class="inline nowrap">
@@ -165,6 +168,7 @@
             </div>
           </div>
 
+          <!-- SSN con NA -->
           <div class="row">
             <label>Número de Seguro Social (EE. UU.)</label>
             <div class="inline nowrap" aria-label="Número de Seguro Social (EE. UU.)">
@@ -180,6 +184,7 @@
             <p class="help" id="ssnHelp" hidden>Si ingresa alguna parte del SSN, complete las tres (3) partes: 3-2-4 dígitos.</p>
           </div>
 
+          <!-- TAX ID con NA -->
           <div class="row">
             <label for="APP_TAX_ID">Número de identificación del contribuyente (EE. UU.)</label>
             <div class="inline nowrap">
@@ -206,6 +211,7 @@
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-personal2';
 
+    // ---- helpers de UI ----
     function hideEl(el) {
       if (!el) return;
       el.style.display = 'none';
@@ -218,8 +224,21 @@
       el.hidden = false;
       el.removeAttribute('aria-hidden');
     }
+    function isHiddenLike(el) {
+      if (!el) return false;
+      if (el.hidden) return true;
+      if (el.closest && el.closest('[hidden]')) return true;
+      const st = getComputedStyle(el);
+      if (st.display === 'none' || st.visibility === 'hidden') return true;
+      const row = el.closest && el.closest('.row');
+      if (row) {
+        const rs = getComputedStyle(row);
+        if (rs.display === 'none' || rs.visibility === 'hidden') return true;
+      }
+      return false;
+    }
 
-    // Storage helpers
+    // ---- storage helpers ----
     function storageKey(field) {
       const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
       return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
@@ -265,9 +284,12 @@
       const fields = form.querySelectorAll('input,select,textarea');
       fields.forEach(f => restoreField(f));
     }
-    function digitsOnly(el, max) { el.value = el.value.replace(/\D/g,'').slice(0, max); }
 
-    // Países
+    function digitsOnly(el, max) {
+      el.value = el.value.replace(/\D/g,'').slice(0, max);
+    }
+
+    // ---- selects de país ----
     const COUNTRIES = [
       "- Seleccione -",
       "ARGENTINA","BELICE","BOLIVIA",
@@ -298,7 +320,7 @@
       }
     }
 
-    // Secciones dependientes
+    // ---- dependencias dinámicas ----
     function toggleSection(radioY, radioN, section, requiredEls = []) {
       const update = () => {
         const show = radioY.checked;
@@ -347,92 +369,165 @@
       return update;
     }
 
-    // Validación SSN
-    function makeSSNValidator(parts, helpEl, naCheckbox) {
+    // ---- validación SSN y formulario completo ----
+    function makeSSNValidator(ssn1, ssn2, ssn3, helpEl, naCheckbox) {
       return function validateSSNGroup() {
-        parts.forEach(el => el.setCustomValidity(''));
+        ssn1.setCustomValidity('');
+        ssn2.setCustomValidity('');
+        ssn3.setCustomValidity('');
         helpEl.hidden = true;
-        if (naCheckbox.checked || parts[0].disabled) return;
-        const hasAny = parts.some(el => el.value.trim().length > 0);
-        if (hasAny) {
-          const ok =
-            (parts[0].value.length === 3 &&
-             parts[1].value.length === 2 &&
-             parts[2].value.length === 4);
-          if (!ok) {
-            parts[2].setCustomValidity('SSN incompleto.');
-            helpEl.hidden = false;
-          }
+
+        // Si marcó "No aplica", SSN no es obligatorio
+        if (naCheckbox.checked || ssn1.disabled) return;
+
+        const a = ssn1.value.trim();
+        const b = ssn2.value.trim();
+        const c = ssn3.value.trim();
+
+        // Si dejó todo vacío SIN marcar "No aplica", error
+        if (a === '' && b === '' && c === '') {
+          ssn3.setCustomValidity('Requerido.');
+          helpEl.hidden = false;
+          return;
+        }
+
+        // Si escribió algo, debe estar completo 3-2-4
+        const ok = (a.length === 3 && b.length === 2 && c.length === 4);
+        if (!ok) {
+          ssn3.setCustomValidity('SSN incompleto.');
+          helpEl.hidden = false;
         }
       };
     }
 
-    // DOM refs
+    // valida todos los campos visibles según las reglas de negocio:
+    // - CURP siempre obligatorio (porque escondimos "No aplica")
+    // - TAX ID obligatorio si no marcaron "No aplica"
+    // - SSN obligatorio completo si no marcaron "No aplica"
+    // - Nacionalidad ya fijada a MÉXICO y oculta -> no bloquea
+    // - Preguntas de otra nacionalidad / residente permanente ocultas -> no bloquean
+    function validateFormBusiness({
+      natId,            // CURP
+      natIdNA,          // checkbox NA de CURP (oculto, siempre false)
+      taxId, taxIdNA,   // TAX ID + NA
+      ssn1, ssn2, ssn3, ssnNA,
+      ssnValidatorFn
+    }) {
+      // limpiar mensajes previos
+      natId.setCustomValidity('');
+      taxId.setCustomValidity('');
+      ssn1.setCustomValidity('');
+      ssn2.setCustomValidity('');
+      ssn3.setCustomValidity('');
+
+      // 1. CURP obligatorio
+      if (!isHiddenLike(natId) && !natId.disabled) {
+        if (natId.value.trim() === '') {
+          natId.setCustomValidity('Requerido.');
+        }
+      }
+
+      // 2. TAX ID obligatorio si no NA
+      if (!isHiddenLike(taxId) && !taxId.disabled) {
+        if (!taxIdNA.checked) {
+          if (taxId.value.trim() === '') {
+            taxId.setCustomValidity('Requerido.');
+          }
+        } else {
+          taxId.setCustomValidity('');
+        }
+      }
+
+      // 3. SSN según reglas del grupo
+      ssnValidatorFn();
+
+      // ¿hay algún campo con error?
+      const invalids = [natId, taxId, ssn1, ssn2, ssn3].filter(el => {
+        return !isHiddenLike(el) && !el.disabled && el.validationMessage !== '';
+      });
+
+      if (invalids.length > 0) {
+        const firstBad = invalids[0];
+        firstBad.focus({preventScroll:true});
+        firstBad.scrollIntoView({behavior:'smooth', block:'center'});
+        return false;
+      }
+
+      return true;
+    }
+
+    // ---- DOM refs ----
     const form = document.getElementById(FORM_ID);
 
-    const selNatl         = document.getElementById('APP_NATL');
-    const selOtherNatl    = document.getElementById('OTHER_NATL');
-    const selPermCountry  = document.getElementById('PERM_RES_COUNTRY');
+    const selNatl        = document.getElementById('APP_NATL');
+    const selOtherNatl   = document.getElementById('OTHER_NATL');
+    const selPermCountry = document.getElementById('PERM_RES_COUNTRY');
 
-    const rowNat          = document.getElementById('row_nationality');
-    const rowOtherNat     = document.getElementById('row_otherNationality');
-    const rowPermRes      = document.getElementById('row_permResident');
+    const rowNat         = document.getElementById('row_nationality');
+    const rowOtherNat    = document.getElementById('row_otherNationality');
+    const rowPermRes     = document.getElementById('row_permResident');
 
-    const otherY          = document.getElementById('OtherNationalityY');
-    const otherN          = document.getElementById('OtherNationalityN');
-    const otherSection    = document.getElementById('otherNationalitySection');
+    const otherY         = document.getElementById('OtherNationalityY');
+    const otherN         = document.getElementById('OtherNationalityN');
+    const otherSection   = document.getElementById('otherNationalitySection');
 
-    const permY           = document.getElementById('PermResidentY');
-    const permN           = document.getElementById('PermResidentN');
-    const permSection     = document.getElementById('permResSection');
+    const permY          = document.getElementById('PermResidentY');
+    const permN          = document.getElementById('PermResidentN');
+    const permSection    = document.getElementById('permResSection');
 
-    const natId           = document.getElementById('APP_NATIONAL_ID');
-    const natIdNA         = document.getElementById('APP_NATIONAL_ID_NA');
-    const curpNaLabel     = document.getElementById('curp_na_label');
+    const natId          = document.getElementById('APP_NATIONAL_ID');
+    const natIdNA        = document.getElementById('APP_NATIONAL_ID_NA');
+    const curpNaLabel    = document.getElementById('curp_na_label');
 
-    const ssn1            = document.getElementById('APP_SSN1');
-    const ssn2            = document.getElementById('APP_SSN2');
-    const ssn3            = document.getElementById('APP_SSN3');
-    const ssnNA           = document.getElementById('APP_SSN_NA');
-    const ssnHelp         = document.getElementById('ssnHelp');
+    const ssn1           = document.getElementById('APP_SSN1');
+    const ssn2           = document.getElementById('APP_SSN2');
+    const ssn3           = document.getElementById('APP_SSN3');
+    const ssnNA          = document.getElementById('APP_SSN_NA');
+    const ssnHelp        = document.getElementById('ssnHelp');
 
-    const taxId           = document.getElementById('APP_TAX_ID');
-    const taxIdNA         = document.getElementById('APP_TAX_ID_NA');
+    const taxId          = document.getElementById('APP_TAX_ID');
+    const taxIdNA        = document.getElementById('APP_TAX_ID_NA');
 
-    // Llenar selects país
+    const backBtn        = document.getElementById('backBtn');
+    const nextBtn        = document.getElementById('nextBtn');
+
+    // ---- inicialización ----
+
+    // llenar selects país
     [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
 
-    // Restaurar guardado
+    // restaurar datos guardados
     restoreForm(form);
 
-    // Forzar nacionalidad = MÉXICO y ocultar fila nacionalidad
+    // nacionalidad -> forzar MÉXICO y ocultar
     forceMexico(selNatl);
     hideEl(rowNat);
 
-    // Forzar "Otra nacionalidad": No, ocultar bloque completo
+    // otra nacionalidad -> marcar "No" y ocultar todo
     if (otherN) otherN.checked = true;
     hideEl(rowOtherNat);
 
-    // Forzar "Residente permanente": No, ocultar bloque completo
+    // residente permanente -> marcar "No" y ocultar todo
     if (permN) permN.checked = true;
     hideEl(rowPermRes);
 
-    // CURP: ocultar "No aplica"
+    // CURP: ocultar "No aplica", así CURP se vuelve obligatorio
     if (natIdNA) {
       natIdNA.checked = false;
       hideEl(curpNaLabel || natIdNA.closest('label'));
     }
 
-    // Validación SSN
-    const validateSSNGroup = makeSSNValidator([ssn1, ssn2, ssn3], ssnHelp, ssnNA);
+    // preparar validador SSN
+    const validateSSNGroup = makeSSNValidator(ssn1, ssn2, ssn3, ssnHelp, ssnNA);
 
+    // formato numérico SSN + validación en vivo
     [ssn1, ssn2, ssn3].forEach((el, idx) => {
       const lens = [3,2,4];
       el.addEventListener('input', () => { digitsOnly(el, lens[idx]); validateSSNGroup(); });
       el.addEventListener('blur',  validateSSNGroup);
     });
 
-    // Activar toggles dinámicos (aunque ya están forzados en No y ocultos)
+    // toggles dinámicos (aunque estén ocultos se dejan coherentes)
     const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
     const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
     const refreshNat   = toggleNA(natId, natIdNA);
@@ -446,24 +541,35 @@
     refreshSSN();
     validateSSNGroup();
 
-    // Autosave continuo
+    // autosave continuo
     autosave(form);
 
-    // Botón Regresar
-    document.getElementById('backBtn').addEventListener('click', () => {
+    // ---- navegación ----
+    backBtn.addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
     });
 
-    // Botón Siguiente
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      validateSSNGroup();
-      if (!form.checkValidity()) {
-        form.reportValidity();
-        const firstInvalid = form.querySelector(':invalid');
-        if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+    nextBtn.addEventListener('click', () => {
+      // Validar reglas propias antes de ir a la siguiente
+      const ok = validateFormBusiness({
+        natId,
+        natIdNA,
+        taxId,
+        taxIdNA,
+        ssn1,
+        ssn2,
+        ssn3,
+        ssnNA,
+        ssnValidatorFn: validateSSNGroup
+      });
+
+      if (!ok) {
+        alert('Faltan campos obligatorios o hay datos incompletos.');
         return;
       }
+
+      // guardar y avanzar
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(NEXT_URL);
     });
