@@ -112,6 +112,7 @@
         <fieldset>
           <legend>Información personal 2</legend>
 
+          <!-- Nacionalidad: ahora se oculta por JS pero se mantiene en el DOM -->
           <div class="row" id="row_nationality">
             <label for="APP_NATL">País/Región de origen (nacionalidad)</label>
             <select id="APP_NATL" name="APP_NATL" required>
@@ -205,7 +206,6 @@
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-personal2';
 
-    // Helpers
     function hideEl(el) {
       if (!el) return;
       el.style.display = 'none';
@@ -287,16 +287,14 @@
         selectEl.appendChild(opt);
       });
     }
-    function setDefaultMexicoIfEmpty(selectEl) {
+    function forceMexico(selectEl) {
       if (!selectEl) return;
-      if (!selectEl.value || selectEl.value === "") {
-        const mxOpt = Array.from(selectEl.options).find(o => {
-          const t = (o.textContent || '').trim().toUpperCase();
-          return t === 'MÉXICO' || t === 'MEXICO';
-        });
-        if (mxOpt) {
-          selectEl.value = mxOpt.value || mxOpt.textContent;
-        }
+      const mxOpt = Array.from(selectEl.options).find(o => {
+        const t = (o.textContent || '').trim().toUpperCase();
+        return t === 'MÉXICO' || t === 'MEXICO';
+      });
+      if (mxOpt) {
+        selectEl.value = mxOpt.value || mxOpt.textContent;
       }
     }
 
@@ -369,29 +367,24 @@
       };
     }
 
-    // DOM
+    // DOM refs
     const form = document.getElementById(FORM_ID);
 
     const selNatl         = document.getElementById('APP_NATL');
     const selOtherNatl    = document.getElementById('OTHER_NATL');
     const selPermCountry  = document.getElementById('PERM_RES_COUNTRY');
 
-    // llenar selects país
-    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
+    const rowNat          = document.getElementById('row_nationality');
+    const rowOtherNat     = document.getElementById('row_otherNationality');
+    const rowPermRes      = document.getElementById('row_permResident');
 
-    // default nacionalidad MÉXICO antes de restaurar
-    setDefaultMexicoIfEmpty(selNatl);
-
-    // radios / campos
     const otherY          = document.getElementById('OtherNationalityY');
     const otherN          = document.getElementById('OtherNationalityN');
     const otherSection    = document.getElementById('otherNationalitySection');
-    const rowOtherNat     = document.getElementById('row_otherNationality');
 
     const permY           = document.getElementById('PermResidentY');
     const permN           = document.getElementById('PermResidentN');
     const permSection     = document.getElementById('permResSection');
-    const rowPermRes      = document.getElementById('row_permResident');
 
     const natId           = document.getElementById('APP_NATIONAL_ID');
     const natIdNA         = document.getElementById('APP_NATIONAL_ID_NA');
@@ -406,45 +399,46 @@
     const taxId           = document.getElementById('APP_TAX_ID');
     const taxIdNA         = document.getElementById('APP_TAX_ID_NA');
 
-    // Restaurar valores guardados
+    // Llenar selects país
+    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
+
+    // Restaurar guardado
     restoreForm(form);
 
-    // Asegurar nacionalidad MÉXICO si sigue vacío tras restaurar
-    setDefaultMexicoIfEmpty(selNatl);
+    // Forzar nacionalidad = MÉXICO y ocultar fila nacionalidad
+    forceMexico(selNatl);
+    hideEl(rowNat);
 
-    // Forzar por defecto: Otra nacionalidad = No, ocultar pregunta completa
+    // Forzar "Otra nacionalidad": No, ocultar bloque completo
     if (otherN) otherN.checked = true;
-    if (rowOtherNat) hideEl(rowOtherNat);
+    hideEl(rowOtherNat);
 
-    // Forzar por defecto: Residente permanente = No, ocultar pregunta completa
+    // Forzar "Residente permanente": No, ocultar bloque completo
     if (permN) permN.checked = true;
-    if (rowPermRes) hideEl(rowPermRes);
+    hideEl(rowPermRes);
 
-    // CURP: ocultar "No aplica", dejar campo CURP activo
+    // CURP: ocultar "No aplica"
     if (natIdNA) {
       natIdNA.checked = false;
-      const lbl = curpNaLabel || natIdNA.closest('label');
-      hideEl(lbl);
+      hideEl(curpNaLabel || natIdNA.closest('label'));
     }
 
     // Validación SSN
     const validateSSNGroup = makeSSNValidator([ssn1, ssn2, ssn3], ssnHelp, ssnNA);
 
-    // Listeners de formato numérico para SSN
     [ssn1, ssn2, ssn3].forEach((el, idx) => {
       const lens = [3,2,4];
       el.addEventListener('input', () => { digitsOnly(el, lens[idx]); validateSSNGroup(); });
       el.addEventListener('blur',  validateSSNGroup);
     });
 
-    // Conectar toggles dinámicos
+    // Activar toggles dinámicos (aunque ya están forzados en No y ocultos)
     const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
     const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
     const refreshNat   = toggleNA(natId, natIdNA);
     const refreshTax   = toggleNA(taxId, taxIdNA);
     const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA, validateSSNGroup);
 
-    // Recalcular UI inicial
     refreshOther();
     refreshPerm();
     refreshNat();
@@ -452,7 +446,7 @@
     refreshSSN();
     validateSSNGroup();
 
-    // Autosave
+    // Autosave continuo
     autosave(form);
 
     // Botón Regresar
