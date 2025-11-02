@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Personal 5</title>
+  <title>Personal 3</title>
   <style>
     :root{
       color-scheme: light dark;
@@ -450,7 +450,7 @@
       {v:"H", t:"TRABAJADOR TEMPORAL (H)"},
       {v:"I", t:"REPRESENTANTE DE MEDIOS EXTRANJEROS (I)"},
       {v:"J", t:"VISITANTE DE INTERCAMBIO (J)"},
-      {v:"K", t:"PROMETIDO(A) O CÓNYUGE DE CIUDADANO(A) DE EE. UU. (K)"},
+      {v:"K", t:"PROMETIDO(A) O CÓNYUGE DE CIUDADANO(A) DE EE. U.S."},
       {v:"L", t:"TRANSFERIDO INTRACOMPAÑÍA (L)"},
       {v:"M", t:"ESTUDIANTE VOCACIONAL/NO ACADÉMICO (M)"},
       {v:"N", t:"OTRO (N)"},
@@ -669,18 +669,29 @@
     [specificY, specificN].forEach(r => r.addEventListener('change', updateSpecificSection));
 
     // ------- PAGADOR -------
+
     function isPersonType(code){ return code === 'H' || code === 'O'; }
     function isOrgType(code){ return code === 'P' || code === 'U' || code === 'C'; }
 
     function updatePayerCountryBlock(){
       const c = PAYER_COUNTRY.value;
-      const isUS = c === 'US';
+      const isUS = (c === 'US');
+
       payerUSBlock.hidden = !isUS;
       payerNonUSBlock.hidden = isUS;
 
-      const show = !payerFields.hidden;
-      [PAYER_US_STATE, PAYER_US_ZIP].forEach(el => el.required = show && isUS);
-      [PAYER_PROVINCE, PAYER_POSTAL].forEach(el => el.required = show && !isUS);
+      const visiblePayer = !payerFields.hidden;
+
+      [PAYER_US_STATE, PAYER_US_ZIP].forEach(el => {
+        el.required = visiblePayer && isUS;
+        el.disabled = !isUS || !visiblePayer;
+        el.setCustomValidity('');
+      });
+      [PAYER_PROVINCE, PAYER_POSTAL].forEach(el => {
+        el.required = visiblePayer && !isUS;
+        el.disabled = isUS || !visiblePayer;
+        el.setCustomValidity('');
+      });
     }
 
     function setRequiredForPayer(code){
@@ -692,19 +703,54 @@
       payerPersonFields.hidden = !isPerson;
       payerOrgFields.hidden = !isOrg;
 
-      [PAYER_ADDR1, PAYER_CITY, PAYER_COUNTRY].forEach(el => el.required = show);
+      const allFields = [
+        PAYER_SURNAME, PAYER_GIVEN, PAYER_REL, PAYER_PHONE, PAYER_EMAIL,
+        ORG_NAME, ORG_PHONE, ORG_EMAIL, ORG_CONTACT,
+        PAYER_ADDR1, PAYER_ADDR2, PAYER_CITY, PAYER_COUNTRY,
+        PAYER_US_STATE, PAYER_US_ZIP,
+        PAYER_PROVINCE, PAYER_POSTAL
+      ];
 
-      updatePayerCountryBlock();
+      // Si el pagador NO es "Yo mismo/a", mostramos y activamos campos.
+      if (show) {
+        allFields.forEach(el => {
+          el.disabled = false;
+        });
 
-      [PAYER_SURNAME, PAYER_GIVEN, PAYER_PHONE, PAYER_EMAIL, PAYER_REL].forEach(el => el.required = isPerson);
-      [ORG_NAME, ORG_PHONE, ORG_EMAIL].forEach(el => el.required = isOrg);
-      ORG_CONTACT.required = false;
+        [PAYER_ADDR1, PAYER_CITY, PAYER_COUNTRY].forEach(el => el.required = true);
+
+        updatePayerCountryBlock();
+
+        [PAYER_SURNAME, PAYER_GIVEN, PAYER_PHONE, PAYER_EMAIL, PAYER_REL].forEach(el => {
+          el.required = isPerson;
+          el.setCustomValidity('');
+        });
+        [ORG_NAME, ORG_PHONE, ORG_EMAIL].forEach(el => {
+          el.required = isOrg;
+          el.setCustomValidity('');
+        });
+        ORG_CONTACT.required = false;
+        return;
+      }
+
+      // Si selecciona "Yo mismo/a" otra vez:
+      // - ocultar bloque
+      // - deshabilitar TODO para que deje pasar validación aunque tenga info inválida
+      allFields.forEach(el => {
+        el.disabled = true;
+        el.required = false;
+        el.setCustomValidity('');
+      });
+
+      payerUSBlock.hidden = true;
+      payerNonUSBlock.hidden = true;
     }
 
     PAYER.addEventListener('change', () => {
       saveField(PAYER);
       setRequiredForPayer(PAYER.value);
     });
+
     PAYER_COUNTRY.addEventListener('change', () => {
       saveField(PAYER_COUNTRY);
       updatePayerCountryBlock();
@@ -727,12 +773,11 @@
     specificPlansSection.hidden = true;
     setRequiredForSpecific(false);
 
-    // Ocultar bloque de viaje
+    // Ocultar bloque de viaje (queda fijo y sin required)
     hideEl(purposeRow);
     hideEl(specificPlansRow);
     hideEl(specificPlansSection);
     hideEl(travelInfoSection);
-
     if (fixedPurposeSel) fixedPurposeSel.required = false;
 
     // Pago del viaje inicial
