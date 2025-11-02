@@ -84,10 +84,18 @@
       width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
       outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
     select.small { max-width: 420px; }
 
     .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
 
     .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
     button {
@@ -95,14 +103,21 @@
       cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
       transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
     }
-    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
-    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+    button.primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-600));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 6px 16px rgba(37,99,235,.35);
+    }
+    button.primary:hover {
+      background: linear-gradient(180deg, var(--accent-600), var(--accent-700));
+      transform: translateY(-0.5px);
+    }
 
     .purpose-item { display:flex; gap:12px; align-items:center; }
     .purpose-item button.remove { border-color:#ef4444; color:#ef4444; }
     .purpose-item button.remove:hover{ background:#ef44441a; }
 
-    .note { font-size:.92rem; color:var(--muted); }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -115,12 +130,13 @@
       </header>
 
       <form id="ds160-travel" action="#" method="post" novalidate>
-        <fieldset>
+        <!-- ===================== INFORMACIÓN DE VIAJE ===================== -->
+        <fieldset id="travelInfoSection">
           <legend>Información de viaje</legend>
           <p class="help">Nota: Proporcione la siguiente información sobre sus planes de viaje.</p>
 
           <!-- Propósito de viaje -->
-          <div class="row">
+          <div class="row" id="purposeRow">
             <label for="PURPOSE_0">Propósito de viaje a EE. UU.</label>
             <div id="purposeList" class="row"></div>
             <div class="inline">
@@ -129,15 +145,15 @@
           </div>
 
           <!-- ¿Planes específicos de viaje? -->
-          <div class="row" style="margin-top:8px;">
+          <div class="row" id="specificPlansRow" style="margin-top:8px;">
             <label>¿Ha hecho arreglos específicos de viaje?</label>
             <div class="inline" role="radiogroup" aria-label="Planes específicos de viaje">
-              <label style="font-weight:400;"><input type="radio" name="SpecificTravelPlans" value="Y" id="SpecificTravelPlansY" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="SpecificTravelPlans" value="Y" id="SpecificTravelPlansY"> Sí</label>
               <label style="font-weight:400;"><input type="radio" name="SpecificTravelPlans" value="N" id="SpecificTravelPlansN"> No</label>
             </div>
           </div>
 
-          <!-- Sección visible sólo si la respuesta es "Sí" -->
+          <!-- Datos detallados sólo si "Sí" -->
           <div id="specificPlansSection" class="row" hidden>
             <div class="grid-2">
               <div>
@@ -206,6 +222,7 @@
           </div>
         </fieldset>
 
+        <!-- ===================== PAGOS DEL VIAJE ===================== -->
         <fieldset>
           <legend>Pagos del viaje</legend>
           <div class="row">
@@ -221,9 +238,8 @@
             </select>
           </div>
 
-          <!-- Campos dependientes según pagador -->
           <div id="payerFields" class="row" hidden>
-            <!-- Para personas (H, O) -->
+            <!-- Persona -->
             <div id="payerPersonFields" class="row" hidden>
               <div class="grid-2">
                 <div>
@@ -261,7 +277,7 @@
               </div>
             </div>
 
-            <!-- Para empresas/organizaciones (P, U, C) -->
+            <!-- Empresa -->
             <div id="payerOrgFields" class="row" hidden>
               <div class="row">
                 <label for="ORG_NAME">Nombre de la empresa/organización</label>
@@ -283,7 +299,7 @@
               </div>
             </div>
 
-            <!-- Dirección del pagador (aplica a persona u organización) -->
+            <!-- Dirección del pagador -->
             <fieldset>
               <legend>Dirección del pagador</legend>
               <div class="row">
@@ -305,7 +321,7 @@
                 </div>
               </div>
 
-              <!-- Variante EE. UU. -->
+              <!-- Si el pagador está en EE.UU. -->
               <div id="payerUSBlock" class="grid-2" hidden>
                 <div>
                   <label for="PAYER_US_STATE">Estado (EE. UU.)</label>
@@ -317,7 +333,7 @@
                 </div>
               </div>
 
-              <!-- Variante fuera de EE. UU. -->
+              <!-- Si el pagador NO está en EE.UU. -->
               <div id="payerNonUSBlock" class="grid-2" hidden>
                 <div>
                   <label for="PAYER_PROVINCE">Estado/Provincia</label>
@@ -348,50 +364,70 @@
     const FORM_ID = 'ds160-travel';
     const PURPOSE_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':PURPOSE_COUNT';
 
-    function storageKey(field) {
+    function hideEl(el){
+      if(!el) return;
+      el.style.display='none';
+      el.hidden=true;
+      el.setAttribute('aria-hidden','true');
+    }
+    function showEl(el){
+      if(!el) return;
+      el.style.display='';
+      el.hidden=false;
+      el.removeAttribute('aria-hidden');
+    }
+    function isHiddenLike(el){
+      if(!el) return false;
+      if(el.hidden) return true;
+      if(el.closest && el.closest('[hidden]')) return true;
+      const st=getComputedStyle(el);
+      if(st.display==='none'||st.visibility==='hidden') return true;
+      return false;
+    }
+
+    function storageKey(field){
       const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
       return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
     }
-    function saveField(field) {
-      try {
-        if (field.type === 'radio') {
-          if (field.checked) localStorage.setItem(storageKey(field), field.value);
-        } else if (field.type === 'checkbox') {
+    function saveField(field){
+      try{
+        if(field.type === 'radio'){
+          if(field.checked) localStorage.setItem(storageKey(field), field.value);
+        }else if(field.type === 'checkbox'){
           localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
-        } else {
+        }else{
           localStorage.setItem(storageKey(field), field.value);
         }
-      } catch(e) {}
+      }catch(e){}
     }
-    function restoreField(field) {
-      try {
-        const key = storageKey(field);
-        const v = localStorage.getItem(key);
-        if (v == null) return;
-        if (field.type === 'radio') {
-          field.checked = (field.value === v);
-        } else if (field.type === 'checkbox') {
-          field.checked = (v === '1');
-        } else {
-          field.value = v;
+    function restoreField(field){
+      try{
+        const key=storageKey(field);
+        const v=localStorage.getItem(key);
+        if(v==null) return;
+        if(field.type==='radio'){
+          field.checked=(field.value===v);
+        }else if(field.type==='checkbox'){
+          field.checked=(v==='1');
+        }else{
+          field.value=v;
         }
-      } catch(e) {}
+      }catch(e){}
     }
-    function autosave(form) {
-      form.addEventListener('input', (e) => {
-        const t = e.target;
-        if (!(t instanceof HTMLElement)) return;
-        if (t.matches('input,select,textarea')) saveField(t);
-      }, true);
-      form.addEventListener('change', (e) => {
-        const t = e.target;
-        if (!(t instanceof HTMLElement)) return;
-        if (t.matches('input,select,textarea')) saveField(t);
-      }, true);
+    function autosave(form){
+      form.addEventListener('input',(e)=>{
+        const t=e.target;
+        if(!(t instanceof HTMLElement))return;
+        if(t.matches('input,select,textarea')) saveField(t);
+      },true);
+      form.addEventListener('change',(e)=>{
+        const t=e.target;
+        if(!(t instanceof HTMLElement))return;
+        if(t.matches('input,select,textarea')) saveField(t);
+      },true);
     }
-    function restoreForm(form) {
-      const fields = form.querySelectorAll('input,select,textarea');
-      fields.forEach(f => restoreField(f));
+    function restoreForm(form){
+      form.querySelectorAll('input,select,textarea').forEach(f=>restoreField(f));
     }
 
     const PURPOSE_OPTIONS = [
@@ -424,7 +460,8 @@
     ];
 
     const US_STATES = [
-      "", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC","PR","GU","VI"
+      "", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT",
+      "NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC","PR","GU","VI"
     ];
 
     const COUNTRIES = [
@@ -474,82 +511,19 @@
       });
     }
 
+    // DOM refs
     const form = document.getElementById(FORM_ID);
+
+    const travelInfoSection = document.getElementById('travelInfoSection');
     const purposeList = document.getElementById('purposeList');
     const addPurposeBtn = document.getElementById('addPurposeBtn');
+    const purposeRow = document.getElementById('purposeRow');
 
-    function purposeCount(){
-      const v = parseInt(localStorage.getItem(PURPOSE_COUNT_KEY) || '1', 10);
-      return Number.isFinite(v) && v > 0 ? v : 1;
-    }
-    function setPurposeCount(n){
-      localStorage.setItem(PURPOSE_COUNT_KEY, String(Math.max(1, n)));
-    }
-
-    function makePurposeItem(index){
-      const wrap = document.createElement('div');
-      wrap.className = 'purpose-item';
-
-      const select = document.createElement('select');
-      select.id = `PURPOSE_${index}`;
-      select.name = `PURPOSE_${index}`;
-      select.required = true;
-      select.className = 'small';
-      populatePurposeSelect(select);
-
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'remove';
-      remove.textContent = 'Eliminar';
-      remove.addEventListener('click', () => {
-        purposeList.removeChild(wrap);
-        reindexPurposeItems();
-        setPurposeCount(purposeList.children.length);
-      });
-
-      wrap.appendChild(select);
-      wrap.appendChild(remove);
-      return wrap;
-    }
-
-    function reindexPurposeItems(){
-      [...purposeList.children].forEach((item, i) => {
-        const sel = item.querySelector('select');
-        sel.id = `PURPOSE_${i}`;
-        sel.name = `PURPOSE_${i}`;
-      });
-      refreshPurposeRemoveButtons();
-    }
-
-    function refreshPurposeRemoveButtons(){
-      const items = [...purposeList.children];
-      items.forEach((item) => {
-        const btn = item.querySelector('button.remove');
-        btn.hidden = items.length <= 1;
-      });
-    }
-
-    function addPurpose(){
-      const idx = purposeList.children.length;
-      const item = makePurposeItem(idx);
-      purposeList.appendChild(item);
-      setPurposeCount(purposeList.children.length);
-    }
-    addPurposeBtn.addEventListener('click', addPurpose);
-
-    (function initPurposeFromStorage(){
-      const count = purposeCount();
-      for (let i=0; i<count; i++){
-        const item = makePurposeItem(i);
-        purposeList.appendChild(item);
-      }
-      [...purposeList.querySelectorAll('select')].forEach(sel => restoreField(sel));
-      refreshPurposeRemoveButtons();
-    })();
+    const specificPlansRow = document.getElementById('specificPlansRow');
+    const specificPlansSection = document.getElementById('specificPlansSection');
 
     const specificY = document.getElementById('SpecificTravelPlansY');
     const specificN = document.getElementById('SpecificTravelPlansN');
-    const specificSection = document.getElementById('specificPlansSection');
 
     const ARRIVAL_DATE = document.getElementById('ARRIVAL_DATE');
     const DEPARTURE_DATE = document.getElementById('DEPARTURE_DATE');
@@ -564,18 +538,7 @@
 
     [ARRIVAL_STATE, DEPARTURE_STATE, STAY_STATE].forEach(populateStateSelect);
 
-    function setRequiredForSpecific(show){
-      [ARRIVAL_DATE, DEPARTURE_DATE, ARRIVAL_CITY, ARRIVAL_STATE, STAY_ADDR1, STAY_CITY, STAY_STATE, STAY_ZIP]
-        .forEach(el => el.required = show);
-      [ARRIVAL_DATE, DEPARTURE_DATE, ARRIVAL_CITY, STAY_ADDR1, STAY_CITY, STAY_ZIP].forEach(el => el.setCustomValidity(''));
-    }
-    function updateSpecificSection(){
-      const show = specificY.checked;
-      specificSection.hidden = !show;
-      setRequiredForSpecific(show);
-    }
-    [specificY, specificN].forEach(r => r.addEventListener('change', updateSpecificSection));
-
+    // Payer refs
     const PAYER = document.getElementById('PAYER');
     const payerFields = document.getElementById('payerFields');
     const payerPersonFields = document.getElementById('payerPersonFields');
@@ -606,8 +569,115 @@
     populateCountries(PAYER_COUNTRY);
     populateStateSelect(PAYER_US_STATE);
 
+    // ------- PURPOSE LIST -------
+    function purposeCount(){
+      const v = parseInt(localStorage.getItem(PURPOSE_COUNT_KEY) || '1', 10);
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    }
+    function setPurposeCount(n){
+      localStorage.setItem(PURPOSE_COUNT_KEY, String(Math.max(1, n)));
+    }
+
+    function makePurposeItem(index){
+      const wrap = document.createElement('div');
+      wrap.className = 'purpose-item';
+
+      const select = document.createElement('select');
+      select.id = `PURPOSE_${index}`;
+      select.name = `PURPOSE_${index}`;
+      select.className = 'small';
+      populatePurposeSelect(select);
+
+      // botoncito eliminar (lo vamos a ocultar luego)
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        purposeList.removeChild(wrap);
+        reindexPurposeItems();
+        setPurposeCount(purposeList.children.length);
+      });
+
+      wrap.appendChild(select);
+      wrap.appendChild(remove);
+      return wrap;
+    }
+
+    function reindexPurposeItems(){
+      [...purposeList.children].forEach((item, i) => {
+        const sel = item.querySelector('select');
+        sel.id = `PURPOSE_${i}`;
+        sel.name = `PURPOSE_${i}`;
+      });
+      refreshPurposeRemoveButtons();
+    }
+
+    function refreshPurposeRemoveButtons(){
+      const items = [...purposeList.children];
+      items.forEach((item) => {
+        const btn = item.querySelector('button.remove');
+        // vamos a ocultar siempre para que no se pueda borrar
+        hideEl(btn);
+      });
+    }
+
+    function addPurpose(){
+      const idx = purposeList.children.length;
+      const item = makePurposeItem(idx);
+      purposeList.appendChild(item);
+      setPurposeCount(purposeList.children.length);
+    }
+
+    // Inicializar propósito desde cero
+    (function initPurpose(){
+      purposeList.innerHTML = "";
+      const item = makePurposeItem(0);
+      purposeList.appendChild(item);
+      setPurposeCount(1);
+
+      // Valor fijo = "VISITANTE TEMPORAL POR NEGOCIOS O TURISMO (B)"
+      const sel0 = item.querySelector('select');
+      sel0.value = "B"; // deja seleccionado B
+
+      // Guardar ese valor en storage para persistencia
+      saveField(sel0);
+
+      // Ocultar botón "Agregar otro propósito"
+      hideEl(addPurposeBtn);
+
+      refreshPurposeRemoveButtons();
+    })();
+
+    // ------- PLANES ESPECÍFICOS -------
+    function setRequiredForSpecific(show){
+      [ARRIVAL_DATE, DEPARTURE_DATE, ARRIVAL_CITY, ARRIVAL_STATE, STAY_ADDR1, STAY_CITY, STAY_STATE, STAY_ZIP]
+        .forEach(el => el.required = show);
+      [ARRIVAL_DATE, DEPARTURE_DATE, ARRIVAL_CITY, STAY_ADDR1, STAY_CITY, STAY_ZIP]
+        .forEach(el => el.setCustomValidity(''));
+    }
+
+    function updateSpecificSection(){
+      const show = specificY.checked;
+      specificPlansSection.hidden = !show;
+      setRequiredForSpecific(show);
+    }
+    [specificY, specificN].forEach(r => r.addEventListener('change', updateSpecificSection));
+
+    // ------- PAGADOR -------
     function isPersonType(code){ return code === 'H' || code === 'O'; }
     function isOrgType(code){ return code === 'P' || code === 'U' || code === 'C'; }
+
+    function updatePayerCountryBlock(){
+      const c = PAYER_COUNTRY.value;
+      const isUS = c === 'US';
+      payerUSBlock.hidden = !isUS;
+      payerNonUSBlock.hidden = isUS;
+
+      const show = !payerFields.hidden;
+      [PAYER_US_STATE, PAYER_US_ZIP].forEach(el => el.required = show && isUS);
+      [PAYER_PROVINCE, PAYER_POSTAL].forEach(el => el.required = show && !isUS);
+    }
 
     function setRequiredForPayer(code){
       const isPerson = isPersonType(code);
@@ -623,20 +693,8 @@
       updatePayerCountryBlock();
 
       [PAYER_SURNAME, PAYER_GIVEN, PAYER_PHONE, PAYER_EMAIL, PAYER_REL].forEach(el => el.required = isPerson);
-
       [ORG_NAME, ORG_PHONE, ORG_EMAIL].forEach(el => el.required = isOrg);
       ORG_CONTACT.required = false;
-    }
-
-    function updatePayerCountryBlock(){
-      const c = PAYER_COUNTRY.value;
-      const isUS = c === 'US';
-      payerUSBlock.hidden = !isUS;
-      payerNonUSBlock.hidden = isUS;
-
-      const show = !payerFields.hidden;
-      [PAYER_US_STATE, PAYER_US_ZIP].forEach(el => el.required = show && isUS);
-      [PAYER_PROVINCE, PAYER_POSTAL].forEach(el => el.required = show && !isUS);
     }
 
     PAYER.addEventListener('change', () => {
@@ -648,28 +706,52 @@
       updatePayerCountryBlock();
     });
 
+    // ------- RESTORE / DEFAULTS -------
     restoreForm(form);
 
-    updateSpecificSection();
+    // Forzar propósito = B; ya lo hicimos arriba pero si restore pisó, lo volvemos a fijar
+    const fixedPurposeSel = purposeList.querySelector('select');
+    if (fixedPurposeSel){
+      fixedPurposeSel.value = "B";
+      fixedPurposeSel.required = false; // no obligatorio porque va oculto
+    }
 
+    // Planes específicos de viaje -> "No"
+    specificY.required = false;
+    specificN.required = false;
+    specificN.checked = true;
+    specificPlansSection.hidden = true;
+    setRequiredForSpecific(false);
+
+    // Ocultar toda la info de viaje visualmente (como en la imagen)
+    hideEl(purposeRow);
+    hideEl(specificPlansRow);
+    hideEl(specificPlansSection);
+    // También ocultamos el fieldset entero en pantalla
+    hideEl(travelInfoSection);
+
+    // Ajuste: como ocultamos todo ese fieldset, quitamos required que pueda estorbar validación
+    if (fixedPurposeSel) fixedPurposeSel.required = false;
+
+    // Pago del viaje: aplicar lógica inicial
     setRequiredForPayer(PAYER.value || '');
     updatePayerCountryBlock();
 
     autosave(form);
 
+    // ------- VALIDACIÓN ANTES DE AVANZAR -------
     function checkForm(){
-      const selects = purposeList.querySelectorAll('select');
-      for (const s of selects){
-        if (!s.value){ s.setCustomValidity('Seleccione una clase de visa.'); }
-        else { s.setCustomValidity(''); }
-      }
+      // No vamos a validar propósito ni planes específicos porque ya están ocultos y fijos
+      // Sólo dejamos que el navegador valide lo visible (pagador, etc.)
       return form.checkValidity();
     }
 
+    // ------- Navegación -------
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
     });
+
     document.getElementById('nextBtn').addEventListener('click', () => {
       if (!checkForm()){
         form.reportValidity();
@@ -680,18 +762,6 @@
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(NEXT_URL);
     });
-
-    (function initPurposeAfterRestore(){
-      const PURPOSE_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':PURPOSE_COUNT';
-      const count = parseInt(localStorage.getItem(PURPOSE_COUNT_KEY) || '1', 10);
-      purposeList.innerHTML = "";
-      for (let i=0; i<Math.max(1, count); i++){
-        const item = makePurposeItem(i);
-        purposeList.appendChild(item);
-      }
-      [...purposeList.querySelectorAll('select')].forEach(sel => restoreField(sel));
-      refreshPurposeRemoveButtons();
-    })();
   </script>
 </body>
 </html>
