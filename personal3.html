@@ -119,6 +119,13 @@
     .purpose-item button.remove:hover{ background:#ef44441a; }
 
     [hidden] { display: none !important; }
+
+    /* --- MOBILE: 1 campo por línea --- */
+    @media (max-width: 600px){
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -508,7 +515,7 @@
         o.value = k.c;
         o.textContent = k.n;
         if (k.c === "MX") {
-          o.selected = true;
+          o.selected = true; // MÉXICO por default
         }
         selectEl.appendChild(o);
       });
@@ -591,7 +598,6 @@
       select.className = 'small';
       populatePurposeSelect(select);
 
-      // botoncito eliminar (lo vamos a ocultar luego)
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.className = 'remove';
@@ -620,7 +626,6 @@
       const items = [...purposeList.children];
       items.forEach((item) => {
         const btn = item.querySelector('button.remove');
-        // vamos a ocultar siempre para que no se pueda borrar
         hideEl(btn);
       });
     }
@@ -632,21 +637,17 @@
       setPurposeCount(purposeList.children.length);
     }
 
-    // Inicializar propósito desde cero
     (function initPurpose(){
       purposeList.innerHTML = "";
       const item = makePurposeItem(0);
       purposeList.appendChild(item);
       setPurposeCount(1);
 
-      // Valor fijo = "VISITANTE TEMPORAL POR NEGOCIOS O TURISMO (B)"
       const sel0 = item.querySelector('select');
-      sel0.value = "B"; // deja seleccionado B
+      sel0.value = "B";
 
-      // Guardar ese valor en storage para persistencia
       saveField(sel0);
 
-      // Ocultar botón "Agregar otro propósito"
       hideEl(addPurposeBtn);
 
       refreshPurposeRemoveButtons();
@@ -712,31 +713,29 @@
     // ------- RESTORE / DEFAULTS -------
     restoreForm(form);
 
-    // Forzar propósito = B; ya lo hicimos arriba pero si restore pisó, lo volvemos a fijar
+    // Forzar propósito = B
     const fixedPurposeSel = purposeList.querySelector('select');
     if (fixedPurposeSel){
       fixedPurposeSel.value = "B";
-      fixedPurposeSel.required = false; // no obligatorio porque va oculto
+      fixedPurposeSel.required = false;
     }
 
-    // Planes específicos de viaje -> "No"
+    // Planes específicos -> "No"
     specificY.required = false;
     specificN.required = false;
     specificN.checked = true;
     specificPlansSection.hidden = true;
     setRequiredForSpecific(false);
 
-    // Ocultar toda la info de viaje visualmente (como en la imagen)
+    // Ocultar bloque de viaje
     hideEl(purposeRow);
     hideEl(specificPlansRow);
     hideEl(specificPlansSection);
-    // También ocultamos el fieldset entero en pantalla
     hideEl(travelInfoSection);
 
-    // Ajuste: como ocultamos todo ese fieldset, quitamos required que pueda estorbar validación
     if (fixedPurposeSel) fixedPurposeSel.required = false;
 
-    // Pago del viaje: aplicar lógica inicial
+    // Pago del viaje inicial
     setRequiredForPayer(PAYER.value || '');
     updatePayerCountryBlock();
 
@@ -744,8 +743,6 @@
 
     // ------- VALIDACIÓN ANTES DE AVANZAR -------
     function checkForm(){
-      // No vamos a validar propósito ni planes específicos porque ya están ocultos y fijos
-      // Sólo dejamos que el navegador valide lo visible (pagador, etc.)
       return form.checkValidity();
     }
 
