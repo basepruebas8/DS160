@@ -120,14 +120,12 @@
 
     [hidden] { display: none !important; }
 
-    /* --- MOBILE: 1 campo por línea --- */
     @media (max-width: 600px){
       .grid-2 {
         grid-template-columns: 1fr;
       }
     }
 
-    /* Botón "Volver a 'Yo mismo/a'" dentro del bloque del pagador */
     .payer-header-row {
       display:flex;
       flex-wrap:wrap;
@@ -168,7 +166,6 @@
           <legend>Información de viaje</legend>
           <p class="help">Nota: Proporcione la siguiente información sobre sus planes de viaje.</p>
 
-          <!-- Propósito de viaje -->
           <div class="row" id="purposeRow">
             <label for="PURPOSE_0">Propósito de viaje a EE. UU.</label>
             <div id="purposeList" class="row"></div>
@@ -177,7 +174,6 @@
             </div>
           </div>
 
-          <!-- ¿Planes específicos de viaje? -->
           <div class="row" id="specificPlansRow" style="margin-top:8px;">
             <label>¿Ha hecho arreglos específicos de viaje?</label>
             <div class="inline" role="radiogroup" aria-label="Planes específicos de viaje">
@@ -186,7 +182,6 @@
             </div>
           </div>
 
-          <!-- Datos detallados sólo si "Sí" -->
           <div id="specificPlansSection" class="row" hidden>
             <div class="grid-2">
               <div>
@@ -273,13 +268,11 @@
           </div>
 
           <div id="payerFields" class="row" hidden>
-            <!-- Header interno con botón para volver a "Yo mismo/a" -->
             <div class="payer-header-row">
               <strong>Detalles del pagador</strong>
               <button type="button" id="payerResetBtn" class="payer-exit-btn">Volver a "Yo mismo/a"</button>
             </div>
 
-            <!-- Persona -->
             <div id="payerPersonFields" class="row" hidden>
               <div class="grid-2">
                 <div>
@@ -317,7 +310,6 @@
               </div>
             </div>
 
-            <!-- Empresa -->
             <div id="payerOrgFields" class="row" hidden>
               <div class="row">
                 <label for="ORG_NAME">Nombre de la empresa/organización</label>
@@ -339,7 +331,6 @@
               </div>
             </div>
 
-            <!-- Dirección del pagador -->
             <fieldset>
               <legend>Dirección del pagador</legend>
 
@@ -362,7 +353,6 @@
                 </div>
               </div>
 
-              <!-- Si el pagador está en EE.UU. -->
               <div id="payerUSBlock" class="grid-2" hidden>
                 <div>
                   <label for="PAYER_US_STATE">Estado (EE. UU.)</label>
@@ -374,7 +364,6 @@
                 </div>
               </div>
 
-              <!-- Si el pagador NO está en EE.UU. -->
               <div id="payerNonUSBlock" class="grid-2" hidden>
                 <div>
                   <label for="PAYER_PROVINCE">Estado/Provincia</label>
@@ -399,7 +388,6 @@
 
   <script>
     const NEXT_URL = new URL('personal4.html', window.location.href).href;
-    const BACK_URL = new URL('personal3.html', window.location.href).href;
 
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-travel';
@@ -554,13 +542,12 @@
         o.value = k.c;
         o.textContent = k.n;
         if (k.c === "MX") {
-          o.selected = true; // MÉXICO por default
+          o.selected = true;
         }
         selectEl.appendChild(o);
       });
     }
 
-    // DOM refs
     const form = document.getElementById(FORM_ID);
 
     const travelInfoSection = document.getElementById('travelInfoSection');
@@ -587,7 +574,6 @@
 
     [ARRIVAL_STATE, DEPARTURE_STATE, STAY_STATE].forEach(populateStateSelect);
 
-    // Pago del viaje refs
     const PAYER = document.getElementById('PAYER');
     const payerSelectRow = document.getElementById('payerSelectRow');
     const payerFields = document.getElementById('payerFields');
@@ -621,7 +607,6 @@
     populateCountries(PAYER_COUNTRY);
     populateStateSelect(PAYER_US_STATE);
 
-    // ------- PURPOSE LIST -------
     function purposeCount(){
       const v = parseInt(localStorage.getItem(PURPOSE_COUNT_KEY) || '1', 10);
       return Number.isFinite(v) && v > 0 ? v : 1;
@@ -672,13 +657,6 @@
       });
     }
 
-    function addPurpose(){
-      const idx = purposeList.children.length;
-      const item = makePurposeItem(idx);
-      purposeList.appendChild(item);
-      setPurposeCount(purposeList.children.length);
-    }
-
     (function initPurpose(){
       purposeList.innerHTML = "";
       const item = makePurposeItem(0);
@@ -695,7 +673,6 @@
       refreshPurposeRemoveButtons();
     })();
 
-    // ------- PLANES ESPECÍFICOS -------
     function setRequiredForSpecific(show){
       [ARRIVAL_DATE, DEPARTURE_DATE, ARRIVAL_CITY, ARRIVAL_STATE, STAY_ADDR1, STAY_CITY, STAY_STATE, STAY_ZIP]
         .forEach(el => el.required = show);
@@ -709,8 +686,6 @@
       setRequiredForSpecific(show);
     }
     [specificY, specificN].forEach(r => r.addEventListener('change', updateSpecificSection));
-
-    // ------- PAGADOR -------
 
     function isPersonType(code){ return code === 'H' || code === 'O'; }
     function isOrgType(code){ return code === 'P' || code === 'U' || code === 'C'; }
@@ -754,7 +729,6 @@
       ];
 
       if (show) {
-        // modo "alguien más paga"
         allFields.forEach(el => {
           el.disabled = false;
         });
@@ -776,7 +750,6 @@
         return;
       }
 
-      // modo "Yo mismo/a" o vacío -> ocultar y desactivar
       allFields.forEach(el => {
         el.disabled = true;
         el.required = false;
@@ -787,7 +760,6 @@
       payerNonUSBlock.hidden = true;
     }
 
-    // Limpia todos los campos del pagador y borra su copia en localStorage
     function clearPayerFields(){
       const fieldsToClear = [
         PAYER_SURNAME, PAYER_GIVEN, PAYER_REL, PAYER_PHONE, PAYER_EMAIL,
@@ -803,7 +775,6 @@
         f.setCustomValidity('');
       });
 
-      // limpiar selects dependientes
       if (PAYER_COUNTRY) {
         PAYER_COUNTRY.value = '';
       }
@@ -815,9 +786,7 @@
       }
     }
 
-    // Evento del select pagador
     PAYER.addEventListener('change', () => {
-      // si vuelve a "Yo mismo/a", limpiar
       if (PAYER.value === 'S') {
         clearPayerFields();
       }
@@ -825,13 +794,11 @@
       saveField(PAYER);
       setRequiredForPayer(PAYER.value);
 
-      // si vuelve a "Yo mismo/a", hacemos scroll al selector
       if (PAYER.value === 'S') {
         payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
       }
     });
 
-    // Botón interno "Volver a 'Yo mismo/a'"
     payerResetBtn.addEventListener('click', () => {
       clearPayerFields();
       PAYER.value = 'S';
@@ -840,51 +807,44 @@
       payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
     });
 
-    // País del pagador (para bloquear/mostrar ZIP vs Provincia)
     PAYER_COUNTRY.addEventListener('change', () => {
       saveField(PAYER_COUNTRY);
       updatePayerCountryBlock();
     });
 
-    // ------- RESTORE / DEFAULTS -------
     restoreForm(form);
 
-    // Forzar propósito = B (turismo/negocios)
     const fixedPurposeSel = purposeList.querySelector('select');
     if (fixedPurposeSel){
       fixedPurposeSel.value = "B";
       fixedPurposeSel.required = false;
     }
 
-    // Planes específicos -> "No"
     specificY.required = false;
     specificN.required = false;
     specificN.checked = true;
     specificPlansSection.hidden = true;
     setRequiredForSpecific(false);
 
-    // Ocultar bloque de viaje en pantalla
     hideEl(purposeRow);
     hideEl(specificPlansRow);
     hideEl(specificPlansSection);
     hideEl(travelInfoSection);
     if (fixedPurposeSel) fixedPurposeSel.required = false;
 
-    // Pago del viaje inicial
     setRequiredForPayer(PAYER.value || '');
     updatePayerCountryBlock();
 
     autosave(form);
 
-    // ------- VALIDACIÓN ANTES DE AVANZAR -------
     function checkForm(){
       return form.checkValidity();
     }
 
-    // ------- Navegación -------
+    // BOTÓN REGRESAR: ahora usa el historial real, no una URL fija.
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
-      window.location.assign(BACK_URL);
+      window.history.back();
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
