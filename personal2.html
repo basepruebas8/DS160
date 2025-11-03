@@ -46,6 +46,7 @@
       color: var(--text);
       background: var(--bg);
       background-image: var(--bg-grad);
+      overflow-x: hidden; /* evita scroll horizontal accidental */
     }
 
     .wrap { max-width: 920px; margin: 32px auto; padding: 0 16px; }
@@ -98,6 +99,29 @@
     button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
 
     [hidden] { display: none !important; }
+
+    /* ====== FIX RESPONSIVE PARA "NÚMEROS DE IDENTIFICACIÓN" ====== */
+    @media (max-width: 520px){
+      /* Permitir salto de línea en los grupos que antes forzaban una sola fila */
+      .inline.nowrap { flex-wrap: wrap; row-gap: 8px; }
+
+      /* Inputs de texto dentro de grupos en línea: que se ajusten y no fuercen overflow */
+      .inline.nowrap input[type="text"]{
+        flex: 1 1 100%;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      /* Campos cortos del SSN conservan su tamaño compacto */
+      .inline.nowrap input.small{
+        flex: 0 0 64px;
+        width: 64px;
+      }
+
+      /* Quitar margen lateral del label "No aplica" cuando baje a otra línea */
+      .inline.nowrap label{ margin-left: 0 !important; }
+    }
   </style>
 </head>
 <body>
@@ -400,51 +424,30 @@
       };
     }
 
-    // valida todos los campos visibles según las reglas de negocio:
-    // - CURP siempre obligatorio (porque escondimos "No aplica")
-    // - TAX ID obligatorio si no marcaron "No aplica"
-    // - SSN obligatorio completo si no marcaron "No aplica"
-    // - Nacionalidad ya fijada a MÉXICO y oculta -> no bloquea
-    // - Preguntas de otra nacionalidad / residente permanente ocultas -> no bloquean
     function validateFormBusiness({
-      natId,            // CURP
-      natIdNA,          // checkbox NA de CURP (oculto, siempre false)
-      taxId, taxIdNA,   // TAX ID + NA
-      ssn1, ssn2, ssn3, ssnNA,
-      ssnValidatorFn
+      natId, natIdNA, taxId, taxIdNA, ssn1, ssn2, ssn3, ssnNA, ssnValidatorFn
     }) {
-      // limpiar mensajes previos
       natId.setCustomValidity('');
       taxId.setCustomValidity('');
       ssn1.setCustomValidity('');
       ssn2.setCustomValidity('');
       ssn3.setCustomValidity('');
 
-      // 1. CURP obligatorio
       if (!isHiddenLike(natId) && !natId.disabled) {
-        if (natId.value.trim() === '') {
-          natId.setCustomValidity('Requerido.');
-        }
+        if (natId.value.trim() === '') natId.setCustomValidity('Requerido.');
       }
 
-      // 2. TAX ID obligatorio si no NA
       if (!isHiddenLike(taxId) && !taxId.disabled) {
-        if (!taxIdNA.checked) {
-          if (taxId.value.trim() === '') {
-            taxId.setCustomValidity('Requerido.');
-          }
-        } else {
-          taxId.setCustomValidity('');
+        if (!taxIdNA.checked && taxId.value.trim() === '') {
+          taxId.setCustomValidity('Requerido.');
         }
       }
 
-      // 3. SSN según reglas del grupo
       ssnValidatorFn();
 
-      // ¿hay algún campo con error?
-      const invalids = [natId, taxId, ssn1, ssn2, ssn3].filter(el => {
-        return !isHiddenLike(el) && !el.disabled && el.validationMessage !== '';
-      });
+      const invalids = [natId, taxId, ssn1, ssn2, ssn3].filter(el =>
+        !isHiddenLike(el) && !el.disabled && el.validationMessage !== ''
+      );
 
       if (invalids.length > 0) {
         const firstBad = invalids[0];
@@ -452,12 +455,11 @@
         firstBad.scrollIntoView({behavior:'smooth', block:'center'});
         return false;
       }
-
       return true;
     }
 
     // ---- DOM refs ----
-    const form = document.getElementById(FORM_ID);
+    const form = document.getElementById('ds160-personal2');
 
     const selNatl        = document.getElementById('APP_NATL');
     const selOtherNatl   = document.getElementById('OTHER_NATL');
@@ -492,76 +494,50 @@
     const nextBtn        = document.getElementById('nextBtn');
 
     // ---- inicialización ----
-
-    // llenar selects país
     [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
 
-    // restaurar datos guardados
     restoreForm(form);
 
-    // nacionalidad -> forzar MÉXICO y ocultar
     forceMexico(selNatl);
     hideEl(rowNat);
 
-    // otra nacionalidad -> marcar "No" y ocultar todo
     if (otherN) otherN.checked = true;
     hideEl(rowOtherNat);
 
-    // residente permanente -> marcar "No" y ocultar todo
     if (permN) permN.checked = true;
     hideEl(rowPermRes);
 
-    // CURP: ocultar "No aplica", así CURP se vuelve obligatorio
     if (natIdNA) {
       natIdNA.checked = false;
       hideEl(curpNaLabel || natIdNA.closest('label'));
     }
 
-    // preparar validador SSN
     const validateSSNGroup = makeSSNValidator(ssn1, ssn2, ssn3, ssnHelp, ssnNA);
 
-    // formato numérico SSN + validación en vivo
     [ssn1, ssn2, ssn3].forEach((el, idx) => {
       const lens = [3,2,4];
       el.addEventListener('input', () => { digitsOnly(el, lens[idx]); validateSSNGroup(); });
       el.addEventListener('blur',  validateSSNGroup);
     });
 
-    // toggles dinámicos (aunque estén ocultos se dejan coherentes)
     const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
     const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
     const refreshNat   = toggleNA(natId, natIdNA);
     const refreshTax   = toggleNA(taxId, taxIdNA);
     const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA, validateSSNGroup);
 
-    refreshOther();
-    refreshPerm();
-    refreshNat();
-    refreshTax();
-    refreshSSN();
-    validateSSNGroup();
+    refreshOther(); refreshPerm(); refreshNat(); refreshTax(); refreshSSN(); validateSSNGroup();
 
-    // autosave continuo
     autosave(form);
 
-    // ---- navegación ----
     backBtn.addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
     });
 
     nextBtn.addEventListener('click', () => {
-      // Validar reglas propias antes de ir a la siguiente
       const ok = validateFormBusiness({
-        natId,
-        natIdNA,
-        taxId,
-        taxIdNA,
-        ssn1,
-        ssn2,
-        ssn3,
-        ssnNA,
-        ssnValidatorFn: validateSSNGroup
+        natId, natIdNA, taxId, taxIdNA, ssn1, ssn2, ssn3, ssnNA, ssnValidatorFn: validateSSNGroup
       });
 
       if (!ok) {
@@ -569,7 +545,6 @@
         return;
       }
 
-      // guardar y avanzar
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(NEXT_URL);
     });
