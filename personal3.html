@@ -830,10 +830,10 @@
       return form.checkValidity();
     }
 
-    // BOTÓN REGRESAR: ahora usa el historial real, no una URL fija.
+    // BOTÓN REGRESAR: redirige a personal2.html
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
-      window.history.back();
+      window.location.assign(new URL('personal2.html', window.location.href).href);
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
