@@ -741,7 +741,6 @@
       const isOrg = isOrgType(code);
       const show = !!code && code !== 'S';
 
-      // mostrar/ocultar bloque detalles
       payerFields.hidden = !show;
       payerPersonFields.hidden = !isPerson;
       payerOrgFields.hidden = !isOrg;
@@ -804,34 +803,40 @@
         f.setCustomValidity('');
       });
 
-      // También borro selección de país del pagador
+      // limpiar selects dependientes
       if (PAYER_COUNTRY) {
         PAYER_COUNTRY.value = '';
       }
       if (PAYER_US_STATE) {
         PAYER_US_STATE.value = '';
       }
+      if (PAYER_REL) {
+        PAYER_REL.value = '';
+      }
     }
 
     // Evento del select pagador
     PAYER.addEventListener('change', () => {
+      // si vuelve a "Yo mismo/a", limpiar
+      if (PAYER.value === 'S') {
+        clearPayerFields();
+      }
+
       saveField(PAYER);
       setRequiredForPayer(PAYER.value);
+
+      // si vuelve a "Yo mismo/a", hacemos scroll al selector
+      if (PAYER.value === 'S') {
+        payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
+      }
     });
 
     // Botón interno "Volver a 'Yo mismo/a'"
     payerResetBtn.addEventListener('click', () => {
-      // 1. limpiar campos del pagador
       clearPayerFields();
-
-      // 2. volver a "Yo mismo/a"
       PAYER.value = 'S';
       saveField(PAYER);
-
-      // 3. aplicar reglas de "Yo mismo/a"
       setRequiredForPayer('S');
-
-      // 4. subir scroll para que se vea el select principal
       payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
     });
 
