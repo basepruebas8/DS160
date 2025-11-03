@@ -167,7 +167,7 @@
           <p class="help">Nota: Proporcione la siguiente información sobre sus planes de viaje.</p>
 
           <div class="row" id="purposeRow">
-            <label for="PURPOSE_0">Propósito de viaje a EE. UU.</label>
+            <label for="PURPOSE_0">Propósito de viaje a EE. U.S.</label>
             <div id="purposeList" class="row"></div>
             <div class="inline">
               <button type="button" id="addPurposeBtn">Agregar otro propósito</button>
@@ -201,7 +201,7 @@
                 <input type="text" id="ARRIVAL_CITY" name="ARRIVAL_CITY" maxlength="64" placeholder="Ej. Los Ángeles">
               </div>
               <div>
-                <label for="ARRIVAL_STATE">Estado de llegada (EE. UU.)</label>
+                <label for="ARRIVAL_STATE">Estado de llegada (EE. U.S.)</label>
                 <select id="ARRIVAL_STATE" name="ARRIVAL_STATE"></select>
               </div>
             </div>
@@ -212,7 +212,7 @@
                 <input type="text" id="DEPARTURE_CITY" name="DEPARTURE_CITY" maxlength="64" placeholder="Ej. Nueva York">
               </div>
               <div>
-                <label for="DEPARTURE_STATE">Estado de salida (EE. UU.)</label>
+                <label for="DEPARTURE_STATE">Estado de salida (EE. U.S.)</label>
                 <select id="DEPARTURE_STATE" name="DEPARTURE_STATE"></select>
               </div>
             </div>
@@ -238,7 +238,7 @@
                   <input type="text" id="STAY_CITY" name="STAY_CITY" maxlength="64" autocomplete="address-level2">
                 </div>
                 <div>
-                  <label for="STAY_STATE">Estado (EE. UU.)</label>
+                  <label for="STAY_STATE">Estado (EE. U.S.)</label>
                   <select id="STAY_STATE" name="STAY_STATE"></select>
                 </div>
               </div>
@@ -270,7 +270,6 @@
           <div id="payerFields" class="row" hidden>
             <div class="payer-header-row">
               <strong>Detalles del pagador</strong>
-              <button type="button" id="payerResetBtn" class="payer-exit-btn">Volver a "Yo mismo/a"</button>
             </div>
 
             <div id="payerPersonFields" class="row" hidden>
@@ -355,7 +354,7 @@
 
               <div id="payerUSBlock" class="grid-2" hidden>
                 <div>
-                  <label for="PAYER_US_STATE">Estado (EE. UU.)</label>
+                  <label for="PAYER_US_STATE">Estado (EE. U.S.)</label>
                   <select id="PAYER_US_STATE" name="PAYER_US_STATE"></select>
                 </div>
                 <div>
@@ -580,8 +579,6 @@
     const payerPersonFields = document.getElementById('payerPersonFields');
     const payerOrgFields = document.getElementById('payerOrgFields');
 
-    const payerResetBtn = document.getElementById('payerResetBtn');
-
     const PAYER_SURNAME = document.getElementById('PAYER_SURNAME');
     const PAYER_GIVEN = document.getElementById('PAYER_GIVEN');
     const PAYER_REL = document.getElementById('PAYER_REL');
@@ -797,14 +794,6 @@
       if (PAYER.value === 'S') {
         payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
       }
-    });
-
-    payerResetBtn.addEventListener('click', () => {
-      clearPayerFields();
-      PAYER.value = 'S';
-      saveField(PAYER);
-      setRequiredForPayer('S');
-      payerSelectRow.scrollIntoView({behavior:'smooth', block:'center'});
     });
 
     PAYER_COUNTRY.addEventListener('change', () => {
