@@ -617,10 +617,10 @@
       document.getElementById('MAIL_ADDR_POSTAL_CD_NA')
     );
 
-    // Radios -> secciones
+    // Radios -> secciones (INVERTIDO: muestra solo cuando elige "No")
     const refreshMailing = toggleSectionByRadios(
+      document.getElementById('MAIL_SAME_N'), // este activa la sección
       document.getElementById('MAIL_SAME_Y'),
-      document.getElementById('MAIL_SAME_N'),
       document.getElementById('mailingSection'),
       [document.getElementById('MAIL_ADDR_LN1'), document.getElementById('MAIL_ADDR_CITY')]
     );
