@@ -46,7 +46,6 @@
       color: var(--text);
       background: var(--bg);
       background-image: var(--bg-grad);
-      overflow-x: hidden; /* evita scroll horizontal residual */
     }
 
     .wrap { max-width: 980px; margin: 32px auto; padding: 0 16px; }
@@ -81,27 +80,11 @@
     .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .inline.nowrap { flex-wrap: nowrap; }
 
-    /* Inputs y selects no fuerzan ancho mínimo en grid/flex */
     input[type="text"], input[type="email"], select {
-      width: 100%;
-      max-width: 560px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--card);
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-      min-width: 0;            /* CLAVE para que no se salga en móviles */
+      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
+      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-    /* En filas tipo tabla, evitar que las celdas fuercen overflow */
-    .table-row > * { min-width: 0; }
-
-    input[type="text"]:focus, input[type="email"]:focus, select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
-    }
+    input[type="text"]:focus, input[type="email"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
     input.small { width: 120px; }
 
     .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
@@ -115,29 +98,19 @@
     button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
     button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
 
-    .table-like { border: 1px dashed var(--border); border-radius: 12px; padding: 12px; overflow-x: hidden; }
+    .table-like { border: 1px dashed var(--border); border-radius: 12px; padding: 12px; }
     .table-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; }
     .table-row .remove { align-self: center; }
     .muted { color: var(--muted); font-size: .9rem; }
 
     [hidden] { display: none !important; }
-
-    /* --- Ajustes móviles (evita desbordes en el bloque de redes sociales) --- */
-    @media (max-width: 560px){
-      .grid-2 { grid-template-columns: 1fr; }
-      .inline.nowrap { flex-wrap: wrap; }               /* permite romper a nueva línea */
-      .table-row { grid-template-columns: 1fr; }        /* filas apiladas en móvil */
-      .table-row .remove { justify-self: end; }         /* botón a la derecha sin ocupar columna propia */
-      select, input[type="text"], input[type="email"] { max-width: 100%; }
-    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <header>
-        
-        <div class="subtle">Sección: <strong>Dirección y teléfono</strong> · ID de solicitud <strong>AA00F3A013</strong></div>
+      <header>        
+      <div class="subtle">Sección: <strong>Dirección y teléfono</strong> · ID de solicitud <strong>AA00F3A013</strong></div>
       </header>
 
       <form id="ds160-contact" action="#" method="post">
@@ -343,7 +316,7 @@
           </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset hidden>
           <legend>Redes sociales</legend>
 
           <div class="row">
@@ -381,7 +354,7 @@
               </div>
               <div>
                 <label>Identificador</label>
-                <input type="text" class="social-ident" name="SOCIAL_IDENT[]" maxlength="50" />
+                <input type="text" class="social-ident" name="SOCIAL_IDENT[]" maxlength="50" disabled />
               </div>
               <button type="button" class="remove" aria-label="Eliminar fila" title="Eliminar">✕</button>
             </div>
@@ -643,9 +616,10 @@
       document.getElementById('MAIL_ADDR_POSTAL_CD_NA')
     );
 
-    // Radios -> secciones (INVERTIDO: mostrar sólo cuando elige "No")
+    // Radios -> secciones
+    // Invertimos la lógica: mostrar sección SOLO cuando elige "No".
     const refreshMailing = toggleSectionByRadios(
-      document.getElementById('MAIL_SAME_N'), // este activa la sección
+      document.getElementById('MAIL_SAME_N'), // ahora este es el que activa mostrar
       document.getElementById('MAIL_SAME_Y'),
       document.getElementById('mailingSection'),
       [document.getElementById('MAIL_ADDR_LN1'), document.getElementById('MAIL_ADDR_CITY')]
