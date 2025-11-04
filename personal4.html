@@ -46,6 +46,7 @@
       color: var(--text);
       background: var(--bg);
       background-image: var(--bg-grad);
+      overflow-x: hidden; /* evita desbordes horizontales en móvil */
     }
 
     .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
@@ -80,8 +81,16 @@
     .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 
     input[type="text"], input[type="email"], input[type="tel"], select {
-      width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
-      outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      width: 100%;
+      max-width: 560px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
     input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
       border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
@@ -99,10 +108,31 @@
     button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
     button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
 
-    .companion-item { display:grid; grid-template-columns: 1.2fr 1.2fr 1fr auto; gap:10px; align-items:end; }
+    .companion-item {
+      display:grid;
+      grid-template-columns: 1.2fr 1.2fr 1fr auto;
+      gap:10px;
+      align-items:end;
+    }
+    .companion-item > div { min-width: 0; } /* permite encoger y evita overflow */
+    .companion-item input,
+    .companion-item select { max-width:100%; width:100%; }
     .companion-item button.remove { border-color:#ef4444; color:#ef4444; }
     .companion-item button.remove:hover{ background:#ef44441a; }
+
     .hide { display:none !important; }
+
+    /* ---------- Responsivo para evitar desbordes en móvil ---------- */
+    @media (max-width: 840px){
+      .companion-item { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px){
+      .wrap { padding: 0 12px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      input[type="text"], input[type="email"], input[type="tel"], select { max-width:100%; }
+      .companion-item { grid-template-columns: 1fr; }
+      .companion-item button.remove { width:100%; }
+    }
   </style>
 </head>
 <body>
@@ -177,7 +207,7 @@
 
   <script>
     // Navegación
-    const BACK_URL = new URL('personal3.html', window.location.href).href; // ← arreglado
+    const BACK_URL = new URL('personal3.html', window.location.href).href;
     const NEXT_URL = new URL('personal5.html', window.location.href).href;
 
     // Persistencia local
@@ -234,7 +264,7 @@
     // DOM refs
     const form = document.getElementById(FORM_ID);
     const otherY = document.getElementById('OtherY');
-    const otherN = document.getElementById('OtherN');
+    theOtherN = document.getElementById('OtherN');
     const withCompanionsSection = document.getElementById('withCompanionsSection');
 
     const groupY = document.getElementById('GroupY');
@@ -253,7 +283,6 @@
       const show = otherY.checked;
       withCompanionsSection.classList.toggle('hide', !show);
 
-      // Limpia requeridos si No
       if (!show){
         [groupY, groupN].forEach(r => { r.checked = false; saveField(r); });
         GROUP_NAME.value = ""; saveField(GROUP_NAME);
@@ -272,10 +301,8 @@
 
       setRequired(GROUP_NAME, isGroup);
       if (!isGroup){
-        // asegurar al menos 1 compañero visible
         if (companionsList.children.length === 0) addCompanion();
       } else {
-        // si es grupo, no forzar lista
         companionsList.innerHTML = "";
         localStorage.setItem(COMP_COUNT_KEY, '0');
       }
@@ -364,11 +391,9 @@
     // Estado inicial tras restaurar
     updateMainVisibility();
     if (withCompanionsSection.classList.contains('hide') === false){
-      // restaurar radios de grupo
       [groupY, groupN].forEach(restoreField);
       updateGroupVisibility();
 
-      // restaurar lista si aplica
       const count = parseInt(localStorage.getItem(COMP_COUNT_KEY) || '0', 10);
       if (!groupY.checked){
         const n = Math.max(1, isFinite(count) ? count : 1);
@@ -377,15 +402,13 @@
     }
 
     // Eventos de cambio
-    [otherY, otherN].forEach(r => r.addEventListener('change', () => { saveField(r); updateMainVisibility(); }));
+    [otherY, theOtherN].forEach(r => r.addEventListener('change', () => { saveField(r); updateMainVisibility(); }));
     [groupY, groupN].forEach(r => r.addEventListener('change', () => { saveField(r); updateGroupVisibility(); }));
 
     // Validación
     function checkForm(){
-      // Si no hay acompañantes, basta con que esté respondido Sí/No
       if (!otherY.checked) return form.checkValidity();
 
-      // Si es grupo, exigir nombre de grupo
       if (groupY.checked){
         if (!GROUP_NAME.value.trim()){
           GROUP_NAME.setCustomValidity('Indique el nombre del grupo u organización.');
@@ -395,7 +418,6 @@
         return form.checkValidity();
       }
 
-      // Si NO es grupo, exigir al menos 1 acompañante completo
       const items = [...companionsList.children];
       if (items.length === 0){
         alert('Agregue al menos un acompañante o marque que viaja como parte de un grupo.');
