@@ -76,7 +76,6 @@
 
     label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .inline.nowrap { flex-wrap: nowrap; }
 
@@ -123,7 +122,8 @@
             <input type="text" id="APP_ADDR_LN1" name="APP_ADDR_LN1" maxlength="40" required value="ALLENDE 211" />
           </div>
 
-          <div class="row">
+          <!-- Calle (línea 2) oculto -->
+          <div class="row" hidden aria-hidden="true">
             <div class="inline" style="gap:8px;">
               <label for="APP_ADDR_LN2" style="margin:0;">Calle (línea 2)</label>
               <span class="muted">*Opcional</span>
@@ -131,42 +131,39 @@
             <input type="text" id="APP_ADDR_LN2" name="APP_ADDR_LN2" maxlength="40" />
           </div>
 
-          <div class="grid-2">
-            <div>
-              <label for="APP_ADDR_CITY">Ciudad</label>
-              <input type="text" id="APP_ADDR_CITY" name="APP_ADDR_CITY" maxlength="20" required value="MAGDALENA" />
-            </div>
+          <!-- Cada campo en su propia línea -->
+          <div class="row">
+            <label for="APP_ADDR_CITY">Ciudad</label>
+            <input type="text" id="APP_ADDR_CITY" name="APP_ADDR_CITY" maxlength="20" required value="MAGDALENA" />
+          </div>
 
-            <div>
-              <label for="APP_ADDR_STATE">Estado/Provincia</label>
-              <div class="inline nowrap">
-                <input type="text" id="APP_ADDR_STATE" name="APP_ADDR_STATE" maxlength="20" value="SONORA" />
-                <!-- Oculto -->
-                <label style="font-weight:400;" hidden aria-hidden="true">
-                  <input type="checkbox" id="APP_ADDR_STATE_NA_cb"> No aplica
-                </label>
-                <input type="hidden" id="APP_ADDR_STATE_NA" name="APP_ADDR_STATE_NA" value="N">
-              </div>
+          <div class="row">
+            <label for="APP_ADDR_STATE">Estado/Provincia</label>
+            <div class="inline nowrap">
+              <input type="text" id="APP_ADDR_STATE" name="APP_ADDR_STATE" maxlength="20" value="SONORA" />
+              <!-- “No aplica” oculto -->
+              <label style="font-weight:400;" hidden aria-hidden="true">
+                <input type="checkbox" id="APP_ADDR_STATE_NA_cb"> No aplica
+              </label>
+              <input type="hidden" id="APP_ADDR_STATE_NA" name="APP_ADDR_STATE_NA" value="N">
             </div>
           </div>
 
-          <div class="grid-2">
-            <div>
-              <label for="APP_ADDR_POSTAL_CD">Código postal / Zona</label>
-              <div class="inline nowrap">
-                <input type="text" id="APP_ADDR_POSTAL_CD" name="APP_ADDR_POSTAL_CD" maxlength="10" inputmode="numeric" value="84600" />
-                <!-- Oculto -->
-                <label style="font-weight:400;" hidden aria-hidden="true">
-                  <input type="checkbox" id="APP_ADDR_POSTAL_CD_NA_cb"> No aplica
-                </label>
-                <input type="hidden" id="APP_ADDR_POSTAL_CD_NA" name="APP_ADDR_POSTAL_CD_NA" value="N">
-              </div>
+          <div class="row">
+            <label for="APP_ADDR_POSTAL_CD">Código postal / Zona</label>
+            <div class="inline nowrap">
+              <input type="text" id="APP_ADDR_POSTAL_CD" name="APP_ADDR_POSTAL_CD" maxlength="10" inputmode="numeric" value="84600" />
+              <!-- “No aplica” oculto -->
+              <label style="font-weight:400;" hidden aria-hidden="true">
+                <input type="checkbox" id="APP_ADDR_POSTAL_CD_NA_cb"> No aplica
+              </label>
+              <input type="hidden" id="APP_ADDR_POSTAL_CD_NA" name="APP_ADDR_POSTAL_CD_NA" value="N">
             </div>
+          </div>
 
-            <div>
-              <label for="APP_ADDR_COUNTRY">País/Región</label>
-              <select id="APP_ADDR_COUNTRY" name="APP_ADDR_COUNTRY" required></select>
-            </div>
+          <div class="row">
+            <label for="APP_ADDR_COUNTRY">País/Región</label>
+            <select id="APP_ADDR_COUNTRY" name="APP_ADDR_COUNTRY" required></select>
           </div>
         </fieldset>
 
@@ -620,9 +617,8 @@
     );
 
     // Radios -> secciones
-    // Invertimos la lógica: mostrar sección SOLO cuando elige "No".
     const refreshMailing = toggleSectionByRadios(
-      document.getElementById('MAIL_SAME_N'), // ahora este es el que activa mostrar
+      document.getElementById('MAIL_SAME_N'),
       document.getElementById('MAIL_SAME_Y'),
       document.getElementById('mailingSection'),
       [document.getElementById('MAIL_ADDR_LN1'), document.getElementById('MAIL_ADDR_CITY')]
