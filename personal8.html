@@ -96,7 +96,10 @@
 <body>
   <div class="wrap">
     <div class="card">
-
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Familia — Parientes</strong></div>
+      </header>
 
       <form id="ds160-family-relatives">
         <!-- PADRE -->
@@ -124,7 +127,7 @@
                 </select>
                 <select name="FATHER_DOB_YEAR" id="FATHER_DOB_YEAR" required aria-required="true"></select>
               </div>
-              <p class="help">Formato: DD-MMM-YYYY</p>
+              <p class="help">Formato: DD-MMM-YYYY (ej.: 07-MAY-1970)</p>
             </div>
             <div>
               <label>¿Su padre se encuentra en los Estados Unidos?</label>
@@ -145,7 +148,7 @@
                 <option value="LPR">Residente permanente legal (Green Card)</option>
                 <option value="OTHER">Otro (no inmigrante / se desconoce)</option>
               </select>
-
+              <p class="note">Se muestra solo si respondió “Sí”.</p>
             </div>
           </div>
         </fieldset>
@@ -175,7 +178,7 @@
                 </select>
                 <select name="MOTHER_DOB_YEAR" id="MOTHER_DOB_YEAR" required aria-required="true"></select>
               </div>
-              <p class="help">Formato: DD-MMM-YYYY</p>
+              <p class="help">Formato: DD-MMM-YYYY (ej.: 12-DEC-1975)</p>
             </div>
             <div>
               <label>¿Su madre se encuentra en los Estados Unidos?</label>
@@ -196,7 +199,7 @@
                 <option value="LPR">Residente permanente legal (Green Card)</option>
                 <option value="OTHER">Otro (no inmigrante / se desconoce)</option>
               </select>
- 
+              <p class="note">Se muestra solo si respondió “Sí”.</p>
             </div>
           </div>
         </fieldset>
