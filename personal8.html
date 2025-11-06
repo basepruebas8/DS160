@@ -72,8 +72,24 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
     }
     select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent)}
-    .date{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .date select{max-width:110px}
+
+    /* Fecha en una sola línea, sin desbordar */
+    .date{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:8px;
+      align-items:center;
+    }
+    .date select{
+      width:100%;
+      max-width:none;
+      min-width:0;
+      font-size:.95rem;
+      padding:8px 10px;
+    }
+    @media (max-width: 380px){
+      .date select{font-size:.88rem;padding:7px 8px}
+    }
 
     .hide{display:none !important;}
 
@@ -96,9 +112,6 @@
 <body>
   <div class="wrap">
     <div class="card">
-      
-      </header>
-
       <form id="ds160-family-relatives">
         <!-- PADRE -->
         <fieldset>
@@ -109,11 +122,11 @@
             <div>
               <label for="FATHER_SURNAME">Apellidos del padre</label>
               <input type="text" id="FATHER_SURNAME" name="FATHER_SURNAME" maxlength="33" required aria-required="true" placeholder="EJ.: HERNÁNDEZ GARCÍA" />
-              
+            </div>
             <div>
               <label for="FATHER_GIVEN_NAME">Nombres del padre</label>
               <input type="text" id="FATHER_GIVEN_NAME" name="FATHER_GIVEN_NAME" maxlength="33" required aria-required="true" placeholder="EJ.: JUAN MIGUEL" />
-              
+            </div>
           </div>
 
           <div class="grid-2">
@@ -137,7 +150,8 @@
                 </select>
                 <select name="FATHER_DOB_YEAR" id="FATHER_DOB_YEAR" required aria-required="true"></select>
               </div>
-             
+            </div>
+
             <div>
               <label>¿Su padre se encuentra en los Estados Unidos?</label>
               <div class="inline" role="radiogroup" aria-label="Padre en EE. UU.">
@@ -157,7 +171,7 @@
                 <option value="LPR">Residente permanente legal (Green Card)</option>
                 <option value="OTHER">Otro (no inmigrante / se desconoce)</option>
               </select>
-             
+            </div>
           </div>
         </fieldset>
 
@@ -170,12 +184,12 @@
             <div>
               <label for="MOTHER_SURNAME">Apellidos de la madre</label>
               <input type="text" id="MOTHER_SURNAME" name="MOTHER_SURNAME" maxlength="33" required aria-required="true" placeholder="EJ.: HERNÁNDEZ GARCÍA" />
-     
+            </div>
             <div>
               <label for="MOTHER_GIVEN_NAME">Nombres de la madre</label>
               <input type="text" id="MOTHER_GIVEN_NAME" name="MOTHER_GIVEN_NAME" maxlength="33" required aria-required="true" placeholder="EJ.: JUANITA MIGUEL" />
-              
-         
+            </div>
+          </div>
 
           <div class="grid-2">
             <div>
@@ -198,7 +212,8 @@
                 </select>
                 <select name="MOTHER_DOB_YEAR" id="MOTHER_DOB_YEAR" required aria-required="true"></select>
               </div>
-             
+            </div>
+
             <div>
               <label>¿Su madre se encuentra en los Estados Unidos?</label>
               <div class="inline" role="radiogroup" aria-label="Madre en EE. UU.">
