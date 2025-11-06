@@ -117,28 +117,28 @@
             <label for="PRESENT_OCCUPATION">Ocupación principal</label>
             <select id="PRESENT_OCCUPATION" name="PRESENT_OCCUPATION" class="small" required>
               <option value="">— Seleccione —</option>
-              <option value="A">AGRICULTURE</option>
-              <option value="AP">ARTIST/PERFORMER</option>
-              <option value="B">BUSINESS</option>
-              <option value="CM">COMMUNICATIONS</option>
-              <option value="CS">COMPUTER SCIENCE</option>
-              <option value="C">CULINARY/FOOD SERVICES</option>
-              <option value="ED">EDUCATION</option>
-              <option value="EN">ENGINEERING</option>
-              <option value="G">GOVERNMENT</option>
-              <option value="H">HOMEMAKER</option>
-              <option value="LP">LEGAL PROFESSION</option>
-              <option value="MH">MEDICAL/HEALTH</option>
-              <option value="M">MILITARY</option>
-              <option value="NS">NATURAL SCIENCE</option>
-              <option value="N">NOT EMPLOYED</option>
-              <option value="PS">PHYSICAL SCIENCES</option>
-              <option value="RV">RELIGIOUS VOCATION</option>
-              <option value="R">RESEARCH</option>
-              <option value="RT">RETIRED</option>
-              <option value="SS">SOCIAL SCIENCE</option>
-              <option value="S">STUDENT</option>
-              <option value="O">OTHER</option>
+              <option value="A">AGRICULTURA</option>
+              <option value="AP">ARTES / INTÉRPRETE</option>
+              <option value="B">NEGOCIOS / EMPRESARIAL</option>
+              <option value="CM">COMUNICACIONES</option>
+              <option value="CS">INFORMÁTICA / CIENCIAS DE LA COMPUTACIÓN</option>
+              <option value="C">CULINARIA / SERVICIOS DE ALIMENTOS</option>
+              <option value="ED">EDUCACIÓN</option>
+              <option value="EN">INGENIERÍA</option>
+              <option value="G">GOBIERNO / SERVICIO PÚBLICO</option>
+              <option value="H">AMA/O DE CASA</option>
+              <option value="LP">PROFESIÓN JURÍDICA</option>
+              <option value="MH">SALUD / SECTOR MÉDICO</option>
+              <option value="M">MILITAR</option>
+              <option value="NS">CIENCIAS NATURALES</option>
+              <option value="N">SIN EMPLEO</option>
+              <option value="PS">CIENCIAS FÍSICAS</option>
+              <option value="RV">VOCACIÓN RELIGIOSA</option>
+              <option value="R">INVESTIGACIÓN</option>
+              <option value="RT">JUBILADO/A</option>
+              <option value="SS">CIENCIAS SOCIALES</option>
+              <option value="S">ESTUDIANTE</option>
+              <option value="O">OTRO</option>
             </select>
           </div>
 
@@ -157,7 +157,8 @@
               <input type="text" id="EMP_ADDR1" name="EMP_ADDR1" maxlength="40" required />
             </div>
 
-            <div class="row">
+            <!-- Oculto -->
+            <div class="row" id="EMP_ADDR2_ROW" hidden>
               <label for="EMP_ADDR2">Calle y número (línea 2) <span class="note">(opcional)</span></label>
               <input type="text" id="EMP_ADDR2" name="EMP_ADDR2" maxlength="40" />
             </div>
@@ -203,15 +204,15 @@
               <label for="EMP_COUNTRY">País</label>
               <select id="EMP_COUNTRY" name="EMP_COUNTRY" required class="small">
                 <option value="">- Seleccione -</option>
-                <option value="BLZ">BELIZE</option>                
+                <option value="BLZ">BELICE</option>                
                 <option value="BOL">BOLIVIA</option>                
-                <option value="CAN">CANADA</option>
+                <option value="CAN">CANADÁ</option>
                 <option value="ECUA">ECUADOR</option>                
                 <option value="HOND">HONDURAS</option>                               
-                <option value="MEX">MEXICO</option>
-                <option value="PAN">PANAMA</option>
+                <option value="MEX">MÉXICO</option>
+                <option value="PAN">PANAMÁ</option>
                 <option value="PARA">PARAGUAY</option>
-                <option value="PERU">PERU</option>
+                <option value="PERU">PERÚ</option>
               </select>
             </div>
           </fieldset>
@@ -334,6 +335,9 @@
     }
 
     // Refs
+    const EMP_ADDR2_ROW = document.getElementById('EMP_ADDR2_ROW');
+    const EMP_ADDR2 = document.getElementById('EMP_ADDR2');
+
     const EMP_STATE = document.getElementById('EMP_STATE');
     const EMP_STATE_NA = document.getElementById('EMP_STATE_NA');
     const EMP_STATE_NA_HIDDEN = document.getElementById('EMP_STATE_NA_HIDDEN');
@@ -369,22 +373,21 @@
 
     // Inicialización
     (function init(){
+      // Línea 2: oculta y deshabilitada
+      if (EMP_ADDR2_ROW) EMP_ADDR2_ROW.hidden = true;
+      if (EMP_ADDR2) { EMP_ADDR2.disabled = true; EMP_ADDR2.value = ''; }
+
       // Estado: “No aplica” oculto y sin tilde
       if (EMP_STATE_NA) EMP_STATE_NA.checked = false;
       if (EMP_STATE) EMP_STATE.disabled = false;
       if (EMP_STATE_NA_HIDDEN) EMP_STATE_NA_HIDDEN.value = 'N';
 
       // Código postal: fila y “No aplica” ocultos; checkbox forzado marcado
-      EMP_POSTAL_ROW.hidden = true;
-      EMP_POSTAL_NA_WRAP.hidden = true;
-      EMP_POSTAL.disabled = true;
-      EMP_POSTAL.value = '';
-      EMP_POSTAL_NA.checked = true;             // tildada
-      EMP_POSTAL_NA_HIDDEN.value = 'Y';
-      // Persistir este estado forzado
-      saveField(EMP_POSTAL);
-      saveField(EMP_POSTAL_NA);
-      saveField(EMP_POSTAL_NA_HIDDEN);
+      if (EMP_POSTAL_ROW) EMP_POSTAL_ROW.hidden = true;
+      if (EMP_POSTAL_NA_WRAP) EMP_POSTAL_NA_WRAP.hidden = true;
+      if (EMP_POSTAL) { EMP_POSTAL.disabled = true; EMP_POSTAL.value = ''; }
+      if (EMP_POSTAL_NA) EMP_POSTAL_NA.checked = true;
+      if (EMP_POSTAL_NA_HIDDEN) EMP_POSTAL_NA_HIDDEN.value = 'Y';
 
       // Salario: conservar comportamiento de N/A visible
       const vSalaryNA = localStorage.getItem(storageKey(EMP_SALARY_NA));
@@ -393,7 +396,7 @@
       syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
     })();
 
-    // Listeners (postal N/A oculto, no necesita listener)
+    // Listener salario (postal y línea 2 ocultos, no requieren listeners)
     EMP_SALARY_NA.addEventListener('change', () => {
       syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
       saveField(EMP_SALARY_NA);
