@@ -46,7 +46,7 @@
       color: var(--text);
       background: var(--bg);
       background-image: var(--bg-grad);
-      overflow-x: hidden; /* evita desbordes horizontales en móvil */
+      overflow-x: hidden;
     }
 
     .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
@@ -58,9 +58,6 @@
       box-shadow: var(--shadow);
       backdrop-filter: saturate(120%) blur(4px);
     }
-
-    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
-    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
 
     fieldset {
       border: 1px solid var(--border);
@@ -77,10 +74,9 @@
 
     label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
     .row { display: grid; grid-template-columns: 1fr; gap: 10px; }
-    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
     .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
 
-    input[type="text"], input[type="email"], input[type="tel"], select {
+    input[type="text"], select {
       width: 100%;
       max-width: 560px;
       padding: 10px 12px;
@@ -92,13 +88,11 @@
       transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-    input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
+    input[type="text"]:focus, select:focus {
       border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
     }
 
     .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
-    .note { font-size:.92rem; color:var(--muted); }
-
     .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
     button {
       padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
@@ -108,43 +102,24 @@
     button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
     button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
 
-    .companion-item {
-      display:grid;
-      grid-template-columns: 1.2fr 1.2fr 1fr auto;
-      gap:10px;
-      align-items:end;
-    }
-    .companion-item > div { min-width: 0; } /* permite encoger y evita overflow */
-    .companion-item input,
-    .companion-item select { max-width:100%; width:100%; }
-    .companion-item button.remove { border-color:#ef4444; color:#ef4444; }
-    .companion-item button.remove:hover{ background:#ef44441a; }
-
     .hide { display:none !important; }
 
-    /* ---------- Responsivo para evitar desbordes en móvil ---------- */
-    @media (max-width: 840px){
-      .companion-item { grid-template-columns: 1fr 1fr; }
+    /* ----- Un campo por línea en cada acompañante ----- */
+    .companion-item{
+      display: grid;
+      grid-template-columns: 1fr;   /* SIEMPRE una sola columna */
+      gap: 10px;
     }
-    @media (max-width: 560px){
-      .wrap { padding: 0 12px; }
-      .grid-2 { grid-template-columns: 1fr; }
-      input[type="text"], input[type="email"], input[type="tel"], select { max-width:100%; }
-      .companion-item { grid-template-columns: 1fr; }
-      .companion-item button.remove { width:100%; }
-    }
+    .companion-item button.remove{ border-color:#ef4444; color:#ef4444; width: fit-content; }
+    .companion-item button.remove:hover{ background:#ef44441a; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      
-     
-
       <form id="ds160-travelcompanions" action="#" method="post" novalidate>
         <fieldset>
           <legend>Información de acompañantes de viaje</legend>
-          
 
           <!-- ¿Hay otras personas viajando con usted? -->
           <div class="row">
@@ -158,39 +133,22 @@
               </label>
             </div>
             <p class="help">
-              Responda “Sí” si viaja con familia, como parte de un tour organizado, o como parte de un grupo artístico o equipo deportivo.
-              No necesita listar personas que viajan con usted por motivos de empleo con el mismo empleador.
+              Responda “Sí” si viaja con familia, como parte de un tour organizado o similar.  
+              No liste colegas que viajan por el mismo empleador.
             </p>
           </div>
 
-          <!-- Sección visible solo si respuesta = Sí -->
+          <!-- Solo visible si la respuesta es Sí -->
           <div id="withCompanionsSection" class="row hide">
-            <fieldset>
-              <legend>Tipo de acompañamiento</legend>
-              <div class="row">
-                <label>¿Viaja como parte de un grupo u organización?</label>
-                <div class="inline" role="radiogroup" aria-label="Grupo u organización">
-                  <label style="font-weight:400;">
-                    <input type="radio" name="GroupTravel" value="Y" id="GroupY"> Sí
-                  </label>
-                  <label style="font-weight:400;">
-                    <input type="radio" name="GroupTravel" value="N" id="GroupN"> No
-                  </label>
-                </div>
-              </div>
-              <div id="groupNameBlock" class="row hide">
-                <label for="GROUP_NAME">Nombre del grupo u organización</label>
-                <input type="text" id="GROUP_NAME" name="GROUP_NAME" maxlength="120" placeholder="Ej. Tour Ejemplo / Orquesta ABC">
-              </div>
-            </fieldset>
+            <!-- *** SE ELIMINÓ / OCULTÓ COMPLETAMENTE "Tipo de acompañamiento" (grupo u organización) *** -->
 
-            <fieldset id="companionsListBlock" class="hide">
+            <fieldset id="companionsListBlock">
               <legend>Personas que viajan con usted</legend>
               <div id="companionsList" class="row"></div>
               <div class="inline" style="margin-top:8px;">
                 <button type="button" id="addCompanionBtn">Agregar acompañante</button>
               </div>
-              <p class="help">Si no viaja como parte de un grupo, liste a cada acompañante.</p>
+              <p class="help">Agregue cada acompañante con su relación.</p>
             </fieldset>
           </div>
         </fieldset>
@@ -262,50 +220,24 @@
     // DOM refs
     const form = document.getElementById(FORM_ID);
     const otherY = document.getElementById('OtherY');
-    theOtherN = document.getElementById('OtherN');
+    const otherN = document.getElementById('OtherN');
     const withCompanionsSection = document.getElementById('withCompanionsSection');
-
-    const groupY = document.getElementById('GroupY');
-    const groupN = document.getElementById('GroupN');
-    const groupNameBlock = document.getElementById('groupNameBlock');
-    const GROUP_NAME = document.getElementById('GROUP_NAME');
-
     const companionsListBlock = document.getElementById('companionsListBlock');
     const companionsList = document.getElementById('companionsList');
     const addCompanionBtn = document.getElementById('addCompanionBtn');
 
-    // Helpers dinámicos
-    function setRequired(el, on){ el.required = !!on; el.setCustomValidity(''); }
-
-    function updateMainVisibility(){
-      const show = otherY.checked;
-      withCompanionsSection.classList.toggle('hide', !show);
-
-      if (!show){
-        [groupY, groupN].forEach(r => { r.checked = false; saveField(r); });
-        GROUP_NAME.value = ""; saveField(GROUP_NAME);
-        setRequired(GROUP_NAME, false);
-        companionsList.innerHTML = "";
-        localStorage.setItem(COMP_COUNT_KEY, '0');
-        companionsListBlock.classList.add('hide');
-        groupNameBlock.classList.add('hide');
-      }
+    // Helpers
+    function saveCompanionCount(){
+      localStorage.setItem(COMP_COUNT_KEY, String(companionsList.children.length));
     }
-
-    function updateGroupVisibility(){
-      const isGroup = groupY.checked;
-      groupNameBlock.classList.toggle('hide', !isGroup);
-      companionsListBlock.classList.toggle('hide', isGroup);
-
-      setRequired(GROUP_NAME, isGroup);
-      if (!isGroup){
-        if (companionsList.children.length === 0) addCompanion();
-      } else {
-        companionsList.innerHTML = "";
-        localStorage.setItem(COMP_COUNT_KEY, '0');
-      }
+    function refreshRemoveButtons(){
+      const items = [...companionsList.children];
+      const hideRemove = items.length <= 1;
+      items.forEach(i => {
+        const b = i.querySelector('button.remove');
+        if (b) b.style.visibility = hideRemove ? 'hidden' : 'visible';
+      });
     }
-
     function relSelect(){
       const s = document.createElement('select');
       s.name = 'COMPANION_REL';
@@ -317,38 +249,34 @@
       });
       return s;
     }
-
     function makeCompanionItem(){
       const wrap = document.createElement('div');
       wrap.className = 'companion-item';
 
-      // Apellidos
+      // Apellido(s)
       const l1 = document.createElement('div');
-      const lab1 = document.createElement('label');
-      lab1.textContent = 'Apellido(s)';
+      const lab1 = document.createElement('label'); lab1.textContent = 'Apellido(s)';
       const in1 = document.createElement('input');
-      in1.type = 'text'; in1.name = 'COMPANION_SURNAME'; in1.maxLength = 60; in1.required = true;
+      in1.type='text'; in1.name='COMPANION_SURNAME'; in1.maxLength=60; in1.required = true;
       l1.appendChild(lab1); l1.appendChild(in1);
 
-      // Nombres
+      // Nombre(s)
       const l2 = document.createElement('div');
-      const lab2 = document.createElement('label');
-      lab2.textContent = 'Nombre(s)';
+      const lab2 = document.createElement('label'); lab2.textContent = 'Nombre(s)';
       const in2 = document.createElement('input');
-      in2.type = 'text'; in2.name = 'COMPANION_GIVEN'; in2.maxLength = 60; in2.required = true;
+      in2.type='text'; in2.name='COMPANION_GIVEN'; in2.maxLength=60; in2.required = true;
       l2.appendChild(lab2); l2.appendChild(in2);
 
       // Relación
       const l3 = document.createElement('div');
-      const lab3 = document.createElement('label');
-      lab3.textContent = 'Relación';
+      const lab3 = document.createElement('label'); lab3.textContent = 'Relación';
       const sel = relSelect();
       l3.appendChild(lab3); l3.appendChild(sel);
 
       // Eliminar
       const l4 = document.createElement('div');
       const btn = document.createElement('button');
-      btn.type = 'button'; btn.className = 'remove'; btn.textContent = 'Eliminar';
+      btn.type='button'; btn.className='remove'; btn.textContent='Eliminar';
       btn.addEventListener('click', () => {
         companionsList.removeChild(wrap);
         saveCompanionCount();
@@ -359,86 +287,60 @@
       wrap.appendChild(l1); wrap.appendChild(l2); wrap.appendChild(l3); wrap.appendChild(l4);
       return wrap;
     }
-
-    function refreshRemoveButtons(){
-      const items = [...companionsList.children];
-      const hideRemove = items.length <= 1;
-      items.forEach(i => {
-        const b = i.querySelector('button.remove');
-        if (b) b.style.visibility = hideRemove ? 'hidden' : 'visible';
-      });
-    }
-    function saveCompanionCount(){
-      localStorage.setItem(COMP_COUNT_KEY, String(companionsList.children.length));
-    }
     function addCompanion(){
       const item = makeCompanionItem();
       companionsList.appendChild(item);
       saveCompanionCount();
       refreshRemoveButtons();
     }
-    addCompanionBtn.addEventListener('click', addCompanion);
 
-    // Autosave
-    autosave(form);
-
-    // Restaurar radios y campos
-    form.querySelectorAll('input[type="radio"]').forEach(restoreField);
-    [GROUP_NAME].forEach(restoreField);
-
-    // Estado inicial tras restaurar
-    updateMainVisibility();
-    if (withCompanionsSection.classList.contains('hide') === false){
-      [groupY, groupN].forEach(restoreField);
-      updateGroupVisibility();
-
-      const count = parseInt(localStorage.getItem(COMP_COUNT_KEY) || '0', 10);
-      if (!groupY.checked){
-        const n = Math.max(1, isFinite(count) ? count : 1);
-        for (let i=0; i<n; i++) addCompanion();
+    function updateMainVisibility(){
+      const show = otherY.checked;
+      withCompanionsSection.classList.toggle('hide', !show);
+      if (!show){
+        companionsList.innerHTML = "";
+        saveCompanionCount();
+      } else {
+        if (companionsList.children.length === 0) addCompanion();
       }
     }
 
-    // Eventos de cambio
-    [otherY, theOtherN].forEach(r => r.addEventListener('change', () => { saveField(r); updateMainVisibility(); }));
-    [groupY, groupN].forEach(r => r.addEventListener('change', () => { saveField(r); updateGroupVisibility(); }));
+    // Autosave + restauración
+    autosave(form);
+    form.querySelectorAll('input[type="radio"]').forEach(restoreField);
 
-    // Validación
+    updateMainVisibility();
+    const count = parseInt(localStorage.getItem(COMP_COUNT_KEY) || '0', 10);
+    if (otherY.checked){
+      const n = Math.max(1, isFinite(count) ? count : 1);
+      for (let i=companionsList.children.length; i<n; i++) addCompanion();
+    }
+
+    addCompanionBtn.addEventListener('click', addCompanion);
+    [otherY, otherN].forEach(r => r.addEventListener('change', () => { saveField(r); updateMainVisibility(); }));
+
     function checkForm(){
       if (!otherY.checked) return form.checkValidity();
-
-      if (groupY.checked){
-        if (!GROUP_NAME.value.trim()){
-          GROUP_NAME.setCustomValidity('Indique el nombre del grupo u organización.');
-        } else {
-          GROUP_NAME.setCustomValidity('');
-        }
-        return form.checkValidity();
-      }
-
       const items = [...companionsList.children];
       if (items.length === 0){
-        alert('Agregue al menos un acompañante o marque que viaja como parte de un grupo.');
+        alert('Agregue al menos un acompañante.');
         return false;
       }
-      let ok = true;
       for (const item of items){
         const sname = item.querySelector('input[name="COMPANION_SURNAME"]');
         const gname = item.querySelector('input[name="COMPANION_GIVEN"]');
         const rel = item.querySelector('select[name="COMPANION_REL"]');
-        if (!sname.value.trim()) { sname.reportValidity(); sname.focus(); ok = false; break; }
-        if (!gname.value.trim()) { gname.reportValidity(); gname.focus(); ok = false; break; }
-        if (!rel.value) { rel.reportValidity(); rel.focus(); ok = false; break; }
+        if (!sname.value.trim()) { sname.reportValidity(); sname.focus(); return false; }
+        if (!gname.value.trim()) { gname.reportValidity(); gname.focus(); return false; }
+        if (!rel.value)          { rel.reportValidity();  rel.focus();  return false; }
       }
-      return ok && form.checkValidity();
+      return form.checkValidity();
     }
 
-    // Botones
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
     });
-
     document.getElementById('nextBtn').addEventListener('click', () => {
       if (!checkForm()){
         form.reportValidity();
