@@ -173,11 +173,13 @@
                 <label for="EMP_STATE">Estado</label>
                 <div class="inline">
                   <input type="text" id="EMP_STATE" name="EMP_STATE" maxlength="20" />
-                  <label class="inline" style="font-weight:400;">
-                    <input type="checkbox" id="EMP_STATE_NA" name="EMP_STATE_NA" checked> No aplica
+                  <!-- Opción No aplica oculta y sin tilde por default -->
+                  <label id="EMP_STATE_NA_WRAP" class="inline" style="font-weight:400;" hidden>
+                    <input type="checkbox" id="EMP_STATE_NA" name="EMP_STATE_NA"> No aplica
                   </label>
                 </div>
-                <input type="hidden" id="EMP_STATE_NA_HIDDEN" name="EMP_STATE_NA_HIDDEN" value="Y">
+                <!-- Valor por default: N (no aplica = NO) -->
+                <input type="hidden" id="EMP_STATE_NA_HIDDEN" name="EMP_STATE_NA_HIDDEN" value="N">
               </div>
             </div>
 
@@ -365,38 +367,30 @@
     const form = document.getElementById(FORM_ID);
     restoreForm(form);
 
-    // Inicialización con "Sí" por default en cuadros de elección (checkboxes) si no hay valor guardado
+    // Inicialización:
     (function initNAWithDefaults(){
-      // Estado/Provincia
-      const vStateNA = localStorage.getItem(storageKey(EMP_STATE_NA));
-      if (vStateNA !== null) EMP_STATE_NA.checked = (vStateNA === '1'); // usa lo guardado
-      else EMP_STATE_NA.checked = true; // "Sí" por default
-      EMP_STATE.disabled = EMP_STATE_NA.checked;
-      if (EMP_STATE_NA.checked) EMP_STATE.value = '';
-      EMP_STATE_NA_HIDDEN.value = EMP_STATE_NA.checked ? 'Y':'N';
+      // Estado/Provincia: opción "No aplica" oculta y sin tilde por default
+      EMP_STATE_NA.checked = false;          // sin tilde
+      EMP_STATE.disabled = false;            // habilitado
+      EMP_STATE_NA_HIDDEN.value = 'N';       // valor por default = N
+      // Si hubiera valores previos en storage que lo dejaron deshabilitado, forzamos habilitado
+      EMP_STATE.removeAttribute('disabled');
 
       // Postal
       const vPostalNA = localStorage.getItem(storageKey(EMP_POSTAL_NA));
       if (vPostalNA !== null) EMP_POSTAL_NA.checked = (vPostalNA === '1');
-      else EMP_POSTAL_NA.checked = true; // "Sí" por default
+      else EMP_POSTAL_NA.checked = true; // por defecto "No aplica" activado
       syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
 
       // Salario
       const vSalaryNA = localStorage.getItem(storageKey(EMP_SALARY_NA));
       if (vSalaryNA !== null) EMP_SALARY_NA.checked = (vSalaryNA === '1');
-      else EMP_SALARY_NA.checked = true; // "Sí" por default
+      else EMP_SALARY_NA.checked = true; // por defecto "No aplica" activado
       syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
     })();
 
-    // Escuchas de cambio para N/A
-    EMP_STATE_NA.addEventListener('change', () => {
-      EMP_STATE.disabled = EMP_STATE_NA.checked;
-      if (EMP_STATE_NA.checked) EMP_STATE.value = '';
-      EMP_STATE_NA_HIDDEN.value = EMP_STATE_NA.checked ? 'Y':'N';
-      saveField(EMP_STATE_NA);
-      saveField(EMP_STATE);
-      saveField(EMP_STATE_NA_HIDDEN);
-    });
+    // Escuchas de cambio para N/A visibles
+    // (EMP_STATE_NA permanece oculto; no se necesita listener para mostrar/ocultar)
     EMP_POSTAL_NA.addEventListener('change', () => {
       syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
       saveField(EMP_POSTAL_NA);
