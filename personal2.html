@@ -46,7 +46,7 @@
       color: var(--text);
       background: var(--bg);
       background-image: var(--bg-grad);
-      overflow-x: hidden; /* evita scroll horizontal accidental */
+      overflow-x: hidden;
     }
 
     .wrap { max-width: 920px; margin: 32px auto; padding: 0 16px; }
@@ -102,24 +102,17 @@
 
     /* ====== FIX RESPONSIVE PARA "NÚMEROS DE IDENTIFICACIÓN" ====== */
     @media (max-width: 520px){
-      /* Permitir salto de línea en los grupos que antes forzaban una sola fila */
       .inline.nowrap { flex-wrap: wrap; row-gap: 8px; }
-
-      /* Inputs de texto dentro de grupos en línea: que se ajusten y no fuercen overflow */
       .inline.nowrap input[type="text"]{
         flex: 1 1 100%;
         width: 100%;
         max-width: 100%;
         min-width: 0;
       }
-
-      /* Campos cortos del SSN conservan su tamaño compacto */
       .inline.nowrap input.small{
         flex: 0 0 64px;
         width: 64px;
       }
-
-      /* Quitar margen lateral del label "No aplica" cuando baje a otra línea */
       .inline.nowrap label{ margin-left: 0 !important; }
     }
   </style>
@@ -127,56 +120,13 @@
 <body>
   <div class="wrap">
     <div class="card">
-    <header>
-    <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>    
-        <div class="subtle">Sección: <strong>Información personal 2</strong></div>  
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Información personal 2</strong></div>
       </header>
 
       <form id="ds160-personal2" action="#" method="post">
-        <fieldset>
-          <legend>Información personal 2</legend>
-
-          <!-- Nacionalidad (forzada a MÉXICO y luego oculta) -->
-          <div class="row" id="row_nationality">
-            <label for="APP_NATL">País/Región de origen (nacionalidad)</label>
-            <select id="APP_NATL" name="APP_NATL" required>
-              <option value="">- Seleccione -</option>
-            </select>
-          </div>
-
-          <!-- Otra nacionalidad (default No y oculto) -->
-          <div class="row" id="row_otherNationality">
-            <label>¿Cuenta o ha contado con alguna otra nacionalidad distinta a la indicada arriba en “Nacionalidad”?</label>
-            <div class="inline" role="radiogroup" aria-label="Otra nacionalidad">
-              <label style="font-weight:400;"><input type="radio" name="OtherNationality" value="Y" id="OtherNationalityY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="OtherNationality" value="N" id="OtherNationalityN"> No</label>
-            </div>
-
-            <div id="otherNationalitySection" class="row" hidden>
-              <div class="row">
-                <label for="OTHER_NATL">Otra nacionalidad</label>
-                <select id="OTHER_NATL" name="OTHER_NATL"></select>
-              </div>
-              <p class="help">Indique cada otra nacionalidad que tenga o haya tenido.</p>
-            </div>
-          </div>
-
-          <!-- Residente permanente (default No y oculto) -->
-          <div class="row" id="row_permResident">
-            <label>¿Es residente permanente de algún país/región diferente a su país/región de origen (nacionalidad) indicado arriba?</label>
-            <div class="inline" role="radiogroup" aria-label="Residente permanente en otro país/región">
-              <label style="font-weight:400;"><input type="radio" name="PermResidentOtherCountry" value="Y" id="PermResidentY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="PermResidentOtherCountry" value="N" id="PermResidentN"> No</label>
-            </div>
-
-            <div id="permResSection" class="row" hidden>
-              <div class="row">
-                <label for="PERM_RES_COUNTRY">País/Región donde es residente permanente</label>
-                <select id="PERM_RES_COUNTRY" name="PERM_RES_COUNTRY"></select>
-              </div>
-            </div>
-          </div>
-        </fieldset>
+        <!-- *** Se eliminó el fieldset "Información personal 2" *** -->
 
         <fieldset>
           <legend>Números de identificación</legend>
@@ -241,12 +191,6 @@
       el.style.display = 'none';
       el.hidden = true;
       el.setAttribute('aria-hidden','true');
-    }
-    function showEl(el) {
-      if (!el) return;
-      el.style.display = '';
-      el.hidden = false;
-      el.removeAttribute('aria-hidden');
     }
     function isHiddenLike(el) {
       if (!el) return false;
@@ -313,54 +257,7 @@
       el.value = el.value.replace(/\D/g,'').slice(0, max);
     }
 
-    // ---- selects de país ----
-    const COUNTRIES = [
-      "- Seleccione -",
-      "ARGENTINA","BELICE","BOLIVIA",
-      "CANADÁ","CHILE","COLOMBIA","COSTA RICA","CUBA",
-      "DOMINICA","ECUADOR","EL SALVADOR",
-      "ESTADOS UNIDOS","GUATEMALA","HONDURAS","MÉXICO",
-      "NICARAGUA","PANAMÁ","PARAGUAY","PERÚ",
-      "URUGUAY","UZBEKISTÁN","VANUATU","VENEZUELA"
-    ];
-    function fillCountrySelect(selectEl) {
-      if (!selectEl) return;
-      selectEl.innerHTML = "";
-      COUNTRIES.forEach((name, i) => {
-        const opt = document.createElement('option');
-        opt.value = i === 0 ? "" : name;
-        opt.textContent = name;
-        selectEl.appendChild(opt);
-      });
-    }
-    function forceMexico(selectEl) {
-      if (!selectEl) return;
-      const mxOpt = Array.from(selectEl.options).find(o => {
-        const t = (o.textContent || '').trim().toUpperCase();
-        return t === 'MÉXICO' || t === 'MEXICO';
-      });
-      if (mxOpt) {
-        selectEl.value = mxOpt.value || mxOpt.textContent;
-      }
-    }
-
-    // ---- dependencias dinámicas ----
-    function toggleSection(radioY, radioN, section, requiredEls = []) {
-      const update = () => {
-        const show = radioY.checked;
-        section.hidden = !show;
-        requiredEls.forEach(el => {
-          el.required = show;
-          if (!show) {
-            el.value = '';
-            el.setCustomValidity('');
-          }
-        });
-      };
-      [radioY, radioN].forEach(r => r.addEventListener('change', update));
-      update();
-      return update;
-    }
+    // ---- dependencias dinámicas útiles ----
     function toggleNA(textInput, checkbox) {
       const update = () => {
         if (checkbox.checked) {
@@ -401,21 +298,18 @@
         ssn3.setCustomValidity('');
         helpEl.hidden = true;
 
-        // Si marcó "No aplica", SSN no es obligatorio
         if (naCheckbox.checked || ssn1.disabled) return;
 
         const a = ssn1.value.trim();
         const b = ssn2.value.trim();
         const c = ssn3.value.trim();
 
-        // Si dejó todo vacío SIN marcar "No aplica", error
         if (a === '' && b === '' && c === '') {
           ssn3.setCustomValidity('Requerido.');
           helpEl.hidden = false;
           return;
         }
 
-        // Si escribió algo, debe estar completo 3-2-4
         const ok = (a.length === 3 && b.length === 2 && c.length === 4);
         if (!ok) {
           ssn3.setCustomValidity('SSN incompleto.');
@@ -461,22 +355,6 @@
     // ---- DOM refs ----
     const form = document.getElementById('ds160-personal2');
 
-    const selNatl        = document.getElementById('APP_NATL');
-    const selOtherNatl   = document.getElementById('OTHER_NATL');
-    const selPermCountry = document.getElementById('PERM_RES_COUNTRY');
-
-    const rowNat         = document.getElementById('row_nationality');
-    const rowOtherNat    = document.getElementById('row_otherNationality');
-    const rowPermRes     = document.getElementById('row_permResident');
-
-    const otherY         = document.getElementById('OtherNationalityY');
-    const otherN         = document.getElementById('OtherNationalityN');
-    const otherSection   = document.getElementById('otherNationalitySection');
-
-    const permY          = document.getElementById('PermResidentY');
-    const permN          = document.getElementById('PermResidentN');
-    const permSection    = document.getElementById('permResSection');
-
     const natId          = document.getElementById('APP_NATIONAL_ID');
     const natIdNA        = document.getElementById('APP_NATIONAL_ID_NA');
     const curpNaLabel    = document.getElementById('curp_na_label');
@@ -494,18 +372,7 @@
     const nextBtn        = document.getElementById('nextBtn');
 
     // ---- inicialización ----
-    [selNatl, selOtherNatl, selPermCountry].forEach(fillCountrySelect);
-
     restoreForm(form);
-
-    forceMexico(selNatl);
-    hideEl(rowNat);
-
-    if (otherN) otherN.checked = true;
-    hideEl(rowOtherNat);
-
-    if (permN) permN.checked = true;
-    hideEl(rowPermRes);
 
     if (natIdNA) {
       natIdNA.checked = false;
@@ -520,13 +387,11 @@
       el.addEventListener('blur',  validateSSNGroup);
     });
 
-    const refreshOther = toggleSection(otherY, otherN, otherSection, [selOtherNatl]);
-    const refreshPerm  = toggleSection(permY,  permN,  permSection,  [selPermCountry]);
-    const refreshNat   = toggleNA(natId, natIdNA);
-    const refreshTax   = toggleNA(taxId, taxIdNA);
-    const refreshSSN   = toggleNA3([ssn1, ssn2, ssn3], ssnNA, validateSSNGroup);
+    const refreshNat = toggleNA(natId, natIdNA);
+    const refreshTax = toggleNA(taxId, taxIdNA);
+    const refreshSSN = toggleNA3([ssn1, ssn2, ssn3], ssnNA, validateSSNGroup);
 
-    refreshOther(); refreshPerm(); refreshNat(); refreshTax(); refreshSSN(); validateSSNGroup();
+    refreshNat(); refreshTax(); refreshSSN(); validateSSNGroup();
 
     autosave(form);
 
