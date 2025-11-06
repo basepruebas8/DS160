@@ -106,8 +106,6 @@
 <body>
   <div class="wrap">
     <div class="card">
-      
-      </header>
 
       <form id="ds160-work1" action="#" method="post" novalidate>
         <fieldset>
@@ -173,27 +171,28 @@
                 <label for="EMP_STATE">Estado</label>
                 <div class="inline">
                   <input type="text" id="EMP_STATE" name="EMP_STATE" maxlength="20" />
-                  <!-- Opción No aplica oculta y sin tilde por default -->
+                  <!-- “No aplica” oculto -->
                   <label id="EMP_STATE_NA_WRAP" class="inline" style="font-weight:400;" hidden>
                     <input type="checkbox" id="EMP_STATE_NA" name="EMP_STATE_NA"> No aplica
                   </label>
                 </div>
-                <!-- Valor por default: N (no aplica = NO) -->
                 <input type="hidden" id="EMP_STATE_NA_HIDDEN" name="EMP_STATE_NA_HIDDEN" value="N">
               </div>
             </div>
 
             <div class="grid-2">
-              <div>
+              <!-- Código postal oculto junto con su “No aplica” -->
+              <div id="EMP_POSTAL_ROW" hidden>
                 <label for="EMP_POSTAL">Código postal</label>
                 <div class="inline">
                   <input type="text" id="EMP_POSTAL" name="EMP_POSTAL" maxlength="10" disabled />
-                  <label class="inline" style="font-weight:400;">
+                  <label id="EMP_POSTAL_NA_WRAP" class="inline" style="font-weight:400;" hidden>
                     <input type="checkbox" id="EMP_POSTAL_NA" name="EMP_POSTAL_NA" checked> No aplica
                   </label>
                 </div>
                 <input type="hidden" id="EMP_POSTAL_NA_HIDDEN" name="EMP_POSTAL_NA_HIDDEN" value="Y">
               </div>
+
               <div>
                 <label for="EMP_PHONE">Teléfono</label>
                 <input type="tel" id="EMP_PHONE" name="EMP_PHONE" maxlength="15" required />
@@ -283,11 +282,11 @@
   </div>
 
   <script>
-    // Navegación solicitada
+    // Navegación
     const NEXT_URL = new URL('personal10.html', window.location.href).href;
     const BACK_URL = new URL('personal8.html', window.location.href).href;
 
-    // Persistencia en localStorage (igual lógica del archivo de viaje)
+    // Persistencia
     const STORAGE_PREFIX = 'ds160:';
     const FORM_ID = 'ds160-work1';
 
@@ -310,7 +309,7 @@
       try {
         const key = storageKey(field);
         const v = localStorage.getItem(key);
-        if (v == null) return; // respeta defaults (campos limpios / checks "Sí")
+        if (v == null) return;
         if (field.type === 'radio') {
           field.checked = (field.value === v);
         } else if (field.type === 'checkbox') {
@@ -334,13 +333,15 @@
       form.querySelectorAll('input,select,textarea').forEach(restoreField);
     }
 
-    // N/A helpers
+    // Refs
     const EMP_STATE = document.getElementById('EMP_STATE');
     const EMP_STATE_NA = document.getElementById('EMP_STATE_NA');
     const EMP_STATE_NA_HIDDEN = document.getElementById('EMP_STATE_NA_HIDDEN');
 
+    const EMP_POSTAL_ROW = document.getElementById('EMP_POSTAL_ROW');
     const EMP_POSTAL = document.getElementById('EMP_POSTAL');
     const EMP_POSTAL_NA = document.getElementById('EMP_POSTAL_NA');
+    const EMP_POSTAL_NA_WRAP = document.getElementById('EMP_POSTAL_NA_WRAP');
     const EMP_POSTAL_NA_HIDDEN = document.getElementById('EMP_POSTAL_NA_HIDDEN');
 
     const EMP_MONTHLY_SALARY = document.getElementById('EMP_MONTHLY_SALARY');
@@ -359,44 +360,40 @@
       hidden.value = on ? 'Y' : 'N';
     }
 
-    // Marca qué inputs serían requeridos si se habilitan
-    EMP_POSTAL.setAttribute('data-required-when-enabled', '1');
+    // Requeridos si se habilitan
     EMP_MONTHLY_SALARY.setAttribute('data-required-when-enabled', '1');
 
-    // Restaurar todo primero (para mantener datos tras cerrar/abrir)
+    // Restaurar
     const form = document.getElementById(FORM_ID);
     restoreForm(form);
 
-    // Inicialización:
-    (function initNAWithDefaults(){
-      // Estado/Provincia: opción "No aplica" oculta y sin tilde por default
-      EMP_STATE_NA.checked = false;          // sin tilde
-      EMP_STATE.disabled = false;            // habilitado
-      EMP_STATE_NA_HIDDEN.value = 'N';       // valor por default = N
-      // Si hubiera valores previos en storage que lo dejaron deshabilitado, forzamos habilitado
-      EMP_STATE.removeAttribute('disabled');
+    // Inicialización
+    (function init(){
+      // Estado: “No aplica” oculto y sin tilde
+      if (EMP_STATE_NA) EMP_STATE_NA.checked = false;
+      if (EMP_STATE) EMP_STATE.disabled = false;
+      if (EMP_STATE_NA_HIDDEN) EMP_STATE_NA_HIDDEN.value = 'N';
 
-      // Postal
-      const vPostalNA = localStorage.getItem(storageKey(EMP_POSTAL_NA));
-      if (vPostalNA !== null) EMP_POSTAL_NA.checked = (vPostalNA === '1');
-      else EMP_POSTAL_NA.checked = true; // por defecto "No aplica" activado
-      syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
+      // Código postal: fila y “No aplica” ocultos; checkbox forzado marcado
+      EMP_POSTAL_ROW.hidden = true;
+      EMP_POSTAL_NA_WRAP.hidden = true;
+      EMP_POSTAL.disabled = true;
+      EMP_POSTAL.value = '';
+      EMP_POSTAL_NA.checked = true;             // tildada
+      EMP_POSTAL_NA_HIDDEN.value = 'Y';
+      // Persistir este estado forzado
+      saveField(EMP_POSTAL);
+      saveField(EMP_POSTAL_NA);
+      saveField(EMP_POSTAL_NA_HIDDEN);
 
-      // Salario
+      // Salario: conservar comportamiento de N/A visible
       const vSalaryNA = localStorage.getItem(storageKey(EMP_SALARY_NA));
       if (vSalaryNA !== null) EMP_SALARY_NA.checked = (vSalaryNA === '1');
-      else EMP_SALARY_NA.checked = true; // por defecto "No aplica" activado
+      else EMP_SALARY_NA.checked = true;
       syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
     })();
 
-    // Escuchas de cambio para N/A visibles
-    // (EMP_STATE_NA permanece oculto; no se necesita listener para mostrar/ocultar)
-    EMP_POSTAL_NA.addEventListener('change', () => {
-      syncNA(EMP_POSTAL_NA, EMP_POSTAL, EMP_POSTAL_NA_HIDDEN);
-      saveField(EMP_POSTAL_NA);
-      saveField(EMP_POSTAL);
-      saveField(EMP_POSTAL_NA_HIDDEN);
-    });
+    // Listeners (postal N/A oculto, no necesita listener)
     EMP_SALARY_NA.addEventListener('change', () => {
       syncNA(EMP_SALARY_NA, EMP_MONTHLY_SALARY, EMP_SALARY_NA_HIDDEN);
       saveField(EMP_SALARY_NA);
