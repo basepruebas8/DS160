@@ -106,6 +106,20 @@
         <fieldset>
           <legend>Padre</legend>
 
+          <!-- NOMBRE COMPLETO DEL PADRE -->
+          <div class="grid-2">
+            <div>
+              <label for="FATHER_SURNAME">Apellidos del padre</label>
+              <input type="text" id="FATHER_SURNAME" name="FATHER_SURNAME" maxlength="33" required aria-required="true" placeholder="EJ.: HERNÁNDEZ GARCÍA" />
+              <p class="help">(ej.: Hernández García)</p>
+            </div>
+            <div>
+              <label for="FATHER_GIVEN_NAME">Nombres del padre</label>
+              <input type="text" id="FATHER_GIVEN_NAME" name="FATHER_GIVEN_NAME" maxlength="33" required aria-required="true" placeholder="EJ.: JUAN MIGUEL" />
+              <p class="help">(ej.: Juan Miguel)</p>
+            </div>
+          </div>
+
           <div class="grid-2">
             <div>
               <label>Fecha de nacimiento del padre</label>
@@ -156,6 +170,20 @@
         <!-- MADRE -->
         <fieldset>
           <legend>Madre</legend>
+
+          <!-- NOMBRE COMPLETO DE LA MADRE -->
+          <div class="grid-2">
+            <div>
+              <label for="MOTHER_SURNAME">Apellidos de la madre</label>
+              <input type="text" id="MOTHER_SURNAME" name="MOTHER_SURNAME" maxlength="33" required aria-required="true" placeholder="EJ.: HERNÁNDEZ GARCÍA" />
+              <p class="help">(ej.: Hernández García)</p>
+            </div>
+            <div>
+              <label for="MOTHER_GIVEN_NAME">Nombres de la madre</label>
+              <input type="text" id="MOTHER_GIVEN_NAME" name="MOTHER_GIVEN_NAME" maxlength="33" required aria-required="true" placeholder="EJ.: JUANITA MIGUEL" />
+              <p class="help">(ej.: Juanita Miguel)</p>
+            </div>
+          </div>
 
           <div class="grid-2">
             <div>
@@ -222,7 +250,7 @@
             <div class="inline" style="margin-top:8px;">
               <button type="button" id="AddRelativeBtn">Agregar pariente</button>
             </div>
-            <p class="note">Agregue cada pariente inmediato. Los campos de <em>Parentesco</em> y <em>Estatus en EE. UU.</em> son obligatorios.</p>
+            <p class="note">Agregue cada pariente inmediato. Los campos de <em>Parentesco</em> y <em>Estatus en EE. U.</em> son obligatorios.</p>
           </div>
         </fieldset>
 
@@ -277,7 +305,6 @@
       if (t.matches('input[type="text"], textarea')){
         const start = t.selectionStart, end = t.selectionEnd;
         t.value = t.value.toUpperCase();
-        // Restaurar cursor
         if (typeof start === 'number' && typeof end === 'number'){
           t.setSelectionRange(start, end);
         }
@@ -330,7 +357,6 @@
       if (e.target && e.target.name === 'FATHER_IN_US') updateFather();
       if (e.target && e.target.name === 'MOTHER_IN_US') updateMother();
       if (e.target && e.target.name === 'US_IMMEDIATE_RELATIVE') updateRelatives();
-      // Persistir en cualquier cambio
       persistNow();
     });
 
@@ -423,6 +449,14 @@
       });
 
       const data = {
+        // Nombres padres
+        FATHER_SURNAME: getVal('FATHER_SURNAME'),
+        FATHER_GIVEN_NAME: getVal('FATHER_GIVEN_NAME'),
+
+        MOTHER_SURNAME: getVal('MOTHER_SURNAME'),
+        MOTHER_GIVEN_NAME: getVal('MOTHER_GIVEN_NAME'),
+
+        // Fechas y radios
         FATHER_DOB_DAY: getVal('FATHER_DOB_DAY'),
         FATHER_DOB_MON: getVal('FATHER_DOB_MON'),
         FATHER_DOB_YEAR: getVal('FATHER_DOB_YEAR'),
@@ -445,24 +479,34 @@
 
     function applyData(data){
       const setSelect = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+      const setInput  = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
       const setRadio  = (name, val) => {
         if (!val) return;
         const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
         if (el) el.checked = true;
       };
 
+      // Nombres padres
+      setInput('FATHER_SURNAME',     data.FATHER_SURNAME);
+      setInput('FATHER_GIVEN_NAME',  data.FATHER_GIVEN_NAME);
+      setInput('MOTHER_SURNAME',     data.MOTHER_SURNAME);
+      setInput('MOTHER_GIVEN_NAME',  data.MOTHER_GIVEN_NAME);
+
+      // Padre
       setSelect('FATHER_DOB_DAY',  data.FATHER_DOB_DAY);
       setSelect('FATHER_DOB_MON',  data.FATHER_DOB_MON);
       setSelect('FATHER_DOB_YEAR', data.FATHER_DOB_YEAR);
       setRadio ('FATHER_IN_US',    data.FATHER_IN_US);
       setSelect('FATHER_US_STATUS',data.FATHER_US_STATUS);
 
+      // Madre
       setSelect('MOTHER_DOB_DAY',  data.MOTHER_DOB_DAY);
       setSelect('MOTHER_DOB_MON',  data.MOTHER_DOB_MON);
       setSelect('MOTHER_DOB_YEAR', data.MOTHER_DOB_YEAR);
       setRadio ('MOTHER_IN_US',    data.MOTHER_IN_US);
       setSelect('MOTHER_US_STATUS',data.MOTHER_US_STATUS);
 
+      // Parientes
       setRadio('US_IMMEDIATE_RELATIVE', data.US_IMMEDIATE_RELATIVE);
       setRadio('OTHER_RELATIVES_US',    data.OTHER_RELATIVES_US);
 
@@ -492,7 +536,6 @@
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) {
-          // Estado inicial: radios ya vienen en NO
           updateFather(); updateMother(); updateRelatives();
           return;
         }
@@ -541,10 +584,8 @@
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      // Validación nativa del navegador
       if (!form.reportValidity()) return;
 
-      // Validaciones personalizadas
       if (!radiosOk()){
         alert('Por favor, responda todas las preguntas con opciones SÍ/NO.');
         return;
@@ -554,7 +595,6 @@
         return;
       }
 
-      // Guardar estado y navegar
       persistNow();
       window.location.href = NEXT_URL;
     });
