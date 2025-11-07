@@ -87,6 +87,8 @@
       outline: none;
       transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      /* Visual: mostrar en mayúsculas */
+      text-transform: uppercase;
     }
     input[type="text"]:focus, select:focus {
       border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
@@ -170,6 +172,42 @@
     const FORM_ID = 'ds160-travelcompanions';
     const COMP_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':COMP_COUNT';
 
+    // Regla: SOLO MAYÚSCULAS (letras españolas) y ESPACIOS
+    const UPPER_ALLOWED_RE = /[^A-ZÁÉÍÓÚÜÑ\s]/g; // lo que NO está permitido
+    const UPPER_PATTERN = "[A-ZÁÉÍÓÚÜÑ ]+";
+    const UPPER_TITLE = "Solo letras mayúsculas (A–Z, Á, É, Í, Ó, Ú, Ü, Ñ) y espacios";
+
+    function toUpperSanitized(v){
+      // Normaliza a mayúsculas y elimina caracteres no permitidos
+      return v.toLocaleUpperCase('es-MX').replace(UPPER_ALLOWED_RE, '');
+    }
+
+    function attachUpperBehavior(el){
+      try{
+        // Visual
+        el.style.textTransform = 'uppercase';
+        // Validación nativa
+        el.setAttribute('pattern', UPPER_PATTERN);
+        el.setAttribute('title', UPPER_TITLE);
+        // En tiempo real
+        el.addEventListener('input', () => {
+          const before = el.value;
+          const after = toUpperSanitized(before);
+          if (before !== after) {
+            const start = el.selectionStart, end = el.selectionEnd;
+            el.value = after;
+            // intenta conservar la posición del cursor
+            const diff = before.length - after.length;
+            const ns = Math.max(0, (start ?? after.length) - diff);
+            const ne = Math.max(0, (end ?? after.length) - diff);
+            try { el.setSelectionRange(ns, ne); } catch(_) {}
+          }
+        }, { passive: true });
+        // Fuerza conversión inicial si trae datos del storage / autocompletado
+        el.value = toUpperSanitized(el.value || "");
+      }catch(_){}
+    }
+
     function storageKey(field) {
       const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
       return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
@@ -179,7 +217,9 @@
         if (field.type === 'radio') {
           if (field.checked) localStorage.setItem(storageKey(field), field.value);
         } else {
-          localStorage.setItem(storageKey(field), field.value);
+          // Guardar ya normalizado si es texto
+          const val = field.type === 'text' ? toUpperSanitized(field.value) : field.value;
+          localStorage.setItem(storageKey(field), val);
         }
       } catch(e) {}
     }
@@ -188,8 +228,12 @@
         const key = storageKey(field);
         const v = localStorage.getItem(key);
         if (v == null) return;
-        if (field.type === 'radio') field.checked = (field.value === v);
-        else field.value = v;
+        if (field.type === 'radio') {
+          field.checked = (field.value === v);
+        } else {
+          // Restaurar y sanear si es texto
+          field.value = field.type === 'text' ? toUpperSanitized(v) : v;
+        }
       } catch(e) {}
     }
     function autosave(form) {
@@ -257,6 +301,9 @@
       const lab1 = document.createElement('label'); lab1.textContent = 'Apellido(s)';
       const in1 = document.createElement('input');
       in1.type='text'; in1.name='COMPANION_SURNAME'; in1.maxLength=60; in1.required = true;
+      in1.setAttribute('pattern', UPPER_PATTERN);
+      in1.setAttribute('title', UPPER_TITLE);
+      attachUpperBehavior(in1);
       l1.appendChild(lab1); l1.appendChild(in1);
 
       // Nombre(s)
@@ -264,6 +311,9 @@
       const lab2 = document.createElement('label'); lab2.textContent = 'Nombre(s)';
       const in2 = document.createElement('input');
       in2.type='text'; in2.name='COMPANION_GIVEN'; in2.maxLength=60; in2.required = true;
+      in2.setAttribute('pattern', UPPER_PATTERN);
+      in2.setAttribute('title', UPPER_TITLE);
+      attachUpperBehavior(in2);
       l2.appendChild(lab2); l2.appendChild(in2);
 
       // Relación
@@ -307,6 +357,12 @@
     // Autosave + restauración
     autosave(form);
     form.querySelectorAll('input[type="radio"]').forEach(restoreField);
+
+    // Aplicar restricción de MAYÚSCULAS a todos los inputs de texto existentes
+    document.querySelectorAll('input[type="text"]').forEach(attachUpperBehavior);
+
+    // Restaurar valores (y normalizar si vienen del storage)
+    form.querySelectorAll('input[type="text"], select, textarea').forEach(restoreField);
 
     updateMainVisibility();
     const count = parseInt(localStorage.getItem(COMP_COUNT_KEY) || '0', 10);
