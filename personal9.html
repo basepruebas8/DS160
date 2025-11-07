@@ -271,7 +271,6 @@
 
         <div class="actions">
           <button type="button" id="backBtn">Regresar</button>
-          <button type="button" id="saveBtn">Guardar</button>
           <button type="button" id="nextBtn" class="primary">Siguiente</button>
         </div>
 
@@ -423,10 +422,6 @@
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
-    });
-    document.getElementById('saveBtn').addEventListener('click', () => {
-      form.querySelectorAll('input,select,textarea').forEach(saveField);
-      alert('Guardado localmente.');
     });
     document.getElementById('nextBtn').addEventListener('click', () => {
       if (!checkForm()){
