@@ -123,6 +123,9 @@
 
     .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
 
+    /* Texto blanco para el botón “Regresar” */
+    #backLink, #backLink:visited, #backLink:hover, #backLink:active, #backLink:focus { color: #ffffff; }
+
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -703,7 +706,8 @@
     });
 
     // Restaurar radios y base
-    restoreForm(form);
+    const formEl = document.getElementById('ds160-work-previous');
+    restoreForm(formEl);
 
     // Construir listas (respeta conteos guardados)
     initEmployment();
@@ -717,7 +721,7 @@
     updateEducationSection();
 
     // Validación de duplicados
-    form.addEventListener('change', (e) => {
+    formEl.addEventListener('change', (e) => {
       const t = e.target;
       if (!t || !(t instanceof HTMLElement)) return;
       if (t.id?.startsWith('EMPLOYER_NAME_') || t.id?.startsWith('EMP_FROM_') || t.id?.startsWith('EMP_TO_')){
@@ -734,7 +738,7 @@
 
     backLink.addEventListener('click', () => {
       // Guardado rápido (sin bloquear la navegación)
-      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      formEl.querySelectorAll('input,select,textarea').forEach(saveField);
     });
 
     function checkForm(){
@@ -752,20 +756,20 @@
         }
         if (!validateDuplicatesEducation()) return false;
       }
-      return form.checkValidity();
+      return formEl.checkValidity();
     }
 
     nextLink.addEventListener('click', (e) => {
       // Si el formulario no pasa validación, cancelamos la navegación del enlace
       if (!checkForm()){
         e.preventDefault();
-        form.reportValidity();
-        const firstInvalid = form.querySelector(':invalid');
+        formEl.reportValidity();
+        const firstInvalid = formEl.querySelector(':invalid');
         if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
         return;
       }
-      form.querySelectorAll('input,select,textarea').forEach(saveField);
-      // No hacemos nada más: el navegador seguirá el href del enlace.
+      formEl.querySelectorAll('input,select,textarea').forEach(saveField);
+      // El navegador seguirá el href del enlace.
     });
   </script>
 </body>
