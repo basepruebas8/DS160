@@ -112,10 +112,7 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <header>
-       
-    
-      </header>
+      <header></header>
 
       <form id="ds160-work-edu-3" action="#" method="post" novalidate>
         <fieldset>
@@ -271,7 +268,7 @@
         }
         if (t.matches('input,select,textarea')) saveField(t);
       }, true);
-      // Manejar pegado (por si el navegador no dispara input adecuadamente)
+      // Manejar pegado
       form.addEventListener('paste', (e) => {
         const t = e.target;
         if (t && (t.matches('input[type="text"], textarea'))) {
@@ -490,7 +487,23 @@
     updateSkills();
     updateInsurgent();
 
-    // Validación mínima antes de avanzar
+    // --- MOSTRAR SOLO LO DE LA IMAGEN ---
+    (function showOnlyImageFields(){
+      const fs = document.querySelector('#ds160-work-edu-3 fieldset');
+      if (!fs) return;
+      const langRow = fs.querySelector('label[for="LANGUAGE_0"]')?.closest('.row');
+      const travelRow = fs.querySelector('input[name="COUNTRIES_VISITED_IND"]')?.closest('.row');
+
+      [...fs.children].forEach(el => {
+        const keep = (el === langRow || el === travelRow);
+        el.hidden = !keep;
+      });
+
+      const actions = document.querySelector('#ds160-work-edu-3 .actions');
+      if (actions) actions.hidden = true;
+    })();
+
+    // Validación mínima antes de avanzar (no visible, se mantiene por compatibilidad)
     function checkForm(){
       const firstLang = document.getElementById('LANGUAGE_0');
       if (firstLang && !firstLang.value.trim()){
@@ -504,7 +517,7 @@
       return form.checkValidity();
     }
 
-    // Navegación
+    // Navegación (botones ocultos)
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
