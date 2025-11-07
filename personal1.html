@@ -33,7 +33,8 @@
         --card: #0f172a; --text: #e5e7eb; --muted: #94a3b8; --border: #233044;
         --accent: #60a5fa; --accent-600: #3b82f6; --accent-700: #2563eb; --ring:#60a5fa;
         --shadow: 0 12px 36px rgba(0,0,0,.35);
-    }}
+      }
+    }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;line-height:1.45;color:var(--text);background:var(--bg);background-image:var(--bg-grad)}
@@ -76,10 +77,14 @@
     .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
     progress{width:260px;height:14px;border-radius:8px}
 
-    /* FIX móvil: permitir salto en la fila de fecha */
-    @media (max-width: 520px){
+    /* Fecha (día/mes/año en una sola línea, sin desbordar) */
+    .dob-row{display:flex;gap:10px;align-items:center}
+    .dob-row > *{flex:1 1 0;min-width:0}
+    .dob-row select,.dob-row input{width:100%}
+    @media (max-width:520px){
       .inline.nowrap{flex-wrap:wrap}
       .inline.nowrap > *{min-width:0}
+      .dob-row{gap:8px}
     }
   </style>
 </head>
@@ -170,8 +175,8 @@
 
           <div class="row">
             <label>Fecha</label>
-            <div class="inline nowrap">
-              <select id="DOB_DAY" name="DOB_DAY" aria-label="Día" style="min-width:70px;" required>
+            <div class="dob-row">
+              <select id="DOB_DAY" name="DOB_DAY" aria-label="Día" required>
                 <option value=""></option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
                 <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
                 <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
@@ -179,11 +184,11 @@
                 <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
                 <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
               </select>
-              <select id="DOB_MONTH" name="DOB_MONTH" aria-label="Mes" style="min-width:90px;" required>
+              <select id="DOB_MONTH" name="DOB_MONTH" aria-label="Mes" required>
                 <option value=""></option><option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option><option>MAY</option><option>JUN</option>
                 <option>JUL</option><option>AUG</option><option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
               </select>
-              <input type="text" id="DOB_YEAR" name="DOB_YEAR" maxlength="4" placeholder="YYYY" style="width:80px;" inputmode="numeric" pattern="^\d{4}$" data-uppercase required />
+              <input type="text" id="DOB_YEAR" name="DOB_YEAR" maxlength="4" placeholder="YYYY" inputmode="numeric" pattern="^\d{4}$" data-uppercase required />
             </div>
           </div>
 
