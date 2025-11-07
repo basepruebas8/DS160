@@ -84,7 +84,6 @@
       width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
       outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-    /* VISUAL: mostrar el texto en MAYÚSCULAS */
     input[type="text"], textarea { text-transform: uppercase; }
     textarea { min-height: 90px; resize: vertical; }
     input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
@@ -231,7 +230,6 @@
         } else if (field.type === 'checkbox') {
           localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
         } else {
-          // GUARDAR EN MAYÚSCULAS
           localStorage.setItem(storageKey(field), (field.value || '').toUpperCase());
         }
       } catch(e) {}
@@ -254,21 +252,15 @@
       form.addEventListener('input', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
-        if (t.matches('input[type="text"], textarea')) {
-          // FORZAR MAYÚSCULAS EN TIEMPO REAL
-          t.value = t.value.toUpperCase();
-        }
+        if (t.matches('input[type="text"], textarea')) t.value = t.value.toUpperCase();
         if (t.matches('input,select,textarea')) saveField(t);
       }, true);
       form.addEventListener('change', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
-        if (t.matches('input[type="text"], textarea')) {
-          t.value = t.value.toUpperCase();
-        }
+        if (t.matches('input[type="text"], textarea')) t.value = t.value.toUpperCase();
         if (t.matches('input,select,textarea')) saveField(t);
       }, true);
-      // Manejar pegado
       form.addEventListener('paste', (e) => {
         const t = e.target;
         if (t && (t.matches('input[type="text"], textarea'))) {
@@ -487,23 +479,22 @@
     updateSkills();
     updateInsurgent();
 
-    // --- MOSTRAR SOLO LO DE LA IMAGEN ---
+    // --- MOSTRAR SOLO LO DE LA IMAGEN + BOTONES VISIBLES ---
     (function showOnlyImageFields(){
       const fs = document.querySelector('#ds160-work-edu-3 fieldset');
       if (!fs) return;
       const langRow = fs.querySelector('label[for="LANGUAGE_0"]')?.closest('.row');
       const travelRow = fs.querySelector('input[name="COUNTRIES_VISITED_IND"]')?.closest('.row');
-
       [...fs.children].forEach(el => {
         const keep = (el === langRow || el === travelRow);
         el.hidden = !keep;
       });
-
+      // Asegurar que los botones se vean
       const actions = document.querySelector('#ds160-work-edu-3 .actions');
-      if (actions) actions.hidden = true;
+      if (actions) actions.hidden = false;
     })();
 
-    // Validación mínima antes de avanzar (no visible, se mantiene por compatibilidad)
+    // Validación (se mantiene)
     function checkForm(){
       const firstLang = document.getElementById('LANGUAGE_0');
       if (firstLang && !firstLang.value.trim()){
@@ -517,7 +508,7 @@
       return form.checkValidity();
     }
 
-    // Navegación (botones ocultos)
+    // Navegación
     document.getElementById('backBtn').addEventListener('click', () => {
       form.querySelectorAll('input,select,textarea').forEach(saveField);
       window.location.assign(BACK_URL);
