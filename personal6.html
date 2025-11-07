@@ -360,7 +360,8 @@
             <button type="button" id="btnAddSocial">Agregar otra</button>
           </div>
 
-          <div class="row" style="margin-top:10px;">
+          <!-- 🔻 Oculto: bloque que aparece en la captura (pregunta Sí/No) -->
+          <div class="row" style="margin-top:10px;" hidden>
             <label>¿Desea proporcionar información sobre su presencia en otros sitios o aplicaciones que haya usado en los últimos cinco (5) años para crear o compartir contenido?</label>
             <div class="inline" role="radiogroup" aria-label="Otros sitios o apps">
               <label style="font-weight:400;"><input type="radio" name="AddSocial" id="AddSocialY" value="Y"> Sí</label>
@@ -383,7 +384,8 @@
             <button type="button" id="btnAddOtherSocial">Agregar otro</button>
           </div>
 
-          <div class="help">
+          <!-- 🔻 Oculto: texto de ayuda de la captura -->
+          <div class="help" hidden>
             Puede incluir aplicaciones y sitios donde colabora, comparte información o interactúa con otras personas. No incluya cuentas de uso compartido de una empresa u organización.
           </div>
         </fieldset>
@@ -468,7 +470,7 @@
     }
     function toggleSectionByRadios(radioY, radioN, section, requiredEls = []) {
       const update = () => {
-        const show = radioY.checked;
+        const show = radioY && radioY.checked;
         section.hidden = !show;
         requiredEls.forEach(el => { el.required = show; if (!show) { el.value = ''; el.setCustomValidity(''); } });
       };
