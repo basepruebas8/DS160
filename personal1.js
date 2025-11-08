@@ -1,28 +1,26 @@
-// personal1.js — único archivo
-// - Imágenes visibles/funcionales (IndexedDB, listar/ver/descargar/eliminar, progreso, refrescar).
+// personal1.js — ÚNICO ARCHIVO
+// Cumple con:
+// - "Imágenes" visible y funcional (guardar local con IndexedDB, listar/ver/descargar/eliminar, progreso, refrescar).
 // - Autocompleta "Nombre completo en alfabeto nativo" = Nombres + Apellidos (campo oculto).
-// - "Otros nombres" y "Telecódigo" forzados a "No" y ocultos.
-// - "Estado/Provincia" visible; oculta sólo "No aplica" (igual para "Nombre nativo").
+// - Fuerza "Otros nombres" y "Telecódigo" a "No" y oculta sus bloques.
+// - "Estado/Provincia" visible; oculta únicamente su casilla "No aplica" (igual para "Nombre nativo").
 // - Guarda/restaura en sessionStorage.
-// - FUSIONA al JSON maestro sessionStorage["ds160-all"]:
-//     master.personal1 = { ...campos... }
-//     master.personal1Images = [ {id,name,size,type,createdAt} ]
-//     master.app_surname, master.app_given_name, master.full_name (para Apps Script).
-// - "Siguiente" valida requeridos visibles; si falta algo, no avanza.
-// - Navega a personal2.html con query string construido desde el normalizado.
+// - Fusiona esta página en el JSON maestro sessionStorage["ds160-all"].forms["ds160-personal1"].
+//   Además, define en raíz: app_surname, app_given_name, full_name, e incorpora metadatos de imágenes en master.images.
+// - "Siguiente" valida requeridos visibles; si falta algo, no avanza; si pasa, guarda, fusiona y navega a personal2.html con querystring.
 
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  // ====== Claves ======
-  const MASTER_KEY = 'ds160-all';               // JSON maestro (un solo objeto)
-  const SECTION_KEY = 'personal1';              // nombre de sección
-  const FORM_KEY = 'ds160-personal1-state-v3';  // estado normalizado de esta página
+  // ====== Constantes ======
+  const MASTER_KEY = 'ds160-all';
+  const PAGE_KEY   = 'ds160-personal1';
+  const FORM_KEY   = 'ds160-personal1-state-v3';
   const FORM_KEY_RAW = 'ds160-personal1-raw-v3';
   const IMAGES_META_KEY = 'ds160-personal1-images-meta-v1';
-  const NEXT_PAGE = 'personal2.html';
+  const NEXT_PAGE  = 'personal2.html';
 
-  // ====== Helpers ======
+  // ====== Helpers genéricos ======
   const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
 
   const hide = el => { if (!el) return; el.style.display='none'; el.hidden=true; el.setAttribute('aria-hidden','true'); };
@@ -55,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Valida requeridos visibles (incluye radios/checkbox)
   function isFormValid(form){
     let valid = true;
     const seen = new Set();
@@ -77,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return valid;
   }
 
+  // ====== Recolección de datos ======
   function collectRaw(form){
     const data = {};
     Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return data;
   }
 
-  // Normaliza: valores simples; radios=valor; checkbox único=boolean; checkbox múltiple=array
+  // Normalizado: radios=valor; checkbox único=boolean; checkbox múltiple=array; resto=valor
   function collectNormalized(form){
     const out = {};
     const groups = {};
@@ -122,14 +122,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // ====== Alias amigables para Apps Script (nivel de sección) ======
-    const given = (document.getElementById('APP_GIVEN_NAME')?.value||'').trim();
-    const surname = (document.getElementById('APP_SURNAME')?.value||'').trim();
-    out.app_given_name = given;   // snake_case sin # para extractNamesDeep
+    // Alias amigables para el backend (.gs) en esta sección:
+    const given   = (document.getElementById('APP_GIVEN_NAME')?.value || '').trim();
+    const surname = (document.getElementById('APP_SURNAME')?.value || '').trim();
+    out.app_given_name = given;
     out.app_surname    = surname;
     out.full_name      = [given, surname].filter(Boolean).join(' ').trim();
 
-    const native = (document.getElementById('APP_FULL_NAME_NATIVE')?.value||'').trim();
+    const native = (document.getElementById('APP_FULL_NAME_NATIVE')?.value || '').trim();
     if (native) out.app_full_name_native = native;
 
     return out;
@@ -137,10 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveFormState(form){
     try{
-      const raw = collectRaw(form);
-      const norm = collectNormalized(form);
-      sessionStorage.setItem(FORM_KEY_RAW, JSON.stringify(raw));
-      sessionStorage.setItem(FORM_KEY, JSON.stringify(norm));
+      sessionStorage.setItem(FORM_KEY_RAW, JSON.stringify(collectRaw(form)));
+      sessionStorage.setItem(FORM_KEY, JSON.stringify(collectNormalized(form)));
     }catch(e){ console.warn('saveFormState', e); }
   }
 
@@ -185,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
 
-      // re-disparar dependencias
+      // Re-disparar dependencias
       Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
         el.dispatchEvent(new Event('change', {bubbles:true}));
         el.dispatchEvent(new Event('input', {bubbles:true}));
@@ -204,7 +202,47 @@ document.addEventListener('DOMContentLoaded', function () {
     return params;
   }
 
-  // ====== IndexedDB imágenes ======
+  // ====== Maestro (ds160-all) ======
+  function readMaster(){
+    try{ const s=sessionStorage.getItem(MASTER_KEY); return s? JSON.parse(s):{}; }catch{ return {}; }
+  }
+  function writeMaster(obj){
+    try{ sessionStorage.setItem(MASTER_KEY, JSON.stringify(obj)); }catch{}
+  }
+  function readImagesMeta(){
+    try{ const s=sessionStorage.getItem(IMAGES_META_KEY); return s? JSON.parse(s):[]; }catch{ return []; }
+  }
+
+  function mergeIntoMaster(){
+    const form = document.getElementById('ds160-personal1');
+    if (!form) return;
+
+    const section = collectNormalized(form);
+    const imgs = readImagesMeta();
+
+    const given   = section.app_given_name || '';
+    const surname = section.app_surname || '';
+    const full    = section.full_name || [given, surname].filter(Boolean).join(' ').trim();
+
+    const master = readMaster();
+    master.forms = master.forms || {};
+    master.forms[PAGE_KEY] = section;
+
+    // Nombres en raíz (ayuda al .gs a nombrar carpeta)
+    if (surname) master.app_surname = surname;
+    if (given)   master.app_given_name = given;
+    if (full)    master.full_name = full;
+
+    // Unificar imágenes (metadatos) por página
+    const withPage = imgs.map(m => ({...m, __page: PAGE_KEY}));
+    const prev = Array.isArray(master.images) ? master.images : [];
+    master.images = prev.filter(x => x.__page !== PAGE_KEY).concat(withPage);
+
+    master.__updatedAt = new Date().toISOString();
+    writeMaster(master);
+  }
+
+  // ====== IndexedDB Imágenes ======
   const IDB = (function(){
     const DB_NAME='ds160-images-v1', STORE='images';
     function open(){ return new Promise((res,rej)=>{
@@ -258,63 +296,32 @@ document.addEventListener('DOMContentLoaded', function () {
       const items = await IDB.listAll();
       const meta = items.map(({id,name,size,type,createdAt})=>({id,name,size,type,createdAt}));
       sessionStorage.setItem(IMAGES_META_KEY, JSON.stringify(meta));
-      // fusiona al maestro también
-      mergeIntoMaster(); // asegura que personal1Images se suba
+      mergeIntoMaster(); // subir cambios al maestro
     }catch{}
   }
 
-  // ====== FUSIÓN AL JSON MAESTRO ======
-  function readMaster(){
-    try{ const s=sessionStorage.getItem(MASTER_KEY); return s? JSON.parse(s):{}; }catch{ return {}; }
-  }
-  function writeMaster(obj){
-    try{ sessionStorage.setItem(MASTER_KEY, JSON.stringify(obj)); }catch{}
-  }
-  function readImagesMeta(){
-    try{ const s=sessionStorage.getItem(IMAGES_META_KEY); return s? JSON.parse(s):[]; }catch{ return []; }
-  }
-  function mergeIntoMaster(){
-    const form = document.getElementById('ds160-personal1');
-    if (!form) return;
-    const section = collectNormalized(form);
-    const imgs = readImagesMeta();
-
-    const given = section.app_given_name || '';
-    const surname = section.app_surname || '';
-    const full = section.full_name || [given, surname].filter(Boolean).join(' ').trim();
-
-    const master = readMaster();
-    master[SECTION_KEY] = section;
-    master[SECTION_KEY+'Images'] = imgs;
-
-    // Claves planas para Apps Script (extractNamesDeep)
-    if (surname) master.app_surname = surname;
-    if (given)   master.app_given_name = given;
-    if (full)    master.full_name = full;
-
-    master.__updatedAt = new Date().toISOString();
-    writeMaster(master);
-  }
-
-  // ====== Reglas UI ======
+  // ====== Reglas UI y comportamientos ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
 
-    // Forzar "No" y ocultar bloques
+    // Otros nombres -> No + ocultar
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN){ otherNamesN.checked=true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const otherLabel = Array.from(document.querySelectorAll('label')).find(l=>/¿Ha utilizado otros nombres\?/i.test(l.textContent||''));
     if (otherLabel){ hide(otherLabel.closest('.row')||otherLabel.parentElement); }
 
+    // Telecódigo -> No + ocultar
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN){ telecodeN.checked=true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
     const teleLabel = Array.from(document.querySelectorAll('label')).find(l=>/telecódigo/i.test(l.textContent||''));
     if (teleLabel){ hide(teleLabel.closest('.row')||teleLabel.parentElement); }
 
-    // Autocompletar nombre nativo y ocultar sólo "No aplica"
+    // Nombres / Apellidos
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
+
+    // Nombre completo en alfabeto nativo
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
     if (fullNative){
       const row = fullNative.closest('.row') || document.getElementById('row_full_name_native');
@@ -322,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const g = (given?.value||'').trim();
         const s = (surname?.value||'').trim();
         fullNative.value = [g,s].filter(Boolean).join(' ').trim();
-        mergeIntoMaster(); // mantener maestro fresco cuando editan nombre
+        mergeIntoMaster(); // mantener nombres al día
       };
       given?.addEventListener('input', updateFull);
       given?.addEventListener('change', updateFull);
@@ -338,10 +345,10 @@ document.addEventListener('DOMContentLoaded', function () {
           || document.querySelector('label[for="APP_FULL_NAME_NATIVE_NA"]')?.parentElement || null;
         if (naContainer) hide(naContainer);
       }
-      if (row) hide(row); // ocultar el campo en sí
+      if (row) hide(row); // ocultar el campo
     }
 
-    // Estado/Provincia visible y sin "No aplica"
+    // Estado/Provincia visible; ocultar sólo "No aplica"
     const state = document.getElementById('POB_STATE');
     if (state){
       const stateRow = state.closest('.row'); if (stateRow) show(stateRow);
@@ -359,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // País: fijar MÉXICO si existe
+    // País de nacimiento: fijar MÉXICO si existe
     const setMexicoOn = sel=>{
       if (!sel) return;
       const mxOpt = Array.from(sel.options).find(o=>{
@@ -383,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (legend && /Imágenes/i.test(legend.textContent||'')) show(fs);
     });
 
-    // Traducciones de selects
+    // Traducciones de selects visibles
     const gender = document.getElementById('APP_GENDER');
     if (gender){
       gender.innerHTML = '<option value="">- Seleccione -</option>'
@@ -406,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // ====== Restaurar y primer merge ======
+  // ====== Restaurar estado y primer merge ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (form) { restoreFormState(form); mergeIntoMaster(); }
@@ -424,9 +431,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function setProgress(pct, txt){ if (prog) prog.value=Math.max(0,Math.min(100,pct||0)); if (progText) progText.textContent=txt||''; }
     function setStatus(msg){ if (status) status.textContent = msg||''; }
-
     function clearListUI(){ if (listWrap) listWrap.innerHTML='<div class="muted">Sin archivos.</div>'; }
-
     function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
     async function renderList(){
@@ -505,12 +510,11 @@ document.addEventListener('DOMContentLoaded', function () {
       form.reset();
       sessionStorage.removeItem(FORM_KEY);
       sessionStorage.removeItem(FORM_KEY_RAW);
-      // Disparar eventos
       Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
         el.dispatchEvent(new Event('change',{bubbles:true}));
         el.dispatchEvent(new Event('input',{bubbles:true}));
       });
-      mergeIntoMaster(); // sección queda vacía en el maestro
+      mergeIntoMaster(); // limpia sección en maestro
     });
   });
 
@@ -522,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', ev => ev.preventDefault());
 
+    // Captura para asegurar merge antes de navegación
     nextBtn.addEventListener('click', ev=>{
       ev.preventDefault();
       removeRequiredFromHidden(form);
@@ -530,16 +535,16 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
       saveFormState(form);
-      mergeIntoMaster(); // <-- FUSIÓN ANTES DE NAVEGAR
+      mergeIntoMaster(); // <-- FUSIÓN CLAVE
 
       const params = buildQueryFromForm(form);
       const nextUrl = new URL(NEXT_PAGE, window.location.href);
       nextUrl.search = params.toString();
       window.location.href = nextUrl.href;
-    }, true); // captura para asegurar que corre antes de cambios externos
+    }, true);
   });
 
-  // ====== Auto-guardado/merge cada 3s ======
+  // ====== Auto-guardado y auto-merge cada 3s ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
@@ -558,5 +563,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 3000);
   });
 
-  console.info('personal1.js listo. Maestro:', MASTER_KEY, 'Sección:', SECTION_KEY);
+  console.info('personal1.js listo. Maestro=', MASTER_KEY, 'Sección=', PAGE_KEY);
 });
