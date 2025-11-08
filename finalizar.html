@@ -37,7 +37,7 @@
 
   <script>
     // ⇩⇩⇩ AJUSTA ESTO ⇩⇩⇩
-    const API_URL = "https://script.google.com/macros/s/AKfycbxlLCee8xXM_atBbOnNnya8YGUjABzDhX5ZkH3-scS10G058z213lq79JOzAxvVzgPj/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwaf68sUhJ51b6aO3CmyUagT3lPi3kN_wWN5AwrKLh9EzieSTIoMDWQjYeTzzXQeLvH/exec";
     const API_KEY = "Epicoco_visa_2_0"; // = SECRET en Code.gs
     // ⇧⇧⇧ AJUSTA ESTO ⇧⇧⇧
 
@@ -70,7 +70,6 @@
     }
 
     document.getElementById('ping').addEventListener('click', ()=>{
-      // Abre ping en pestaña nueva: útil para validar que el WebApp responde
       const url = API_URL + '?secret=' + encodeURIComponent(API_KEY) + '&action=ping&traceId=' + encodeURIComponent(newTraceId());
       window.open(url, '_blank', 'noopener');
     });
@@ -85,12 +84,10 @@
           throw new Error('storage.js no cargó o DS160.exportAll() no existe');
         }
 
-        const payload = await DS160.exportAll(); // Debe incluir forms + images/base64
-        // Sella traceId en el payload para correlacionar con logs del servidor
+        const payload = await DS160.exportAll(); // forms + images/base64
         payload.__traceId = traceId;
         payload.__clientDebug = { ts: Date.now(), ua: navigator.userAgent };
 
-        // Vista rápida en consola
         console.log('payload preview', {
           traceId,
           keys: Object.keys(payload || {}),
@@ -102,8 +99,8 @@
         fData.value = JSON.stringify(payload);
 
         log('Enviando... (revisa la pestaña nueva)');
-        form.submit(); // verás la respuesta del Apps Script en una pestaña nueva
-        log('Enviado. Si hay problema, busca el traceId en la hoja "DS160-logs".');
+        form.submit();
+        log('Enviado. Busca el traceId en la hoja "DS160-logs".');
       }catch(e){
         log('Error: ' + (e && e.message ? e.message : e));
       }
