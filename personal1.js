@@ -5,13 +5,19 @@
 // - Radios "Otros nombres" y "Telecódigo" forzados a "No" y ocultos.
 // - "Estado/Provincia" visible; sólo se oculta su casilla "No aplica" (igual para "Nombre nativo").
 // - Guarda/restaura en sessionStorage.
+// - Guarda JSON NORMALIZADO de todo el formulario (incluye radios/checkboxes como valores/arrays).
 // - "Siguiente" valida sólo campos requeridos visibles; si falta algo, no avanza.
-// - Navega a personal2.html con query string.
+// - Navega a personal2.html con query string (usa el JSON normalizado).
+// - Corrige campos sin name (usa #id como clave de respaldo).
+// - Evita duplicar listeners (único DOMContentLoaded).
+// - Guarda metadatos de imágenes en sessionStorage (sin blobs).
 
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  const FORM_KEY = 'ds160-personal1-state-v2';
+  const FORM_KEY = 'ds160-personal1-state-v3';       // JSON normalizado
+  const FORM_KEY_RAW = 'ds160-personal1-raw-v3';     // crudo p/restauración fina
+  const IMAGES_META_KEY = 'ds160-personal1-images-meta-v1';
   const NEXT_PAGE = 'personal2.html';
 
   const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
@@ -31,6 +37,13 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   // ---------- utilidades ----------
+
+  function keyOf(el) {
+    const nm = (el && el.name || '').trim();
+    if (nm) return nm;
+    const id = (el && el.id || '').trim();
+    return id ? `#${id}` : '';
+  }
 
   function isHiddenLike(el) {
     if (!el) return false;
@@ -65,15 +78,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const type = (el.type || '').toLowerCase();
 
       if (type === 'radio' || type === 'checkbox') {
-        const groupName = el.name;
+        const groupName = el.name || keyOf(el);
         if (!groupName || seenRadioNames.has(groupName)) return;
         seenRadioNames.add(groupName);
 
-        const groupInputs = Array.from(form.querySelectorAll(`input[name="${groupName}"]`));
-        const anyCheckedVisible = groupInputs.some(inputEl => {
-          if (isHiddenLike(inputEl)) return false;
-          return !!inputEl.checked;
-        });
+        const sel = groupName.startsWith('#')
+          ? `input#${groupName.slice(1)}`
+          : `input[name="${groupName}"]`;
+        const groupInputs = Array.from(form.querySelectorAll(sel));
+        const anyCheckedVisible = groupInputs.some(inputEl => !isHiddenLike(inputEl) && !!inputEl.checked);
 
         if (!anyCheckedVisible) valid = false;
         return;
@@ -86,18 +99,74 @@ document.addEventListener('DOMContentLoaded', function () {
     return valid;
   }
 
+  // Recolecta estado CRUDO (por control)
+  function collectRaw(form) {
+    const data = {};
+    Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
+      const k = keyOf(el);
+      if (!k) return;
+      const t = (el.type || '').toLowerCase();
+      if (t === 'checkbox' || t === 'radio') {
+        data[k + '::' + (el.id || '')] = !!el.checked;
+      } else if (t !== 'file') {
+        data[k] = el.value;
+      }
+      // files se manejan en IndexedDB
+    });
+    return data;
+  }
+
+  // Recolecta estado NORMALIZADO (por campo/grupo)
+  function collectNormalized(form) {
+    const out = {};
+    const groups = {};
+
+    Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
+      const k = keyOf(el);
+      if (!k) return;
+      const t = (el.type || '').toLowerCase();
+
+      // files: se ignoran aquí (blobs) -> sólo metadatos por separado
+      if (t === 'file') return;
+
+      if (t === 'radio') {
+        const g = el.name || k;
+        (groups[g] = groups[g] || { type: 'radio', inputs: [] }).inputs.push(el);
+        return;
+      }
+      if (t === 'checkbox') {
+        const g = el.name || k;
+        (groups[g] = groups[g] || { type: 'checkbox', inputs: [] }).inputs.push(el);
+        return;
+      }
+
+      out[k] = el.value;
+    });
+
+    Object.keys(groups).forEach(gk => {
+      const g = groups[gk];
+      if (g.type === 'radio') {
+        const checked = g.inputs.find(i => i.checked);
+        out[gk] = checked ? (checked.value || 'on') : '';
+      } else {
+        const values = g.inputs.filter(i => i.checked).map(i => i.value || 'on');
+        if (g.inputs.length === 1) {
+          out[gk] = g.inputs[0].checked; // boolean para checkbox único
+        } else {
+          out[gk] = values; // array para múltiples
+        }
+      }
+    });
+
+    return out;
+  }
+
   function saveFormState(form) {
     try {
-      const data = {};
-      Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
-        if (!el.name) return;
-        if (el.type === 'checkbox' || el.type === 'radio') {
-          data[el.name + '::' + (el.id || '')] = el.checked;
-        } else {
-          data[el.name] = el.value;
-        }
-      });
-      sessionStorage.setItem(FORM_KEY, JSON.stringify(data));
+      const raw = collectRaw(form);
+      const norm = collectNormalized(form);
+      sessionStorage.setItem(FORM_KEY_RAW, JSON.stringify(raw));
+      sessionStorage.setItem(FORM_KEY, JSON.stringify(norm));
     } catch (e) {
       console.warn('saveFormState', e);
     }
@@ -105,25 +174,76 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function restoreFormState(form) {
     try {
-      const raw = sessionStorage.getItem(FORM_KEY);
-      if (!raw) return;
-      const data = JSON.parse(raw);
+      const normStr = sessionStorage.getItem(FORM_KEY);
+      const rawStr = sessionStorage.getItem(FORM_KEY_RAW);
 
+      if (normStr) {
+        const norm = JSON.parse(normStr);
+        Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
+          const nameKey = (el.name || '').trim();
+          const idKey = (el.id ? `#${el.id}` : '');
+          const t = (el.type || '').toLowerCase();
+
+          let val;
+          if (nameKey && Object.prototype.hasOwnProperty.call(norm, nameKey)) val = norm[nameKey];
+          else if (idKey && Object.prototype.hasOwnProperty.call(norm, idKey)) val = norm[idKey];
+          else return;
+
+          if (t === 'radio') {
+            el.checked = (el.value || 'on') === String(val);
+          } else if (t === 'checkbox') {
+            if (Array.isArray(val)) {
+              el.checked = val.includes(el.value || 'on');
+            } else if (typeof val === 'boolean') {
+              el.checked = val;
+            } else {
+              el.checked = (el.value || 'on') === String(val);
+            }
+          } else if (t !== 'file') {
+            el.value = val;
+          }
+        });
+      } else if (rawStr) {
+        const data = JSON.parse(rawStr);
+        Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
+          const k = keyOf(el);
+          if (!k) return;
+          const t = (el.type || '').toLowerCase();
+
+          if (t === 'checkbox' || t === 'radio') {
+            const key = k + '::' + (el.id || '');
+            if (key in data) el.checked = !!data[key];
+          } else if (t !== 'file') {
+            if (k in data) el.value = data[k];
+          }
+        });
+      }
+
+      // Disparar eventos para recalcular dependencias
       Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
-        if (!el.name) return;
-        if (el.type === 'checkbox' || el.type === 'radio') {
-          const key = el.name + '::' + (el.id || '');
-          if (key in data) el.checked = !!data[key];
-        } else {
-          if (el.name in data) el.value = data[el.name];
-        }
-
         el.dispatchEvent(new Event('change', { bubbles: true }));
         el.dispatchEvent(new Event('input', { bubbles: true }));
       });
     } catch (e) {
       console.warn('restoreFormState', e);
     }
+  }
+
+  // Construir querystring desde el JSON normalizado
+  function buildQueryFromForm(form) {
+    const norm = collectNormalized(form);
+    const params = new URLSearchParams();
+
+    Object.entries(norm).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+      if (Array.isArray(v)) {
+        v.forEach(val => params.append(k, String(val)));
+      } else {
+        params.append(k, String(v));
+      }
+    });
+
+    return params;
   }
 
   // ---------- IndexedDB para imágenes ----------
@@ -135,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function open() {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(DB_NAME, 1);
-        req.onupgradeneeded = e => {
+        req.onupgradeneeded = () => {
           const db = req.result;
           if (!db.objectStoreNames.contains(STORE)) {
             const os = db.createObjectStore(STORE, { keyPath: 'id' });
@@ -155,9 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let res;
         try {
           res = fn(store, tx);
-        } catch (err) {
-          reject(err); return;
-        }
+        } catch (err) { reject(err); return; }
         tx.oncomplete = () => resolve(res);
         tx.onerror = () => reject(tx.error);
         tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
@@ -178,24 +296,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function listAll() {
-      return withStore('readonly', (store) => {
-        return new Promise((resolve, reject) => {
-          const items = [];
-          const req = store.openCursor();
-          req.onsuccess = e => {
-            const cursor = e.target.result;
-            if (cursor) {
-              items.push(cursor.value);
-              cursor.continue();
-            } else {
-              // ordenar por fecha desc
-              items.sort((a, b) => b.createdAt - a.createdAt);
-              resolve(items);
-            }
-          };
-          req.onerror = () => reject(req.error);
-        });
-      });
+      return withStore('readonly', (store) => new Promise((resolve, reject) => {
+        const items = [];
+        const req = store.openCursor();
+        req.onsuccess = e => {
+          const cursor = e.target.result;
+          if (cursor) { items.push(cursor.value); cursor.continue(); }
+          else {
+            items.sort((a, b) => b.createdAt - a.createdAt);
+            resolve(items);
+          }
+        };
+        req.onerror = () => reject(req.error);
+      }));
     }
 
     function getById(id) {
@@ -219,10 +332,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function formatDate(ts) {
+    try { return new Date(ts).toLocaleString(); } catch { return ''; }
+  }
+
+  async function updateImagesMetaCache() {
     try {
-      const d = new Date(ts);
-      return d.toLocaleString();
-    } catch { return ''; }
+      const items = await IDB.listAll();
+      const meta = items.map(({ id, name, size, type, createdAt }) => ({ id, name, size, type, createdAt }));
+      sessionStorage.setItem(IMAGES_META_KEY, JSON.stringify(meta));
+    } catch {}
   }
 
   // ---------- reglas UI ----------
@@ -354,7 +472,6 @@ document.addEventListener('DOMContentLoaded', function () {
       const cont =
         hiddenCountry.closest('.row') ||
         document.getElementById('row_pob_country_container');
-      // no ocultar por defecto; mantener visible el país
       if (cont && cont.classList && cont.classList.contains('hide-red')) hide(cont);
     }
 
@@ -428,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const items = await IDB.listAll();
       if (!items || items.length === 0) {
         clearListUI();
+        await updateImagesMetaCache();
         return;
       }
       const rows = items.map(rec => {
@@ -454,6 +572,8 @@ document.addEventListener('DOMContentLoaded', function () {
           <tbody>${rows}</tbody>
         </table>
       `;
+
+      await updateImagesMetaCache();
     }
 
     function escapeHtml(str) {
@@ -503,9 +623,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    if (listWrap) {
-      listWrap.addEventListener('click', handleActionClick);
-    }
+    if (listWrap) listWrap.addEventListener('click', handleActionClick);
 
     if (uploadBtn) {
       uploadBtn.addEventListener('click', async () => {
@@ -561,7 +679,8 @@ document.addEventListener('DOMContentLoaded', function () {
     clearBtn.addEventListener('click', () => {
       form.reset();
       sessionStorage.removeItem(FORM_KEY);
-      // Disparar eventos para recalcular dependencias
+      sessionStorage.removeItem(FORM_KEY_RAW);
+      // mantener imágenes, solo se limpia el formulario
       Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
         el.dispatchEvent(new Event('change', { bubbles: true }));
         el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -594,13 +713,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // 3. Guardar estado
       saveFormState(form);
 
-      // 4. Construir params a partir de FormData
-      const fd = new FormData(form);
-
-      const params = new URLSearchParams();
-      for (const pair of fd.entries()) {
-        params.append(pair[0], pair[1]);
-      }
+      // 4. Construir params a partir del JSON normalizado
+      const params = buildQueryFromForm(form);
 
       // 5. Navegar a personal2.html con query string
       const nextUrl = new URL(NEXT_PAGE, window.location.href);
@@ -619,18 +733,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let lastSnapshot = '';
     setInterval(() => {
       try {
-        const values = {};
-        Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
-          if (!el.name) return;
-          if (el.type === 'checkbox' || el.type === 'radio') {
-            values[el.name + '::' + (el.id || '')] = el.checked;
-          } else {
-            values[el.name] = el.value;
-          }
-        });
-        const snap = JSON.stringify(values);
+        // snapshot normalizado
+        const norm = collectNormalized(form);
+        const snap = JSON.stringify(norm);
         if (snap !== lastSnapshot) {
           sessionStorage.setItem(FORM_KEY, snap);
+          // crudo para restauración exacta
+          sessionStorage.setItem(FORM_KEY_RAW, JSON.stringify(collectRaw(form)));
           lastSnapshot = snap;
         }
       } catch (e) {
