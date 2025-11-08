@@ -12,7 +12,9 @@
     h1{margin:0 0 8px;font-size:16px}
     .muted{color:#9fb0d1}
     button{margin-top:10px;padding:12px 16px;border:0;border-radius:10px;background:#60a5fa;color:#081225;font-weight:800;cursor:pointer}
-    .log{margin-top:12px;color:#9fb0d1;min-height:1.2em}
+    .log{margin-top:12px;color:#9fb0d1;min-height:1.2em;white-space:pre-wrap}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .pill{display:inline-block;background:#0b1220;border:1px solid #233044;border-radius:999px;padding:6px 10px;font-size:12px}
   </style>
   <script src="./storage.js" defer></script>
 </head>
@@ -20,8 +22,13 @@
   <div class="wrap">
     <div class="card">
       <h1>Finalizar</h1>
-      <button id="btn">Enviar</button>
+      <div class="row">
+        <button id="btn">Enviar</button>
+        <button id="ping">Probar conexión</button>
+      </div>
+      <div id="trace" class="pill" style="display:none;"></div>
       <div id="status" class="log"></div>
+      <div class="muted">Se abrirá una pestaña nueva con la respuesta del Apps Script.</div>
     </div>
   </div>
 
@@ -37,6 +44,7 @@
     const $ = s => document.querySelector(s);
     const st = $('#status');
     const form = $('#uploader');
+    const traceBox = $('#trace');
     const log = (msg) => { if (st) st.textContent = msg; console.log(msg); };
 
     function ensureFields(){
@@ -52,7 +60,25 @@
       return fData;
     }
 
-    document.getElementById('btn').addEventListener('click', async (ev)=>{
+    function newTraceId(){
+      return 'web-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+    }
+
+    function showTraceId(id){
+      traceBox.style.display = 'inline-block';
+      traceBox.textContent = 'traceId: ' + id;
+    }
+
+    document.getElementById('ping').addEventListener('click', ()=>{
+      // Abre ping en pestaña nueva: útil para validar que el WebApp responde
+      const url = API_URL + '?secret=' + encodeURIComponent(API_KEY) + '&action=ping&traceId=' + encodeURIComponent(newTraceId());
+      window.open(url, '_blank', 'noopener');
+    });
+
+    document.getElementById('btn').addEventListener('click', async ()=>{
+      const traceId = newTraceId();
+      showTraceId(traceId);
+
       try{
         log('Generando JSON...');
         if (!window.DS160 || typeof DS160.exportAll !== 'function') {
@@ -60,18 +86,24 @@
         }
 
         const payload = await DS160.exportAll(); // Debe incluir forms + images/base64
-        // Sugerencia: inspeccionar rápido desde la consola
+        // Sella traceId en el payload para correlacionar con logs del servidor
+        payload.__traceId = traceId;
+        payload.__clientDebug = { ts: Date.now(), ua: navigator.userAgent };
+
+        // Vista rápida en consola
         console.log('payload preview', {
+          traceId,
+          keys: Object.keys(payload || {}),
           hasForms: !!payload?.forms,
-          hasImages: Array.isArray(payload?.images) ? payload.images.length : 'no array',
+          images: Array.isArray(payload?.images) ? payload.images.length : 'no array',
         });
 
         const fData = ensureFields();
         fData.value = JSON.stringify(payload);
 
-        log('Enviando...');
+        log('Enviando... (revisa la pestaña nueva)');
         form.submit(); // verás la respuesta del Apps Script en una pestaña nueva
-        log('Enviado. Revisa la pestaña nueva y tu Drive.');
+        log('Enviado. Si hay problema, busca el traceId en la hoja "DS160-logs".');
       }catch(e){
         log('Error: ' + (e && e.message ? e.message : e));
       }
