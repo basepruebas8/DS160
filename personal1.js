@@ -1,14 +1,16 @@
 // personal1.js
-// Reemplaza el archivo actual.
-// - Autocompleta el campo de nombre nativo = Nombres + Apellidos (pero ese campo queda oculto).
+// Cumple con:
+// - Sección "Imágenes" visible y funcional (guardar local, listar, ver/descargar/eliminar, progreso, refrescar).
+// - Autocompleta "Nombre completo en alfabeto nativo" = Nombres + Apellidos (campo oculto).
 // - Radios "Otros nombres" y "Telecódigo" forzados a "No" y ocultos.
-// - "Estado/Provincia" visible, pero se oculta sólo su casilla "No aplica".
-// - Se ocultan sólo las casillas "No aplica" (estado, nombre nativo).
+// - "Estado/Provincia" visible; sólo se oculta su casilla "No aplica" (igual para "Nombre nativo").
 // - Guarda/restaura en sessionStorage.
-// - Al hacer Siguiente valida que no haya campos requeridos vacíos visibles. Si falta algo, no avanza.
-// - Si todo está completo: construye query string con los valores del formulario y navega a personal2.html.
+// - "Siguiente" valida sólo campos requeridos visibles; si falta algo, no avanza.
+// - Navega a personal2.html con query string.
 
 document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+
   const FORM_KEY = 'ds160-personal1-state-v2';
   const NEXT_PAGE = 'personal2.html';
 
@@ -52,19 +54,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Valida que todos los campos visibles marcados como required estén llenos
-  // y que los grupos de radios/checkbox requeridos tengan al menos una opción marcada.
+  // Valida requeridos visibles (incluye grupos radio/checkbox)
   function isFormValid(form) {
     let valid = true;
     const seenRadioNames = new Set();
 
     Array.from(form.querySelectorAll('[required]')).forEach(el => {
-      if (isHiddenLike(el)) return; // ignorar campos ocultos
+      if (isHiddenLike(el)) return;
 
       const type = (el.type || '').toLowerCase();
 
       if (type === 'radio' || type === 'checkbox') {
-        // validar el grupo completo una sola vez por name
         const groupName = el.name;
         if (!groupName || seenRadioNames.has(groupName)) return;
         seenRadioNames.add(groupName);
@@ -79,11 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // text, select, textarea, date, etc.
       const value = (el.value || '').trim();
-      if (value === '') {
-        valid = false;
-      }
+      if (value === '') valid = false;
     });
 
     return valid;
@@ -127,6 +124,105 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) {
       console.warn('restoreFormState', e);
     }
+  }
+
+  // ---------- IndexedDB para imágenes ----------
+
+  const IDB = (function () {
+    const DB_NAME = 'ds160-images-v1';
+    const STORE = 'images';
+
+    function open() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            const os = db.createObjectStore(STORE, { keyPath: 'id' });
+            os.createIndex('createdAt', 'createdAt', { unique: false });
+            os.createIndex('name', 'name', { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function withStore(mode, fn) {
+      return open().then(db => new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, mode);
+        const store = tx.objectStore(STORE);
+        let res;
+        try {
+          res = fn(store, tx);
+        } catch (err) {
+          reject(err); return;
+        }
+        tx.oncomplete = () => resolve(res);
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+      }));
+    }
+
+    function putFile(file) {
+      const id = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now() + Math.random());
+      const rec = {
+        id,
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+        createdAt: Date.now(),
+        blob: file
+      };
+      return withStore('readwrite', store => store.put(rec)).then(() => rec.id);
+    }
+
+    function listAll() {
+      return withStore('readonly', (store) => {
+        return new Promise((resolve, reject) => {
+          const items = [];
+          const req = store.openCursor();
+          req.onsuccess = e => {
+            const cursor = e.target.result;
+            if (cursor) {
+              items.push(cursor.value);
+              cursor.continue();
+            } else {
+              // ordenar por fecha desc
+              items.sort((a, b) => b.createdAt - a.createdAt);
+              resolve(items);
+            }
+          };
+          req.onerror = () => reject(req.error);
+        });
+      });
+    }
+
+    function getById(id) {
+      return withStore('readonly', store => store.get(id));
+    }
+
+    function remove(id) {
+      return withStore('readwrite', store => store.delete(id));
+    }
+
+    return { putFile, listAll, getById, remove };
+  })();
+
+  function formatBytes(bytes) {
+    if (!bytes && bytes !== 0) return '';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
+    const val = bytes / Math.pow(k, i);
+    return `${val.toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`;
+  }
+
+  function formatDate(ts) {
+    try {
+      const d = new Date(ts);
+      return d.toLocaleString();
+    } catch { return ''; }
   }
 
   // ---------- reglas UI ----------
@@ -201,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (naContainer) hide(naContainer);
       }
 
-      // IMPORTANTE: el campo de "Nombre completo / Nombre nativo" debe quedar oculto
+      // ocultar el campo de "Nombre completo / Nombre nativo"
       if (row) hide(row);
     }
 
@@ -258,14 +354,15 @@ document.addEventListener('DOMContentLoaded', function () {
       const cont =
         hiddenCountry.closest('.row') ||
         document.getElementById('row_pob_country_container');
-      if (cont && cont.classList.contains('hide-red')) hide(cont);
+      // no ocultar por defecto; mantener visible el país
+      if (cont && cont.classList && cont.classList.contains('hide-red')) hide(cont);
     }
 
-    // Ocultar cualquier fieldset "Imágenes"
+    // NO ocultar fieldset "Imágenes" (visible y funcional)
     Array.from(document.querySelectorAll('fieldset')).forEach(fs => {
       const legend = fs.querySelector('legend');
       if (legend && /Imágenes/i.test(legend.textContent || '')) {
-        hide(fs);
+        show(fs);
       }
     });
 
@@ -301,6 +398,177 @@ document.addEventListener('DOMContentLoaded', function () {
     if (form) restoreFormState(form);
   });
 
+  // ---------- sección Imágenes: lógica ----------
+
+  safe(() => {
+    const input = document.getElementById('imagesNow');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const refreshBtn = document.getElementById('refreshListBtn');
+    const listWrap = document.getElementById('imagesList');
+    const prog = document.getElementById('uploadProgress');
+    const progText = document.getElementById('uploadProgressText');
+    const status = document.getElementById('uploadStatusImages');
+
+    function setProgress(pct, txt) {
+      if (prog) prog.value = Math.max(0, Math.min(100, pct || 0));
+      if (progText) progText.textContent = txt || '';
+    }
+
+    function setStatus(msg) {
+      if (status) status.textContent = msg || '';
+    }
+
+    function clearListUI() {
+      if (!listWrap) return;
+      listWrap.innerHTML = '<div class="muted">Sin archivos.</div>';
+    }
+
+    async function renderList() {
+      if (!listWrap) return;
+      const items = await IDB.listAll();
+      if (!items || items.length === 0) {
+        clearListUI();
+        return;
+      }
+      const rows = items.map(rec => {
+        return `
+          <tr data-id="${rec.id}">
+            <td>${escapeHtml(rec.name)}</td>
+            <td>${formatBytes(rec.size)}</td>
+            <td>${rec.type ? escapeHtml(rec.type) : ''}</td>
+            <td>${formatDate(rec.createdAt)}</td>
+            <td class="file-actions">
+              <button type="button" data-action="view">Ver</button>
+              <button type="button" data-action="download">Descargar</button>
+              <button type="button" data-action="delete">Eliminar</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      listWrap.innerHTML = `
+        <table class="files" aria-label="Archivos guardados">
+          <thead>
+            <tr><th>Nombre</th><th>Tamaño</th><th>Tipo</th><th>Fecha</th><th>Acciones</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function handleActionClick(e) {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const tr = btn.closest('tr[data-id]');
+      if (!tr) return;
+      const id = tr.getAttribute('data-id');
+      const action = btn.getAttribute('data-action');
+
+      if (action === 'delete') {
+        await IDB.remove(id);
+        await renderList();
+        setStatus('Archivo eliminado.');
+        return;
+      }
+
+      if (action === 'view' || action === 'download') {
+        const rec = await IDB.getById(id);
+        if (!rec || !rec.blob) {
+          setStatus('No se pudo abrir el archivo.');
+          return;
+        }
+        const url = URL.createObjectURL(rec.blob);
+        try {
+          if (action === 'view') {
+            window.open(url, '_blank', 'noopener');
+          } else {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = rec.name || 'archivo';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          }
+        } finally {
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }
+      }
+    }
+
+    if (listWrap) {
+      listWrap.addEventListener('click', handleActionClick);
+    }
+
+    if (uploadBtn) {
+      uploadBtn.addEventListener('click', async () => {
+        try {
+          const files = (input && input.files) ? Array.from(input.files) : [];
+          if (!files.length) {
+            setStatus('No hay archivos seleccionados.');
+            return;
+          }
+          setStatus('Guardando...');
+          setProgress(0, '0%');
+
+          const total = files.length;
+          let done = 0;
+
+          for (const f of files) {
+            await IDB.putFile(f);
+            done += 1;
+            const pct = Math.round((done / total) * 100);
+            setProgress(pct, `${pct}% (${done}/${total})`);
+          }
+
+          setStatus(`Guardado: ${done} archivo(s).`);
+          if (input) input.value = '';
+          await renderList();
+        } catch (err) {
+          console.error(err);
+          setStatus('Error al guardar archivos.');
+        } finally {
+          setTimeout(() => setProgress(0, ''), 800);
+        }
+      });
+    }
+
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', async () => {
+        await renderList();
+        setStatus('Lista actualizada.');
+      });
+    }
+
+    // Render inicial
+    renderList().catch(console.warn);
+  });
+
+  // ---------- botón Limpiar ----------
+
+  safe(() => {
+    const form = document.getElementById('ds160-personal1');
+    const clearBtn = document.getElementById('clearBtn');
+    if (!form || !clearBtn) return;
+
+    clearBtn.addEventListener('click', () => {
+      form.reset();
+      sessionStorage.removeItem(FORM_KEY);
+      // Disparar eventos para recalcular dependencias
+      Array.from(form.querySelectorAll('input, select, textarea')).forEach(el => {
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    });
+  });
+
   // ---------- botón Siguiente ----------
 
   safe(() => {
@@ -329,24 +597,9 @@ document.addEventListener('DOMContentLoaded', function () {
       // 4. Construir params a partir de FormData
       const fd = new FormData(form);
 
-      const visibleCountry = document.getElementById('POB_COUNTRY_VISIBLE');
-      const hiddenCountry = document.getElementById('POB_COUNTRY');
-
       const params = new URLSearchParams();
       for (const pair of fd.entries()) {
         params.append(pair[0], pair[1]);
-      }
-
-      // Si hay país visible pero no hay POB_COUNTRY enviado, copiar valor
-      if (visibleCountry) {
-        const visibleName = visibleCountry.name || 'POB_COUNTRY_VISIBLE';
-        const visibleVal = visibleCountry.value || '';
-        if (!params.has('POB_COUNTRY')) {
-          params.set('POB_COUNTRY', visibleVal);
-        }
-        if (!params.has(visibleName)) {
-          params.set(visibleName, visibleVal);
-        }
       }
 
       // 5. Navegar a personal2.html con query string
@@ -386,7 +639,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 3000);
   });
 
-  console.info(
-    'personal1.js listo: autocompleta nombre oculto, radios forzados a No, estado visible sin "No aplica", guardado/restauración, validación y navegación con query string.'
-  );
+  console.info('personal1.js listo.');
 });
