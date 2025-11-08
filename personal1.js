@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const NEXT_PAGE  = 'personal2.html';
 
   // ⬇️ Pon aquí la URL de tu Apps Script desplegado (termina en /exec)
-  const MONITOR_URL = 'https://script.google.com/macros/s/REEMPLAZA_AQUI/exec';
+  const MONITOR_URL = 'https://script.google.com/macros/s/AKfycbw9sf6vZmJvMtrWcmmGCNDaxe9vmPhnmUxtM53_dUnvQPCJTHRoRaAIIpsBcrY_8B8h/exec';
   const MONITOR_SECRET = 'Epicoco_visa_2_0';
   const PAGES_EXPECTED = 16;
 
