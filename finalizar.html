@@ -52,14 +52,19 @@
       return fData;
     }
 
-    document.getElementById('btn').addEventListener('click', async ()=>{
+    document.getElementById('btn').addEventListener('click', async (ev)=>{
       try{
         log('Generando JSON...');
         if (!window.DS160 || typeof DS160.exportAll !== 'function') {
           throw new Error('storage.js no cargó o DS160.exportAll() no existe');
         }
 
-        const payload = await DS160.exportAll(); // Debe incluir forms + images[].dataURI/base64
+        const payload = await DS160.exportAll(); // Debe incluir forms + images/base64
+        // Sugerencia: inspeccionar rápido desde la consola
+        console.log('payload preview', {
+          hasForms: !!payload?.forms,
+          hasImages: Array.isArray(payload?.images) ? payload.images.length : 'no array',
+        });
 
         const fData = ensureFields();
         fData.value = JSON.stringify(payload);
