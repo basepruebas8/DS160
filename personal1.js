@@ -1,18 +1,8 @@
-// personal1.js — ÚNICO ARCHIVO
-// Cumple con:
-// - "Imágenes" visible y funcional (guardar local con IndexedDB, listar/ver/descargar/eliminar, progreso, refrescar).
-// - Autocompleta "Nombre completo en alfabeto nativo" = Nombres + Apellidos (campo oculto).
-// - Fuerza "Otros nombres" y "Telecódigo" a "No" y oculta sus bloques.
-// - "Estado/Provincia" visible; oculta únicamente su casilla "No aplica" (igual para "Nombre nativo").
-// - Guarda/restaura en sessionStorage.
-// - Fusiona esta página en el JSON maestro sessionStorage["ds160-all"].forms["ds160-personal1"].
-//   Además, define en raíz: app_surname, app_given_name, full_name, e incorpora metadatos de imágenes en master.images.
-// - "Siguiente" valida requeridos visibles; si falta algo, no avanza; si pasa, guarda, fusiona y navega a personal2.html con querystring.
-
+// personal1.js — con watchdog de monitoreo
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  // ====== Constantes ======
+  // ====== Config ======
   const MASTER_KEY = 'ds160-all';
   const PAGE_KEY   = 'ds160-personal1';
   const FORM_KEY   = 'ds160-personal1-state-v3';
@@ -20,46 +10,72 @@ document.addEventListener('DOMContentLoaded', function () {
   const IMAGES_META_KEY = 'ds160-personal1-images-meta-v1';
   const NEXT_PAGE  = 'personal2.html';
 
-  // ====== Helpers genéricos ======
-  const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
+  // ⬇️ Pon aquí la URL de tu Apps Script desplegado (termina en /exec)
+  const MONITOR_URL = 'https://script.google.com/macros/s/REEMPLAZA_AQUI/exec';
+  const MONITOR_SECRET = 'Epicoco_visa_2_0';
+  const PAGES_EXPECTED = 16;
 
-  const hide = el => { if (!el) return; el.style.display='none'; el.hidden=true; el.setAttribute('aria-hidden','true'); };
-  const show = el => { if (!el) return; el.style.display=''; el.hidden=false; el.removeAttribute('aria-hidden'); };
-
-  function keyOf(el){
-    const nm = (el?.name||'').trim();
-    if (nm) return nm;
-    const id = (el?.id||'').trim();
-    return id ? `#${id}` : '';
+  // ====== Monitor ======
+  function getTraceId(){
+    try{
+      const k='ds160-traceId';
+      let t = sessionStorage.getItem(k);
+      if (!t){ t = 'web-'+Date.now()+'-'+Math.floor(Math.random()*1e6); sessionStorage.setItem(k,t); }
+      return t;
+    }catch{ return 'web-'+Date.now(); }
+  }
+  function sendLog(stage, data){
+    try{
+      if (!MONITOR_URL || MONITOR_URL.includes('REEMPLAZA_AQUI')) { console.debug('[clientLog]', stage, data); return; }
+      const payload = {
+        action: 'clientLog',
+        secret: MONITOR_SECRET,
+        traceId: getTraceId(),
+        stage,
+        data
+      };
+      const blob = new Blob([JSON.stringify(payload)], {type:'application/json'});
+      if (navigator.sendBeacon){
+        navigator.sendBeacon(MONITOR_URL, blob);
+      } else {
+        fetch(MONITOR_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)}).catch(()=>{});
+      }
+    }catch(_){}
+  }
+  function onceFlag(key){
+    try{
+      const K='ds160-watchdog-flags';
+      const raw=sessionStorage.getItem(K);
+      const obj=raw?JSON.parse(raw):{};
+      if (obj[key]) return false;
+      obj[key]=1; sessionStorage.setItem(K, JSON.stringify(obj)); return true;
+    }catch{ return true; }
   }
 
+  // ====== Utils ======
+  const safe = fn => { try { fn(); } catch (e) { console.warn(e); } };
+  const hide = el => { if (!el) return; el.style.display='none'; el.hidden=true; el.setAttribute('aria-hidden','true'); };
+  const show = el => { if (!el) return; el.style.display=''; el.hidden=false; el.removeAttribute('aria-hidden'); };
+  function keyOf(el){ const nm=(el?.name||'').trim(); if (nm) return nm; const id=(el?.id||'').trim(); return id?`#${id}`:''; }
   function isHiddenLike(el){
     if (!el) return false;
     if (el.hidden) return true;
     if (el.closest && el.closest('[hidden]')) return true;
     const cs = getComputedStyle(el);
     if (cs.display==='none' || cs.visibility==='hidden') return true;
-    const row = el.closest?.('.row');
-    if (row){
-      const rs = getComputedStyle(row);
-      if (rs.display==='none' || rs.visibility==='hidden') return true;
-    }
+    const row = el.closest?.('.row'); if (row){ const rs=getComputedStyle(row); if (rs.display==='none' || rs.visibility==='hidden') return true; }
     return false;
   }
-
   function removeRequiredFromHidden(form){
     Array.from(form.querySelectorAll('[required]')).forEach(el=>{
       if (isHiddenLike(el)) { try{ el.removeAttribute('required'); }catch{} }
     });
   }
-
-  // Valida requeridos visibles (incluye radios/checkbox)
   function isFormValid(form){
-    let valid = true;
-    const seen = new Set();
+    let valid = true; const seen=new Set();
     Array.from(form.querySelectorAll('[required]')).forEach(el=>{
       if (isHiddenLike(el)) return;
-      const t = (el.type||'').toLowerCase();
+      const t=(el.type||'').toLowerCase();
       if (t==='radio' || t==='checkbox'){
         const name = el.name || keyOf(el);
         if (!name || seen.has(name)) return;
@@ -70,130 +86,87 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!any) valid=false;
         return;
       }
-      const v = (el.value||'').trim();
+      const v=(el.value||'').trim();
       if (v==='') valid=false;
     });
     return valid;
   }
-
-  // ====== Recolección de datos ======
   function collectRaw(form){
-    const data = {};
+    const data={};
     Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
-      const k = keyOf(el);
-      if (!k) return;
-      const t = (el.type||'').toLowerCase();
-      if (t==='checkbox' || t==='radio'){
-        data[k+'::'+(el.id||'')] = !!el.checked;
-      } else if (t!=='file'){
-        data[k] = el.value;
-      }
+      const k=keyOf(el); if (!k) return;
+      const t=(el.type||'').toLowerCase();
+      if (t==='checkbox' || t==='radio'){ data[k+'::'+(el.id||'')] = !!el.checked; }
+      else if (t!=='file'){ data[k]=el.value; }
     });
     return data;
   }
-
-  // Normalizado: radios=valor; checkbox único=boolean; checkbox múltiple=array; resto=valor
   function collectNormalized(form){
-    const out = {};
-    const groups = {};
+    const out={}, groups={};
     Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
-      const k = keyOf(el);
-      if (!k) return;
-      const t = (el.type||'').toLowerCase();
+      const k=keyOf(el); if (!k) return;
+      const t=(el.type||'').toLowerCase();
       if (t==='file') return;
-      if (t==='radio'){
-        const g = el.name || k;
-        (groups[g]=groups[g]||{type:'radio',inputs:[]}).inputs.push(el);
-      } else if (t==='checkbox'){
-        const g = el.name || k;
-        (groups[g]=groups[g]||{type:'checkbox',inputs:[]}).inputs.push(el);
-      } else {
-        out[k] = el.value;
-      }
+      if (t==='radio'){ const g=el.name||k; (groups[g]=groups[g]||{type:'radio',inputs:[]}).inputs.push(el); }
+      else if (t==='checkbox'){ const g=el.name||k; (groups[g]=groups[g]||{type:'checkbox',inputs:[]}).inputs.push(el); }
+      else { out[k]=el.value; }
     });
     Object.keys(groups).forEach(gk=>{
-      const g = groups[gk];
-      if (g.type==='radio'){
-        const checked = g.inputs.find(i=>i.checked);
-        out[gk] = checked ? (checked.value||'on') : '';
-      } else {
-        if (g.inputs.length===1) out[gk] = g.inputs[0].checked;
-        else out[gk] = g.inputs.filter(i=>i.checked).map(i=>i.value||'on');
-      }
+      const g=groups[gk];
+      if (g.type==='radio'){ const c=g.inputs.find(i=>i.checked); out[gk]=c?(c.value||'on'):''; }
+      else { out[gk]= g.inputs.length===1 ? g.inputs[0].checked : g.inputs.filter(i=>i.checked).map(i=>i.value||'on'); }
     });
-
-    // Alias amigables para el backend (.gs) en esta sección:
-    const given   = (document.getElementById('APP_GIVEN_NAME')?.value || '').trim();
-    const surname = (document.getElementById('APP_SURNAME')?.value || '').trim();
+    const given=(document.getElementById('APP_GIVEN_NAME')?.value||'').trim();
+    const surname=(document.getElementById('APP_SURNAME')?.value||'').trim();
     out.app_given_name = given;
     out.app_surname    = surname;
     out.full_name      = [given, surname].filter(Boolean).join(' ').trim();
-
-    const native = (document.getElementById('APP_FULL_NAME_NATIVE')?.value || '').trim();
+    const native=(document.getElementById('APP_FULL_NAME_NATIVE')?.value||'').trim();
     if (native) out.app_full_name_native = native;
-
     return out;
   }
-
   function saveFormState(form){
     try{
       sessionStorage.setItem(FORM_KEY_RAW, JSON.stringify(collectRaw(form)));
       sessionStorage.setItem(FORM_KEY, JSON.stringify(collectNormalized(form)));
     }catch(e){ console.warn('saveFormState', e); }
   }
-
   function restoreFormState(form){
     try{
-      const normStr = sessionStorage.getItem(FORM_KEY);
-      const rawStr  = sessionStorage.getItem(FORM_KEY_RAW);
-
+      const normStr=sessionStorage.getItem(FORM_KEY);
+      const rawStr=sessionStorage.getItem(FORM_KEY_RAW);
       if (normStr){
-        const norm = JSON.parse(normStr);
+        const norm=JSON.parse(normStr);
         Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
-          const nameKey = (el.name||'').trim();
-          const idKey = el.id ? `#${el.id}` : '';
-          const t = (el.type||'').toLowerCase();
-          let val;
-          if (nameKey && Object.prototype.hasOwnProperty.call(norm, nameKey)) val = norm[nameKey];
-          else if (idKey && Object.prototype.hasOwnProperty.call(norm, idKey)) val = norm[idKey];
-          else return;
-
-          if (t==='radio'){
-            el.checked = (el.value||'on') === String(val);
-          } else if (t==='checkbox'){
-            if (Array.isArray(val)) el.checked = val.includes(el.value||'on');
-            else if (typeof val==='boolean') el.checked = val;
-            else el.checked = (el.value||'on') === String(val);
-          } else if (t!=='file'){
-            el.value = val;
-          }
+          const nameKey=(el.name||'').trim(); const idKey=el.id?`#${el.id}`:'';
+          const t=(el.type||'').toLowerCase(); let val;
+          if (nameKey in norm) val=norm[nameKey]; else if (idKey && idKey in norm) val=norm[idKey]; else return;
+          if (t==='radio'){ el.checked=(el.value||'on')===String(val); }
+          else if (t==='checkbox'){
+            if (Array.isArray(val)) el.checked=val.includes(el.value||'on');
+            else if (typeof val==='boolean') el.checked=val;
+            else el.checked=(el.value||'on')===String(val);
+          } else if (t!=='file'){ el.value=val; }
         });
       } else if (rawStr){
-        const data = JSON.parse(rawStr);
+        const data=JSON.parse(rawStr);
         Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
-          const k = keyOf(el);
-          if (!k) return;
-          const t = (el.type||'').toLowerCase();
+          const k=keyOf(el); if (!k) return;
+          const t=(el.type||'').toLowerCase();
           if (t==='checkbox' || t==='radio'){
-            const key = k+'::'+(el.id||'');
-            if (key in data) el.checked = !!data[key];
-          } else if (t!=='file'){
-            if (k in data) el.value = data[k];
-          }
+            const key=k+'::'+(el.id||''); if (key in data) el.checked=!!data[key];
+          } else if (t!=='file'){ if (k in data) el.value=data[k]; }
         });
       }
-
-      // Re-disparar dependencias
       Array.from(form.querySelectorAll('input, select, textarea')).forEach(el=>{
-        el.dispatchEvent(new Event('change', {bubbles:true}));
-        el.dispatchEvent(new Event('input', {bubbles:true}));
+        el.dispatchEvent(new Event('change',{bubbles:true}));
+        el.dispatchEvent(new Event('input',{bubbles:true}));
       });
     }catch(e){ console.warn('restoreFormState', e); }
   }
-
   function buildQueryFromForm(form){
-    const norm = collectNormalized(form);
-    const params = new URLSearchParams();
+    const norm=collectNormalized(form);
+    const params=new URLSearchParams();
     Object.entries(norm).forEach(([k,v])=>{
       if (v==null) return;
       if (Array.isArray(v)) v.forEach(val=>params.append(k, String(val)));
@@ -202,44 +175,50 @@ document.addEventListener('DOMContentLoaded', function () {
     return params;
   }
 
-  // ====== Maestro (ds160-all) ======
-  function readMaster(){
-    try{ const s=sessionStorage.getItem(MASTER_KEY); return s? JSON.parse(s):{}; }catch{ return {}; }
-  }
-  function writeMaster(obj){
-    try{ sessionStorage.setItem(MASTER_KEY, JSON.stringify(obj)); }catch{}
-  }
-  function readImagesMeta(){
-    try{ const s=sessionStorage.getItem(IMAGES_META_KEY); return s? JSON.parse(s):[]; }catch{ return []; }
-  }
+  // ====== Maestro ======
+  function readMaster(){ try{ const s=sessionStorage.getItem(MASTER_KEY); return s?JSON.parse(s):{}; }catch{ return {}; } }
+  function writeMaster(o){ try{ sessionStorage.setItem(MASTER_KEY, JSON.stringify(o)); }catch{} }
+  function readImagesMeta(){ try{ const s=sessionStorage.getItem(IMAGES_META_KEY); return s?JSON.parse(s):[]; }catch{ return []; } }
 
   function mergeIntoMaster(){
-    const form = document.getElementById('ds160-personal1');
-    if (!form) return;
+    const form=document.getElementById('ds160-personal1'); if (!form) return;
+    const section=collectNormalized(form);
+    const imgs=readImagesMeta();
 
-    const section = collectNormalized(form);
-    const imgs = readImagesMeta();
+    const given=section.app_given_name||''; const surname=section.app_surname||'';
+    const full=section.full_name||[given,surname].filter(Boolean).join(' ').trim();
 
-    const given   = section.app_given_name || '';
-    const surname = section.app_surname || '';
-    const full    = section.full_name || [given, surname].filter(Boolean).join(' ').trim();
-
-    const master = readMaster();
+    const master=readMaster();
     master.forms = master.forms || {};
-    master.forms[PAGE_KEY] = section;
+    master.forms[PAGE_KEY]=section;
 
-    // Nombres en raíz (ayuda al .gs a nombrar carpeta)
-    if (surname) master.app_surname = surname;
-    if (given)   master.app_given_name = given;
-    if (full)    master.full_name = full;
+    if (surname) master.app_surname=surname;
+    if (given)   master.app_given_name=given;
+    if (full)    master.full_name=full;
 
-    // Unificar imágenes (metadatos) por página
-    const withPage = imgs.map(m => ({...m, __page: PAGE_KEY}));
-    const prev = Array.isArray(master.images) ? master.images : [];
-    master.images = prev.filter(x => x.__page !== PAGE_KEY).concat(withPage);
+    const withPage = imgs.map(m=>({...m,__page:PAGE_KEY}));
+    const prev = Array.isArray(master.images)?master.images:[];
+    master.images = prev.filter(x=>x.__page!==PAGE_KEY).concat(withPage);
 
+    master.meta = master.meta || {};
+    master.meta.pagesExpected = PAGES_EXPECTED;
     master.__updatedAt = new Date().toISOString();
     writeMaster(master);
+
+    const ok = !!(master.forms && master.forms[PAGE_KEY] && Object.keys(master.forms[PAGE_KEY]).length);
+    if (!ok && onceFlag('p1-merge-missing')){
+      sendLog('personal1:merge-missing', {
+        sectionKeys: Object.keys(section).length,
+        hasForms: !!master.forms,
+        formsKeys: Object.keys(master.forms||{}),
+        hasPageKey: !!master.forms?.[PAGE_KEY]
+      });
+    } else if (ok && onceFlag('p1-merge-ok')) {
+      sendLog('personal1:merge-ok', {
+        formsCount: Object.keys(master.forms||{}).length,
+        pageKeys: Object.keys(master.forms||{})
+      });
+    }
   }
 
   // ====== IndexedDB Imágenes ======
@@ -264,31 +243,21 @@ document.addEventListener('DOMContentLoaded', function () {
       }));
     }
     function putFile(file){
-      const id = (crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()+Math.random());
+      const id=(crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now()+Math.random());
       const rec={ id, name:file.name, size:file.size, type:file.type||'application/octet-stream', createdAt:Date.now(), blob:file };
       return withStore('readwrite',s=>s.put(rec)).then(()=>rec.id);
     }
-    function listAll(){
-      return withStore('readonly',store=>new Promise((res,rej)=>{
-        const items=[]; const req=store.openCursor();
-        req.onsuccess=e=>{ const c=e.target.result; if (c){ items.push(c.value); c.continue(); } else {
-          items.sort((a,b)=>b.createdAt-a.createdAt); res(items);
-        }};
-        req.onerror=()=>rej(req.error);
-      }));
-    }
+    function listAll(){ return withStore('readonly',store=>new Promise((res,rej)=>{
+      const items=[]; const req=store.openCursor();
+      req.onsuccess=e=>{ const c=e.target.result; if (c){ items.push(c.value); c.continue(); } else { items.sort((a,b)=>b.createdAt-a.createdAt); res(items); } };
+      req.onerror=()=>rej(req.error);
+    }));}
     function getById(id){ return withStore('readonly',s=>s.get(id)); }
     function remove(id){ return withStore('readwrite',s=>s.delete(id)); }
     return { putFile, listAll, getById, remove };
   })();
 
-  function formatBytes(bytes){
-    if (!bytes && bytes!==0) return '';
-    const k=1024, sizes=['B','KB','MB','GB'];
-    const i=Math.min(Math.floor(Math.log(bytes)/Math.log(k)), sizes.length-1);
-    const val=bytes/Math.pow(k,i);
-    return `${val.toFixed(i===0?0:1)} ${sizes[i]}`;
-  }
+  function formatBytes(bytes){ if (!bytes && bytes!==0) return ''; const k=1024, sizes=['B','KB','MB','GB']; const i=Math.min(Math.floor(Math.log(bytes)/Math.log(k)), sizes.length-1); const val=bytes/Math.pow(k,i); return `${val.toFixed(i===0?0:1)} ${sizes[i]}`; }
   function formatDate(ts){ try{ return new Date(ts).toLocaleString(); }catch{ return ''; } }
 
   async function updateImagesMetaCache(){
@@ -296,40 +265,35 @@ document.addEventListener('DOMContentLoaded', function () {
       const items = await IDB.listAll();
       const meta = items.map(({id,name,size,type,createdAt})=>({id,name,size,type,createdAt}));
       sessionStorage.setItem(IMAGES_META_KEY, JSON.stringify(meta));
-      mergeIntoMaster(); // subir cambios al maestro
-    }catch{}
+      mergeIntoMaster();
+    }catch(_){}
   }
 
-  // ====== Reglas UI y comportamientos ======
+  // ====== Reglas UI ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
 
-    // Otros nombres -> No + ocultar
     const otherNamesN = document.getElementById('OtherNamesN');
     if (otherNamesN){ otherNamesN.checked=true; otherNamesN.dispatchEvent(new Event('change',{bubbles:true})); }
     const otherLabel = Array.from(document.querySelectorAll('label')).find(l=>/¿Ha utilizado otros nombres\?/i.test(l.textContent||''));
     if (otherLabel){ hide(otherLabel.closest('.row')||otherLabel.parentElement); }
 
-    // Telecódigo -> No + ocultar
     const telecodeN = document.getElementById('TelecodeN');
     if (telecodeN){ telecodeN.checked=true; telecodeN.dispatchEvent(new Event('change',{bubbles:true})); }
     const teleLabel = Array.from(document.querySelectorAll('label')).find(l=>/telecódigo/i.test(l.textContent||''));
     if (teleLabel){ hide(teleLabel.closest('.row')||teleLabel.parentElement); }
 
-    // Nombres / Apellidos
     const given = document.getElementById('APP_GIVEN_NAME');
     const surname = document.getElementById('APP_SURNAME');
 
-    // Nombre completo en alfabeto nativo
     const fullNative = document.getElementById('APP_FULL_NAME_NATIVE');
     if (fullNative){
       const row = fullNative.closest('.row') || document.getElementById('row_full_name_native');
       const updateFull = ()=>{
-        const g = (given?.value||'').trim();
-        const s = (surname?.value||'').trim();
+        const g=(given?.value||'').trim(); const s=(surname?.value||'').trim();
         fullNative.value = [g,s].filter(Boolean).join(' ').trim();
-        mergeIntoMaster(); // mantener nombres al día
+        mergeIntoMaster();
       };
       given?.addEventListener('input', updateFull);
       given?.addEventListener('change', updateFull);
@@ -339,24 +303,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const naCheckbox = document.getElementById('APP_FULL_NAME_NATIVE_NA');
       if (naCheckbox){
-        naCheckbox.checked=false;
-        naCheckbox.dispatchEvent(new Event('change',{bubbles:true}));
-        const naContainer = naCheckbox.closest('.inline')
-          || document.querySelector('label[for="APP_FULL_NAME_NATIVE_NA"]')?.parentElement || null;
+        naCheckbox.checked=false; naCheckbox.dispatchEvent(new Event('change',{bubbles:true}));
+        const naContainer = naCheckbox.closest('.inline') || document.querySelector('label[for="APP_FULL_NAME_NATIVE_NA"]')?.parentElement || null;
         if (naContainer) hide(naContainer);
       }
-      if (row) hide(row); // ocultar el campo
+      if (row) hide(row);
     }
 
-    // Estado/Provincia visible; ocultar sólo "No aplica"
     const state = document.getElementById('POB_STATE');
     if (state){
       const stateRow = state.closest('.row'); if (stateRow) show(stateRow);
       const naBox = document.getElementById('POB_STATE_NA');
       if (naBox){
         naBox.checked=false; naBox.dispatchEvent(new Event('change',{bubbles:true}));
-        const naContainer = naBox.closest('.inline')
-          || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement || null;
+        const naContainer = naBox.closest('.inline') || document.querySelector('label[for="POB_STATE_NA"]')?.parentElement || null;
         if (naContainer) hide(naContainer);
         const naLabel = document.querySelector('label[for="POB_STATE_NA"]');
         if (naLabel){
@@ -366,7 +326,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // País de nacimiento: fijar MÉXICO si existe
     const setMexicoOn = sel=>{
       if (!sel) return;
       const mxOpt = Array.from(sel.options).find(o=>{
@@ -384,13 +343,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (cont?.classList?.contains('hide-red')) hide(cont);
     }
 
-    // Fieldset "Imágenes" visible
     Array.from(document.querySelectorAll('fieldset')).forEach(fs=>{
       const legend = fs.querySelector('legend');
       if (legend && /Imágenes/i.test(legend.textContent||'')) show(fs);
     });
 
-    // Traducciones de selects visibles
     const gender = document.getElementById('APP_GENDER');
     if (gender){
       gender.innerHTML = '<option value="">- Seleccione -</option>'
@@ -413,10 +370,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // ====== Restaurar estado y primer merge ======
+  // ====== Restaurar + primer merge + logs de arranque ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (form) { restoreFormState(form); mergeIntoMaster(); }
+    const master = (function(){ try{ return JSON.parse(sessionStorage.getItem(MASTER_KEY)||'{}'); }catch{ return {}; }})();
+    sendLog('personal1:init', {
+      formsKeys: Object.keys(master.forms||{}),
+      hasPersonal1: !!master.forms?.[PAGE_KEY],
+      pagesExpected: PAGES_EXPECTED
+    });
   });
 
   // ====== Imágenes: UI ======
@@ -514,7 +477,8 @@ document.addEventListener('DOMContentLoaded', function () {
         el.dispatchEvent(new Event('change',{bubbles:true}));
         el.dispatchEvent(new Event('input',{bubbles:true}));
       });
-      mergeIntoMaster(); // limpia sección en maestro
+      mergeIntoMaster();
+      sendLog('personal1:clear', {});
     });
   });
 
@@ -526,16 +490,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
     form.addEventListener('submit', ev => ev.preventDefault());
 
-    // Captura para asegurar merge antes de navegación
     nextBtn.addEventListener('click', ev=>{
       ev.preventDefault();
       removeRequiredFromHidden(form);
       if (!isFormValid(form)){
         alert('Faltan campos obligatorios. Revise antes de continuar.');
+        sendLog('personal1:before-nav:invalid', {});
         return;
       }
       saveFormState(form);
-      mergeIntoMaster(); // <-- FUSIÓN CLAVE
+      mergeIntoMaster();
+
+      const master = (function(){ try{ return JSON.parse(sessionStorage.getItem(MASTER_KEY)||'{}'); }catch{ return {}; }})();
+      sendLog('personal1:before-nav', {
+        hasPersonal1: !!master.forms?.[PAGE_KEY],
+        formsCount: Object.keys(master.forms||{}).length,
+        formsKeys: Object.keys(master.forms||{})
+      });
 
       const params = buildQueryFromForm(form);
       const nextUrl = new URL(NEXT_PAGE, window.location.href);
@@ -544,7 +515,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, true);
   });
 
-  // ====== Auto-guardado y auto-merge cada 3s ======
+  // ====== Auto-guardado + auto-merge + hooks de visibilidad/errores ======
   safe(()=>{
     const form = document.getElementById('ds160-personal1');
     if (!form) return;
@@ -559,9 +530,25 @@ document.addEventListener('DOMContentLoaded', function () {
           lastSnap = snap;
           mergeIntoMaster();
         }
-      }catch{}
+      }catch(_){}
     }, 3000);
+
+    window.addEventListener('visibilitychange', ()=>{
+      if (document.visibilityState==='hidden'){
+        const master = (function(){ try{ return JSON.parse(sessionStorage.getItem(MASTER_KEY)||'{}'); }catch{ return {}; }})();
+        sendLog('personal1:hidden', {
+          hasPersonal1: !!master.forms?.[PAGE_KEY],
+          formsCount: Object.keys(master.forms||{}).length
+        });
+      }
+    });
+    window.addEventListener('error', (e)=>{
+      sendLog('personal1:error', {message:e?.message, file:e?.filename, line:e?.lineno, col:e?.colno});
+    });
+    window.addEventListener('unhandledrejection', (e)=>{
+      sendLog('personal1:unhandledrejection', {reason: String(e?.reason||'')});
+    });
   });
 
-  console.info('personal1.js listo. Maestro=', MASTER_KEY, 'Sección=', PAGE_KEY);
+  console.info('personal1.js listo. Monitoreo activo.');
 });
