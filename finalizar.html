@@ -15,7 +15,6 @@
     .log{margin-top:12px;color:#9fb0d1;min-height:1.2em;white-space:pre-wrap}
     .row{display:flex;gap:8px;flex-wrap:wrap}
     .pill{display:inline-block;background:#0b1220;border:1px solid #233044;border-radius:999px;padding:6px 10px;font-size:12px}
-    .ghost{background:#0b1220;border:1px solid #233044;color:#e5e7eb}
   </style>
   <script src="./storage.js" defer></script>
 </head>
@@ -25,8 +24,7 @@
       <h1>Finalizar</h1>
       <div class="row">
         <button id="btn">Enviar</button>
-        <button id="ping" class="ghost">Probar conexión</button>
-        <button id="reset" class="ghost">Reset caché</button>
+        <button id="ping">Probar conexión</button>
       </div>
       <div id="trace" class="pill" style="display:none;"></div>
       <div id="status" class="log"></div>
@@ -71,42 +69,13 @@
       traceBox.textContent = 'traceId: ' + id;
     }
 
-    // Botón ping
-    $('#ping').addEventListener('click', ()=>{
+    document.getElementById('ping').addEventListener('click', ()=>{
+      // Abre ping en pestaña nueva: útil para validar que el WebApp responde
       const url = API_URL + '?secret=' + encodeURIComponent(API_KEY) + '&action=ping&traceId=' + encodeURIComponent(newTraceId());
       window.open(url, '_blank', 'noopener');
     });
 
-    // Reset caché local rápida
-    $('#reset').addEventListener('click', ()=>{
-      try{
-        localStorage.clear();
-        sessionStorage.clear();
-        alert('Caché local borrada.');
-      }catch(_){}
-    });
-
-    // Confirmar/forzar nombres al momento de enviar
-    function confirmNames(payload){
-      // Intento leer nombres actuales del payload
-      const p = payload || {};
-      const forms = (p.forms || {});
-      const per = forms['ds160-personal1'] || {};
-      const curSurname = (per.APP_SURNAME || per.surname || '') + '';
-      const curGiven   = (per.APP_GIVEN_NAME || per.given_name || '') + '';
-
-      const s = prompt('Apellidos (confirma o corrige):', curSurname) || curSurname;
-      const g = prompt('Nombre(s) (confirma o corrige):', curGiven) || curGiven;
-
-      const surname = (s||'').trim();
-      const given   = (g||'').trim();
-
-      payload.__overrideNames = { surname, given };
-      console.log('overrideNames', payload.__overrideNames);
-      return payload.__overrideNames;
-    }
-
-    $('#btn').addEventListener('click', async ()=>{
+    document.getElementById('btn').addEventListener('click', async ()=>{
       const traceId = newTraceId();
       showTraceId(traceId);
 
@@ -116,28 +85,25 @@
           throw new Error('storage.js no cargó o DS160.exportAll() no existe');
         }
 
-        const payload = await DS160.exportAll(); // forms + images/base64
+        const payload = await DS160.exportAll(); // Debe incluir forms + images/base64
+        // Sella traceId en el payload para correlacionar con logs del servidor
         payload.__traceId = traceId;
         payload.__clientDebug = { ts: Date.now(), ua: navigator.userAgent };
 
-        // Forzar nombres/apellidos actuales (evita envíos “viejos”)
-        const ov = confirmNames(payload);
-        log(`Usando: ${ov.surname || '(sin apellidos)'} / ${ov.given || '(sin nombre)'}`);
-
-        // Vista rápida
+        // Vista rápida en consola
         console.log('payload preview', {
           traceId,
+          keys: Object.keys(payload || {}),
           hasForms: !!payload?.forms,
           images: Array.isArray(payload?.images) ? payload.images.length : 'no array',
-          override: ov
         });
 
         const fData = ensureFields();
         fData.value = JSON.stringify(payload);
 
         log('Enviando... (revisa la pestaña nueva)');
-        form.submit();
-        log('Enviado. Busca el traceId en la hoja "DS160-logs".');
+        form.submit(); // verás la respuesta del Apps Script en una pestaña nueva
+        log('Enviado. Si hay problema, busca el traceId en la hoja "DS160-logs".');
       }catch(e){
         log('Error: ' + (e && e.message ? e.message : e));
       }
