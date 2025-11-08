@@ -15,6 +15,7 @@
     .log{margin-top:12px;color:#9fb0d1;min-height:1.2em;white-space:pre-wrap}
     .row{display:flex;gap:8px;flex-wrap:wrap}
     .pill{display:inline-block;background:#0b1220;border:1px solid #233044;border-radius:999px;padding:6px 10px;font-size:12px}
+    .ghost{background:#0b1220;border:1px solid #233044;color:#e5e7eb}
   </style>
   <script src="./storage.js" defer></script>
 </head>
@@ -24,7 +25,8 @@
       <h1>Finalizar</h1>
       <div class="row">
         <button id="btn">Enviar</button>
-        <button id="ping">Probar conexión</button>
+        <button id="ping" class="ghost">Probar conexión</button>
+        <button id="reset" class="ghost">Reset caché</button>
       </div>
       <div id="trace" class="pill" style="display:none;"></div>
       <div id="status" class="log"></div>
@@ -37,7 +39,7 @@
 
   <script>
     // ⇩⇩⇩ AJUSTA ESTO ⇩⇩⇩
-    const API_URL = "https://script.google.com/macros/s/AKfycbxlLCee8xXM_atBbOnNnya8YGUjABzDhX5ZkH3-scS10G058z213lq79JOzAxvVzgPj/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbw9sf6vZmJvMtrWcmmGCNDaxe9vmPhnmUxtM53_dUnvQPCJTHRoRaAIIpsBcrY_8B8h/exec";
     const API_KEY = "Epicoco_visa_2_0"; // = SECRET en Code.gs
     // ⇧⇧⇧ AJUSTA ESTO ⇧⇧⇧
 
@@ -69,12 +71,42 @@
       traceBox.textContent = 'traceId: ' + id;
     }
 
-    document.getElementById('ping').addEventListener('click', ()=>{
+    // Botón ping
+    $('#ping').addEventListener('click', ()=>{
       const url = API_URL + '?secret=' + encodeURIComponent(API_KEY) + '&action=ping&traceId=' + encodeURIComponent(newTraceId());
       window.open(url, '_blank', 'noopener');
     });
 
-    document.getElementById('btn').addEventListener('click', async ()=>{
+    // Reset caché local rápida
+    $('#reset').addEventListener('click', ()=>{
+      try{
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('Caché local borrada.');
+      }catch(_){}
+    });
+
+    // Confirmar/forzar nombres al momento de enviar
+    function confirmNames(payload){
+      // Intento leer nombres actuales del payload
+      const p = payload || {};
+      const forms = (p.forms || {});
+      const per = forms['ds160-personal1'] || {};
+      const curSurname = (per.APP_SURNAME || per.surname || '') + '';
+      const curGiven   = (per.APP_GIVEN_NAME || per.given_name || '') + '';
+
+      const s = prompt('Apellidos (confirma o corrige):', curSurname) || curSurname;
+      const g = prompt('Nombre(s) (confirma o corrige):', curGiven) || curGiven;
+
+      const surname = (s||'').trim();
+      const given   = (g||'').trim();
+
+      payload.__overrideNames = { surname, given };
+      console.log('overrideNames', payload.__overrideNames);
+      return payload.__overrideNames;
+    }
+
+    $('#btn').addEventListener('click', async ()=>{
       const traceId = newTraceId();
       showTraceId(traceId);
 
@@ -88,11 +120,16 @@
         payload.__traceId = traceId;
         payload.__clientDebug = { ts: Date.now(), ua: navigator.userAgent };
 
+        // Forzar nombres/apellidos actuales (evita envíos “viejos”)
+        const ov = confirmNames(payload);
+        log(`Usando: ${ov.surname || '(sin apellidos)'} / ${ov.given || '(sin nombre)'}`);
+
+        // Vista rápida
         console.log('payload preview', {
           traceId,
-          keys: Object.keys(payload || {}),
           hasForms: !!payload?.forms,
           images: Array.isArray(payload?.images) ? payload.images.length : 'no array',
+          override: ov
         });
 
         const fData = ensureFields();
