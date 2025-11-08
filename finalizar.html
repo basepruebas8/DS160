@@ -1,3 +1,4 @@
+<!-- finalizar.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -20,7 +21,6 @@
     <div class="card">
       <h1>Finalizar</h1>
       <button id="btn">Enviar</button>
-      <!-- FALTABA ESTO -->
       <div id="status" class="log"></div>
     </div>
   </div>
@@ -40,7 +40,6 @@
     const log = (msg) => { if (st) st.textContent = msg; console.log(msg); };
 
     function ensureFields(){
-      // pasamos la clave en la URL para evitar problemas
       form.action = API_URL + "?secret=" + encodeURIComponent(API_KEY);
       let fData = document.getElementById('f_data');
       if(!fData){
@@ -56,21 +55,17 @@
     document.getElementById('btn').addEventListener('click', async ()=>{
       try{
         log('Generando JSON...');
-        // Verificación clara por si storage.js no cargó:
         if (!window.DS160 || typeof DS160.exportAll !== 'function') {
           throw new Error('storage.js no cargó o DS160.exportAll() no existe');
         }
 
-        const payload = await DS160.exportAll(); // incluye forms + images[].dataURI
-
-        // opcional: valida que haya nombre/apellidos para nombrar la carpeta
-        // if(!payload.forms?.personal1?.APELLIDOS && !payload.forms?.personal1?.NOMBRE) { ... }
+        const payload = await DS160.exportAll(); // Debe incluir forms + images[].dataURI/base64
 
         const fData = ensureFields();
         fData.value = JSON.stringify(payload);
 
         log('Enviando...');
-        form.submit(); // verás el JSON de respuesta en una pestaña nueva
+        form.submit(); // verás la respuesta del Apps Script en una pestaña nueva
         log('Enviado. Revisa la pestaña nueva y tu Drive.');
       }catch(e){
         log('Error: ' + (e && e.message ? e.message : e));
