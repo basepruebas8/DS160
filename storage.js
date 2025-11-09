@@ -7,8 +7,10 @@
   const DB_NAME = 'ds160-db';
   const DB_VERSION = 1;
   const STORE_IMAGES = 'images';
-  const STORAGE_PREFIX = 'ds160:';
+  const STORAGE_PREFIX = 'ds160:';            // legacy/localStorage
+  const MASTER_SESSION_KEY = 'ds160-all';     // maestro en sessionStorage (personal1.js)
 
+  // ========= IndexedDB (para imágenes exportadas en este módulo) =========
   function openDB() {
     return new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -94,6 +96,7 @@
     return txPromise(db, STORE_IMAGES, 'readwrite', st => st.delete(id));
   }
 
+  // ========= Utilidades =========
   function arrayBufferToBase64(buf) {
     const bytes = new Uint8Array(buf);
     let binary = '';
@@ -105,6 +108,7 @@
     return btoa(binary);
   }
 
+  // ----- 1) Forms legacy en localStorage (prefijo ds160:) -----
   function collectFormsFromLocalStorage() {
     const forms = {};
     for (let i = 0; i < localStorage.length; i++) {
@@ -124,18 +128,85 @@
     return forms;
   }
 
+  // ----- 2) Forms maestro en sessionStorage (ds160-all) -----
+  function readMasterFromSession() {
+    try {
+      const raw = sessionStorage.getItem(MASTER_SESSION_KEY);
+      if (!raw) return {};
+      const master = JSON.parse(raw);
+      return (master && typeof master === 'object') ? master : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function deepMergeForms(baseForms, extraForms) {
+    const out = { ...baseForms };
+    if (!extraForms || typeof extraForms !== 'object') return out;
+    for (const [formId, payload] of Object.entries(extraForms)) {
+      const prev = out[formId] || {};
+      if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+        out[formId] = { ...prev, ...payload };
+      } else {
+        out[formId] = payload;
+      }
+    }
+    return out;
+  }
+
+  // ----- 3) Recolector unificado (lo que necesitas) -----
+  function collectFormsUnified() {
+    const legacy = collectFormsFromLocalStorage();     // lo ya guardado con "ds160:<id>:<field>"
+    const master = readMasterFromSession();            // JSON maestro de personal1.js
+
+    // Fusiona forms (sessionStorage tiene prioridad)
+    const unified = deepMergeForms(legacy, master.forms || {});
+
+    // Asegura aliases en raíz (por compatibilidad con tu Apps Script)
+    // Si el maestro los trae, mantenlos
+    const rootAliases = {};
+    if (master.APP_SURNAME)        rootAliases.APP_SURNAME = master.APP_SURNAME;
+    if (master.APP_GIVEN_NAME)     rootAliases.APP_GIVEN_NAME = master.APP_GIVEN_NAME;
+    if (master.app_surname)        rootAliases.app_surname = master.app_surname;
+    if (master.app_given_name)     rootAliases.app_given_name = master.app_given_name;
+    if (master.full_name)          rootAliases.full_name = master.full_name;
+
+    // También, si existen dentro del propio form de personal1, propaga a raíz
+    const p1 = unified['ds160-personal1'] || unified['personal1'] || null;
+    if (p1 && typeof p1 === 'object') {
+      if (p1.APP_SURNAME && !rootAliases.APP_SURNAME) rootAliases.APP_SURNAME = p1.APP_SURNAME;
+      if (p1.APP_GIVEN_NAME && !rootAliases.APP_GIVEN_NAME) rootAliases.APP_GIVEN_NAME = p1.APP_GIVEN_NAME;
+      if (p1.app_surname && !rootAliases.app_surname) rootAliases.app_surname = p1.app_surname;
+      if (p1.app_given_name && !rootAliases.app_given_name) rootAliases.app_given_name = p1.app_given_name;
+      if (p1.full_name && !rootAliases.full_name) rootAliases.full_name = p1.full_name;
+    }
+
+    // Meta derivada del maestro cuando exista
+    const metaFromMaster = {};
+    if (master.meta && typeof master.meta === 'object') {
+      if (Number.isFinite(master.meta.pagesExpected)) metaFromMaster.pagesExpected = master.meta.pagesExpected;
+    }
+
+    return { forms: unified, rootAliases, metaFromMaster };
+  }
+
+  // ========= Exportación =========
   async function exportAll() {
-    const forms = collectFormsFromLocalStorage();
+    // Une forms de localStorage + sessionStorage (personal1)
+    const { forms, rootAliases, metaFromMaster } = collectFormsUnified();
+
     const meta = {
       exportedAt: new Date().toISOString(),
       version: 1,
-      pagesExpected: 16
+      pagesExpected: Number.isFinite(metaFromMaster.pagesExpected) ? metaFromMaster.pagesExpected : 16
     };
+
+    // Imágenes de este módulo (IndexedDB "ds160-db")
     const imgs = await (async () => {
       const list = await listImages();
       const out = [];
-      for (const meta of list) {
-        const rec = await getRecord(meta.id);
+      for (const m of list) {
+        const rec = await getRecord(m.id);
         const b64 = arrayBufferToBase64(rec.data);
         out.push({
           id: rec.id,
@@ -148,9 +219,17 @@
       }
       return out;
     })();
-    return { meta, forms, images: imgs };
+
+    // Arma el payload final
+    const payload = { meta, forms, images: imgs };
+
+    // Inserta aliases en raíz para mantener compatibilidad con Code.gs
+    Object.assign(payload, rootAliases);
+
+    return payload;
   }
 
+  // ========= Descarga =========
   function downloadJSON(payload, filename) {
     const data = payload ? JSON.stringify(payload, null, 2) : '{}';
     const blob = new Blob([data], { type: 'application/json' });
@@ -164,6 +243,7 @@
     URL.revokeObjectURL(url);
   }
 
+  // ========= API pública =========
   window.DS160 = {
     imageStore: { saveImages, listImages, getRecord, deleteImage },
     exportAll,
