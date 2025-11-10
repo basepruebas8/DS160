@@ -9,6 +9,7 @@
 //   + alias en raíz: APP_SURNAME / APP_GIVEN_NAME / app_surname / app_given_name / full_name.
 // - "Siguiente" valida sólo campos requeridos visibles; si falta algo, no avanza.
 // - Navega a personal2.html con query string.
+// - Elimina/oculta cualquier panel de "Debug" que aparezca.
 
 (function(){
   'use strict';
@@ -59,6 +60,56 @@
     });
     return valid;
   }
+
+  // ===== Anti-ventana "Debug" =====
+  safe(()=>{
+    // Pide al padre (si existe) que apague su debug
+    try{ parent && parent.postMessage({ type:'ds160:debug:off' }, '*'); }catch{}
+
+    // Inyecta CSS para ocultar selectores comunes
+    const style = document.createElement('style');
+    style.textContent = `
+      #debug, .debug, .debug-overlay, .log-panel, .logger, .dbg, [data-debug],
+      [data-role="debug"], [data-panel="debug"], [aria-label="Debug"] {
+        display: none !important; visibility: hidden !important; pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Eliminación proactiva por heurística (por si cambia la clase/id)
+    const looksLikeDebug = (el)=>{
+      if (!(el && el.nodeType===1)) return false;
+      const sig = (el.id||'')+' '+(el.className||'');
+      if (/(^|[\s-_])debug([-\s_]|$)|log-panel|logger|debug-overlay|dbg/i.test(sig)) return true;
+      const tx = (el.textContent||'').slice(0,800);
+      const hasHdr = /(^|\s)Debug(\s|$)/i.test(tx);
+      const hasBtns = /(Pausar|Limpiar|Copiar|Cerrar)/i.test(tx);
+      return hasHdr && hasBtns;
+    };
+
+    const nuke = (root=document)=>{
+      try{
+        const all = root.querySelectorAll('*');
+        for (const el of all){
+          if (looksLikeDebug(el)) { el.remove(); }
+        }
+      }catch{}
+    };
+    nuke();
+
+    // Observa el DOM para volver a eliminar si reaparece
+    const mo = new MutationObserver(muts=>{
+      for (const m of muts){
+        m.addedNodes && m.addedNodes.forEach(n=>{
+          if (looksLikeDebug(n)) { try{ n.remove(); }catch{} return; }
+          if (n.querySelectorAll){
+            n.querySelectorAll('#debug,.debug,.debug-overlay,.log-panel,.logger,.dbg,[data-debug],[data-role="debug"],[data-panel="debug"],[aria-label="Debug"]').forEach(x=>{ try{x.remove();}catch{} });
+          }
+        });
+      }
+    });
+    mo.observe(document.documentElement, { childList:true, subtree:true });
+  });
 
   // ===== Recolección/guardado local de la página =====
   function collectRaw(form){
@@ -486,8 +537,7 @@
 
   console.info('personal1.js listo (integrado).');
 
-
-// === Bridge: recibe datos del panel padre ===
+  // === Bridge: recibe datos del panel padre ===
   window.addEventListener('message', (e) => {
     try{
       const msg = e && e.data;
@@ -531,7 +581,6 @@
         }catch(_){}
 
         // persiste sección actual
-
         try{
           sessionStorage.setItem('ds160-personal1-state-v3', JSON.stringify(section));
           sessionStorage.setItem('ds160-personal1-raw-v3', JSON.stringify(section));
