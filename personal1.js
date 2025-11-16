@@ -1,42 +1,16 @@
 // personal1.js
-// Lógica de navegación, validación y almacenamiento local para personal1.html
+// Lógica de navegación, limpieza e imágenes para personal1.html
+// Usa el mismo JSON que form-data.js (localStorage['ds160_data']).
 
 (function () {
   'use strict';
 
-  const DS160_STORAGE_KEY = 'ds160_data';
+  const STORAGE_KEY = 'ds160_data';
   const IMAGES_PROP = 'personal1_images';
 
-  function setSectionVisible(el, visible) {
-    if (!el) return;
-    if (visible) {
-      el.style.display = '';
-      el.hidden = false;
-      el.removeAttribute('aria-hidden');
-    } else {
-      el.style.display = 'none';
-      el.hidden = true;
-      el.setAttribute('aria-hidden', 'true');
-    }
-  }
-
-  function humanFileSize(bytes) {
-    const thresh = 1024;
-    if (!Number.isFinite(bytes) || bytes < 0) return '';
-    if (bytes < thresh) return bytes + ' B';
-    const units = ['KB', 'MB', 'GB', 'TB'];
-    let u = -1;
-    let value = bytes;
-    do {
-      value /= thresh;
-      ++u;
-    } while (value >= thresh && u < units.length - 1);
-    return value.toFixed(1) + ' ' + units[u];
-  }
-
-  function loadDs160Data() {
+  function readStore() {
     try {
-      const raw = localStorage.getItem(DS160_STORAGE_KEY);
+      const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : {};
     } catch (e) {
       console.error('Error leyendo ds160_data', e);
@@ -44,20 +18,35 @@
     }
   }
 
-  function saveDs160Data(data) {
+  function writeStore(obj) {
     try {
-      localStorage.setItem(DS160_STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj || {}));
     } catch (e) {
       console.error('Error guardando ds160_data', e);
     }
   }
 
-  function renderImagesList(container, images) {
+  function formatSize(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) return '';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let u = 0;
+    let value = bytes;
+    while (value >= 1024 && u < units.length - 1) {
+      value = value / 1024;
+      u++;
+    }
+    return value.toFixed(u === 0 ? 0 : 1) + ' ' + units[u];
+  }
+
+  function renderImagesList(container) {
     if (!container) return;
+
+    const data = readStore();
+    const list = Array.isArray(data[IMAGES_PROP]) ? data[IMAGES_PROP] : [];
 
     container.innerHTML = '';
 
-    if (!images || images.length === 0) {
+    if (!list.length) {
       const empty = document.createElement('div');
       empty.className = 'muted';
       empty.textContent = 'Sin archivos.';
@@ -79,7 +68,7 @@
     table.appendChild(thead);
 
     const tbody = document.createElement('tbody');
-    images.forEach((f) => {
+    list.forEach((f) => {
       const tr = document.createElement('tr');
 
       const tdName = document.createElement('td');
@@ -87,7 +76,7 @@
       tr.appendChild(tdName);
 
       const tdSize = document.createElement('td');
-      tdSize.textContent = humanFileSize(f.size || 0);
+      tdSize.textContent = formatSize(f.size || 0);
       tr.appendChild(tdSize);
 
       const tdType = document.createElement('td');
@@ -101,13 +90,7 @@
     container.appendChild(table);
   }
 
-  function refreshImagesFromStorage(container) {
-    const data = loadDs160Data();
-    const list = Array.isArray(data[IMAGES_PROP]) ? data[IMAGES_PROP] : [];
-    renderImagesList(container, list);
-  }
-
-  function saveAllFieldsForFormPersistence(form) {
+  function savePageFieldsToJson(form) {
     if (!form) return;
     const fields = form.querySelectorAll('input[name], select[name], textarea[name]');
     fields.forEach((field) => {
@@ -116,70 +99,89 @@
     });
   }
 
-  function normalizeDobYear(dobYear) {
-    if (!dobYear) return;
-    const digits = dobYear.value.replace(/\D/g, '').slice(0, 4);
-    dobYear.value = digits;
-    dobYear.setCustomValidity('');
-    if (digits && digits.length !== 4) {
-      dobYear.setCustomValidity('Ingrese un año de 4 dígitos.');
+  function clearPageFieldsFromJson(form) {
+    const data = readStore();
+    if (!form) {
+      writeStore(data);
+      return;
     }
-  }
-
-  function monthCodeToNumber(code) {
-    if (!code) return 0;
-    const map = {
-      JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6,
-      JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12
-    };
-    return map[code.toUpperCase()] || 0;
-  }
-
-  function validateDobGroup(dobDay, dobMonth, dobYear) {
-    if (!dobDay || !dobMonth || !dobYear) return true;
-
-    dobDay.setCustomValidity('');
-    dobMonth.setCustomValidity('');
-    dobYear.setCustomValidity('');
-
-    const d = dobDay.value;
-    const m = dobMonth.value;
-    const y = dobYear.value;
-
-    if (!d || !m || !y) {
-      // Los required ya marcan vacío; aquí marcamos incompleto.
-      if (d || m || y) {
-        dobYear.setCustomValidity('Fecha incompleta.');
-        return false;
+    const fields = form.querySelectorAll('input[name], select[name], textarea[name]');
+    fields.forEach((field) => {
+      if (!field.name) return;
+      if (Object.prototype.hasOwnProperty.call(data, field.name)) {
+        delete data[field.name];
       }
-      return true;
+    });
+    if (Object.prototype.hasOwnProperty.call(data, IMAGES_PROP)) {
+      delete data[IMAGES_PROP];
     }
+    writeStore(data);
+  }
 
-    if (y.length !== 4) {
-      dobYear.setCustomValidity('Año inválido.');
-      return false;
-    }
+  function toggleNativeName(nativeInput, nativeNaCheckbox) {
+    if (!nativeInput || !nativeNaCheckbox) return;
+    const update = () => {
+      if (nativeNaCheckbox.checked) {
+        nativeInput.disabled = true;
+        nativeInput.value = '';
+        nativeInput.required = false;
+        nativeInput.setCustomValidity('');
+      } else {
+        nativeInput.disabled = false;
+        nativeInput.required = true;
+      }
+    };
+    nativeNaCheckbox.addEventListener('change', update);
+    update();
+  }
 
-    const dayNum = parseInt(d, 10);
-    const monthNum = monthCodeToNumber(m);
-    const yearNum = parseInt(y, 10);
+  function toggleTelecodeSection(yesRadio, noRadio, section, teleSurname, teleGiven) {
+    const update = () => {
+      const show = !!(yesRadio && yesRadio.checked);
+      if (section) {
+        section.hidden = !show;
+        section.style.display = show ? '' : 'none';
+        if (show) {
+          section.removeAttribute('aria-hidden');
+        } else {
+          section.setAttribute('aria-hidden', 'true');
+        }
+      }
+      if (teleSurname) {
+        teleSurname.required = show;
+        if (!show) {
+          teleSurname.value = '';
+          teleSurname.setCustomValidity('');
+        }
+      }
+      if (teleGiven) {
+        teleGiven.required = show;
+        if (!show) {
+          teleGiven.value = '';
+          teleGiven.setCustomValidity('');
+        }
+      }
+    };
+    if (yesRadio) yesRadio.addEventListener('change', update);
+    if (noRadio)  noRadio.addEventListener('change', update);
+    update();
+  }
 
-    if (!Number.isFinite(dayNum) || !Number.isFinite(yearNum) || monthNum === 0) {
-      dobYear.setCustomValidity('Fecha inválida.');
-      return false;
-    }
-
-    const date = new Date(yearNum, monthNum - 1, dayNum);
-    if (
-      date.getFullYear() !== yearNum ||
-      date.getMonth() !== monthNum - 1 ||
-      date.getDate() !== dayNum
-    ) {
-      dobYear.setCustomValidity('Fecha inválida.');
-      return false;
-    }
-
-    return true;
+  function togglePobState(stateInput, naCheckbox) {
+    if (!stateInput || !naCheckbox) return;
+    const update = () => {
+      if (naCheckbox.checked) {
+        stateInput.disabled = true;
+        stateInput.value = '';
+        stateInput.required = false;
+        stateInput.setCustomValidity('');
+      } else {
+        stateInput.disabled = false;
+        stateInput.required = true;
+      }
+    };
+    naCheckbox.addEventListener('change', update);
+    update();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -188,164 +190,52 @@
 
     const NEXT_URL = new URL('personal2.html', window.location.href).href;
 
-    const nextBtn = document.getElementById('nextBtn');
     const clearBtn = document.getElementById('clearBtn');
-    const saveMsg = document.getElementById('saveMsg');
+    const nextBtn  = document.getElementById('nextBtn');
+    const saveMsg  = document.getElementById('saveMsg');
 
-    const nativeName = document.getElementById('APP_FULL_NAME_NATIVE');
+    const nativeName   = document.getElementById('APP_FULL_NAME_NATIVE');
     const nativeNameNA = document.getElementById('APP_FULL_NAME_NATIVE_NA');
 
-    const telecodeY = document.getElementById('TelecodeY');
-    const telecodeN = document.getElementById('TelecodeN');
+    const telecodeY       = document.getElementById('TelecodeY');
+    const telecodeN       = document.getElementById('TelecodeN');
     const telecodeSection = document.getElementById('telecodeSection');
     const telecodeSurname = document.getElementById('TELECODE_SURNAME');
-    const telecodeGiven = document.getElementById('TELECODE_GIVEN');
+    const telecodeGiven   = document.getElementById('TELECODE_GIVEN');
 
-    const pobState = document.getElementById('POB_STATE');
+    const pobState   = document.getElementById('POB_STATE');
     const pobStateNA = document.getElementById('POB_STATE_NA');
 
-    const dobDay = document.getElementById('DOB_DAY');
-    const dobMonth = document.getElementById('DOB_MONTH');
-    const dobYear = document.getElementById('DOB_YEAR');
-
-    const imagesInput = document.getElementById('imagesNow');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const refreshListBtn = document.getElementById('refreshListBtn');
-    const uploadProgress = document.getElementById('uploadProgress');
+    const imagesInput      = document.getElementById('imagesNow');
+    const uploadBtn        = document.getElementById('uploadBtn');
+    const refreshListBtn   = document.getElementById('refreshListBtn');
+    const uploadProgress   = document.getElementById('uploadProgress');
     const uploadProgressText = document.getElementById('uploadProgressText');
-    const uploadStatus = document.getElementById('uploadStatusImages');
-    const imagesList = document.getElementById('imagesList');
+    const uploadStatus     = document.getElementById('uploadStatusImages');
+    const imagesList       = document.getElementById('imagesList');
 
-    function updateNativeNameState() {
-      if (!nativeName || !nativeNameNA) return;
-      const na = nativeNameNA.checked;
-      nativeName.disabled = na;
-      nativeName.required = !na;
-      if (na) {
-        nativeName.value = '';
-        nativeName.setCustomValidity('');
-      }
+    if (nextBtn) {
+      nextBtn.disabled = false;
+      nextBtn.removeAttribute('aria-disabled');
     }
 
-    function updateTelecodeSection() {
-      const yes = telecodeY && telecodeY.checked;
-      setSectionVisible(telecodeSection, !!yes);
+    toggleNativeName(nativeName, nativeNameNA);
+    toggleTelecodeSection(telecodeY, telecodeN, telecodeSection, telecodeSurname, telecodeGiven);
+    togglePobState(pobState, pobStateNA);
 
-      if (telecodeSurname) {
-        telecodeSurname.required = !!yes;
-        if (!yes) {
-          telecodeSurname.value = '';
-          telecodeSurname.setCustomValidity('');
-        }
-      }
-      if (telecodeGiven) {
-        telecodeGiven.required = !!yes;
-        if (!yes) {
-          telecodeGiven.value = '';
-          telecodeGiven.setCustomValidity('');
-        }
-      }
-    }
-
-    function updatePobState() {
-      if (!pobState || !pobStateNA) return;
-      const na = pobStateNA.checked;
-      pobState.disabled = na;
-      pobState.required = !na;
-      if (na) {
-        pobState.value = '';
-        pobState.setCustomValidity('');
-      }
-    }
-
-    if (nativeNameNA) {
-      nativeNameNA.addEventListener('change', updateNativeNameState);
-    }
-    if (telecodeY) {
-      telecodeY.addEventListener('change', updateTelecodeSection);
-    }
-    if (telecodeN) {
-      telecodeN.addEventListener('change', updateTelecodeSection);
-    }
-    if (pobStateNA) {
-      pobStateNA.addEventListener('change', updatePobState);
-    }
-
-    if (dobYear) {
-      dobYear.addEventListener('input', () => normalizeDobYear(dobYear));
-      dobYear.addEventListener('blur', () => {
-        normalizeDobYear(dobYear);
-        validateDobGroup(dobDay, dobMonth, dobYear);
-      });
-    }
-    if (dobDay) {
-      dobDay.addEventListener('change', () => validateDobGroup(dobDay, dobMonth, dobYear));
-    }
-    if (dobMonth) {
-      dobMonth.addEventListener('change', () => validateDobGroup(dobDay, dobMonth, dobYear));
-    }
-
-    // Estado inicial al cargar (después de que form-data.js restaure valores)
-    updateNativeNameState();
-    updateTelecodeSection();
-    updatePobState();
-    validateDobGroup(dobDay, dobMonth, dobYear);
+    renderImagesList(imagesList);
 
     if (clearBtn) {
       clearBtn.addEventListener('click', () => {
         form.reset();
-        updateNativeNameState();
-        updateTelecodeSection();
-        updatePobState();
-        if (dobYear) {
-          normalizeDobYear(dobYear);
-        }
+        clearPageFieldsFromJson(form);
+        renderImagesList(imagesList);
 
-        if (uploadProgress) uploadProgress.value = 0;
+        if (uploadProgress)     uploadProgress.value = 0;
         if (uploadProgressText) uploadProgressText.textContent = '';
-        if (uploadStatus) uploadStatus.textContent = '';
-        renderImagesList(imagesList, []);
+        if (uploadStatus)       uploadStatus.textContent = '';
 
-        try {
-          if (window.FormPersistence && typeof window.FormPersistence.clear === 'function') {
-            window.FormPersistence.clear();
-          } else {
-            localStorage.removeItem(DS160_STORAGE_KEY);
-          }
-        } catch (e) {
-          console.error('Error limpiando almacenamiento', e);
-        }
-
-        if (saveMsg) {
-          saveMsg.textContent = 'Formulario limpiado.';
-        }
-      });
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => {
-        if (dobYear) {
-          normalizeDobYear(dobYear);
-        }
-        const dobOk = validateDobGroup(dobDay, dobMonth, dobYear);
-
-        if (!form.checkValidity() || !dobOk) {
-          form.reportValidity();
-          const firstInvalid = form.querySelector(':invalid');
-          if (firstInvalid) {
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          return;
-        }
-
-        // Dispara change/blur para que form-data.js actualice ds160_data
-        saveAllFieldsForFormPersistence(form);
-
-        if (saveMsg) {
-          saveMsg.textContent = 'Datos guardados. Redirigiendo…';
-        }
-
-        window.location.assign(NEXT_URL);
+        if (saveMsg) saveMsg.textContent = 'Formulario limpiado.';
       });
     }
 
@@ -357,51 +247,52 @@
           return;
         }
 
-        if (uploadProgress) uploadProgress.value = 0;
-        if (uploadProgressText) uploadProgressText.textContent = 'Guardando…';
-        if (uploadStatus) uploadStatus.textContent = '';
+        const data    = readStore();
+        const current = Array.isArray(data[IMAGES_PROP]) ? data[IMAGES_PROP] : [];
+        const mapped  = files.map((f) => ({
+          name: f.name,
+          size: f.size,
+          type: f.type || '',
+          lastModified: f.lastModified || Date.now()
+        }));
+        data[IMAGES_PROP] = current.concat(mapped);
+        writeStore(data);
 
-        let progress = 0;
-        const step = 25;
-        const timer = setInterval(() => {
-          progress += step;
-          const value = Math.min(progress, 100);
-          if (uploadProgress) uploadProgress.value = value;
-          if (uploadProgressText) uploadProgressText.textContent = value + '%';
+        if (uploadProgress)     uploadProgress.value = 100;
+        if (uploadProgressText) uploadProgressText.textContent = '100%';
+        if (uploadStatus)       uploadStatus.textContent = 'Imágenes guardadas localmente.';
 
-          if (progress >= 100) {
-            clearInterval(timer);
-
-            const data = loadDs160Data();
-            const current = Array.isArray(data[IMAGES_PROP]) ? data[IMAGES_PROP] : [];
-            const mapped = files.map((f) => ({
-              name: f.name,
-              size: f.size,
-              type: f.type || '',
-              lastModified: f.lastModified || Date.now()
-            }));
-            data[IMAGES_PROP] = current.concat(mapped);
-            saveDs160Data(data);
-
-            refreshImagesFromStorage(imagesList);
-
-            if (uploadStatus) uploadStatus.textContent = 'Imágenes registradas localmente.';
-          }
-        }, 120);
+        renderImagesList(imagesList);
       });
     }
 
     if (refreshListBtn && imagesList) {
       refreshListBtn.addEventListener('click', () => {
-        refreshImagesFromStorage(imagesList);
-        if (uploadStatus) {
-          uploadStatus.textContent = 'Lista actualizada.';
-        }
+        renderImagesList(imagesList);
+        if (uploadStatus) uploadStatus.textContent = 'Lista actualizada.';
       });
     }
 
-    if (imagesList) {
-      refreshImagesFromStorage(imagesList);
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          const firstInvalid = form.querySelector(':invalid');
+          if (firstInvalid && firstInvalid.scrollIntoView) {
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          return;
+        }
+
+        // aseguramos que todo se vaya al JSON global
+        savePageFieldsToJson(form);
+
+        if (saveMsg) {
+          saveMsg.textContent = 'Datos guardados. Redirigiendo…';
+        }
+
+        window.location.assign(NEXT_URL);
+      });
     }
   });
 })();
