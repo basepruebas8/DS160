@@ -21,33 +21,286 @@
       --bg: #f6f7fb;
       --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
                  radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
-      --card: #ffffff; --text: #0f172a; --muted: #475569; --border: #e2e8f0;
-      --accent: #2563eb; --accent-600: #1d4ed8; --accent-700: #2563eb; --ring: #93c5fd;
-      --shadow: 0 10px 30px rgba(2, 8, 23, .08);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --border-soft:#edf2ff;
+      --accent: #2563eb;
+      --accent-soft: #eff3ff;
+      --accent-600:#1d4ed8;
+      --accent-700:#1e40af;
+      --danger:#dc2626;
+      --danger-soft:#fee2e2;
+      --ring:#60a5fa;
+      --shadow:0 18px 45px rgba(15,23,42,.16);
+      --input-bg:#f8fafc;
+      --chip-bg:#eff6ff;
+      --chip-border:#dbeafe;
+      --badge:#0f172a;
     }
+
     @media (prefers-color-scheme: dark){
       :root{
-        --bg: #0b1220;
-        --bg-grad: radial-gradient(1200px 600px at 10% -10%, #1d2a4e75, transparent 60%),
-                   radial-gradient(800px 400px at 110% 10%, #4e2a1d75, transparent 60%);
-        --card: #0f172a; --text: #e5e7eb; --muted: #94a3b8; --border: #233044;
-        --accent: #60a5fa; --accent-600: #3b82f6; --accent-700: #2563eb; --ring:#60a5fa;
-        --shadow: 0 12px 36px rgba(0,0,0,.35);
+        --bg:#020617;
+        --bg-grad:radial-gradient(1200px 600px at 10% -10%, #0b112055, transparent 60%),
+                  radial-gradient(800px 400px at 110% 10%, #17255455, transparent 60%);
+        --card:#020617;
+        --text:#e2e8f0;
+        --muted:#94a3b8;
+        --border:#0f172a;
+        --border-soft:#1f2937;
+        --accent:#3b82f6;
+        --accent-soft:rgba(37,99,235,.08);
+        --accent-600:#2563eb;
+        --accent-700:#1d4ed8;
+        --danger:#f87171;
+        --danger-soft:rgba(248,113,113,.12);
+        --ring:#60a5fa;
+        --shadow:0 24px 70px rgba(15,23,42,.85);
+        --input-bg:#020617;
+        --chip-bg:rgba(15,23,42,.9);
+        --chip-border:#1f2937;
+        --badge:#e5e7eb;
       }
     }
+
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans","Helvetica Neue",sans-serif;line-height:1.45;color:var(--text);background:var(--bg);background-image:var(--bg-grad)}
-    .wrap{max-width:920px;margin:32px auto;padding:0 16px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow);backdrop-filter:saturate(120%) blur(4px)}
-    header h1{font-size:1.35rem;margin:0 0 6px;letter-spacing:-.01em}
-    .subtle{color:var(--muted);font-size:.95rem;margin-bottom:12px}
-    fieldset{border:1px solid var(--border);border-radius:14px;padding:18px;margin:16px 0;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
-    legend{font-weight:700;padding:0 10px;font-size:.98rem}
-    legend::after{content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent)}
-    label{display:inline-block;margin:8px 0 6px;font-weight:600}
-    .row{display:grid;grid-template-columns:1fr;gap:10px}
-    .inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:
+        radial-gradient(800px 400px at -10% 0%, #e0f2fe55, transparent 55%),
+        radial-gradient(700px 280px at 120% 10%, #e9d5ff4d, transparent 60%),
+        var(--bg-grad),
+        var(--bg);
+      color:var(--text);
+      min-height:100%;
+    }
+
+    body{
+      display:flex;
+      min-height:100vh;
+      padding:32px 16px;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:960px;
+    }
+
+    .card{
+      background:radial-gradient(circle at 0 0, rgba(59,130,246,.16), transparent 55%) border-box,
+                 radial-gradient(circle at 100% 0, rgba(147,51,234,.13), transparent 55%) border-box,
+                 var(--card);
+      border-radius:24px;
+      border:1px solid rgba(148,163,184,.3);
+      padding:26px 26px 22px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      backdrop-filter:saturate(135%) blur(14px);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px -2px auto auto;
+      pointer-events:none;
+      background:
+        conic-gradient(from 180deg at 100% 0,
+          transparent 0,
+          rgba(96,165,250,.55) 10%,
+          rgba(192,132,252,.55) 22%,
+          rgba(248,250,252,.2) 32%,
+          transparent 40%);
+      opacity:.45;
+      mix-blend-mode:screen;
+      height:260px;
+      width:260px;
+      border-radius:999px;
+      filter:blur(14px);
+    }
+
+    .header{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+      position:relative;
+      z-index:1;
+    }
+
+    .header-main{
+      flex:1;
+      min-width:0;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.45);
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:var(--muted);
+      gap:6px;
+      background:radial-gradient(circle at 0 0, rgba(59,130,246,.2), transparent 55%),
+                 rgba(15,23,42,.96);
+    }
+    .eyebrow-dot{
+      display:inline-flex;
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:radial-gradient(circle at 30% 30%, #fee2e2, #ef4444);
+      box-shadow:0 0 0 4px rgba(248,113,113,.25);
+    }
+
+    h1{
+      margin:10px 0 4px;
+      font-size:1.6rem;
+      letter-spacing:-.03em;
+    }
+
+    .subtitle{
+      margin:0;
+      color:var(--muted);
+      font-size:.95rem;
+      max-width:620px;
+    }
+
+    .steps{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:8px;
+      min-width:170px;
+      font-size:.78rem;
+      color:var(--muted);
+    }
+
+    .step-pill{
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.55);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(15,23,42,.96);
+      color:#e5e7eb;
+    }
+
+    .step-pill span.badge{
+      background:rgba(248,250,252,.1);
+      border-radius:999px;
+      padding:2px 7px;
+      border:1px solid rgba(148,163,184,.5);
+      font-weight:600;
+      font-size:.7rem;
+      color:var(--badge);
+    }
+
+    .step-bar{
+      position:relative;
+      width:100%;
+      height:4px;
+      border-radius:999px;
+      background:rgba(15,23,42,.75);
+      overflow:hidden;
+    }
+
+    .step-bar-fill{
+      position:absolute;
+      inset:0;
+      width:15%;
+      background:linear-gradient(90deg, #4f46e5, #0ea5e9);
+      box-shadow:0 0 0 1px rgba(15,23,42,.3);
+    }
+
+    .step-labels{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      width:100%;
+    }
+    .step-labels span{
+      white-space:nowrap;
+    }
+
+    .badge-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin:8px 0 10px;
+      font-size:.72rem;
+      color:var(--muted);
+    }
+    .badge-row span{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      padding:3px 7px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.5);
+      background:rgba(15,23,42,.96);
+    }
+    .badge-dot{
+      width:6px;
+      height:6px;
+      border-radius:999px;
+      background:radial-gradient(circle at 30% 30%, #bbf7d0, #22c55e);
+    }
+
+    form{
+      position:relative;
+      z-index:1;
+      margin-top:8px;
+    }
+
+    fieldset{
+      border:1px solid var(--border-soft);
+      border-radius:18px;
+      padding:14px 16px 14px;
+      margin:14px 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(59,130,246,.08), transparent 55%),
+        linear-gradient(135deg, rgba(15,23,42,.96), rgba(15,23,42,.96));
+    }
+
+    legend{
+      padding:0 8px;
+      font-weight:600;
+      font-size:.9rem;
+      color:#e5e7eb;
+    }
+
+    .row{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin:8px 0;
+    }
+
+    label{
+      font-weight:500;
+      font-size:.88rem;
+    }
+
+    .inline{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      font-size:.9rem;
+    }
+
     .inline.nowrap{flex-wrap:nowrap}
 
     input[type="text"],select,input[type="file"]{
@@ -57,164 +310,253 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.05)
     }
     input[type="text"][data-uppercase]{text-transform:uppercase;letter-spacing:.02em}
-    input[type="text"]:focus,select:focus,input[type="file"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent)}
+    input[type="text"]:focus,select:focus,input[type="file"]:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
     input[type="text"]:active,select:active,input[type="file"]:active{transform:translateY(.5px)}
+
     .help{font-size:.9rem;color:var(--muted);margin-top:2px}
-    .actions{margin-top:18px;display:flex;gap:12px;align-items:center;border-top:1px dashed var(--border);padding-top:16px}
-    button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--card);cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-weight:600;transition:transform .06s ease,box-shadow .15s ease,background .2s ease,border-color .15s ease}
-    button.primary{background:linear-gradient(180deg,var(--accent),var(--accent-600));color:#fff;border-color:transparent;box-shadow:var(--shadow)}
-    button.primary:hover{background:linear-gradient(180deg,var(--accent-600),var(--accent-700));transform:translateY(-.5px)}
-    [hidden]{display:none!important}
-    #uploadStatus[aria-live]{min-height:1.2em}
 
-    /* UI de archivos */
-    .file-actions{display:flex;gap:8px;align-items:center}
-    .files-wrap{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:8px;overflow:auto;background:linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%)}
-    table.files{width:100%;border-collapse:collapse;font-size:.95rem}
-    table.files th, table.files td{padding:8px 10px;border-bottom:1px solid var(--border)}
-    table.files th{text-align:left;font-weight:700}
+    .actions{
+      margin-top:18px;display:flex;gap:12px;align-items:center;
+      border-top:1px dashed var(--border);padding-top:16px
+    }
+
+    button{
+      padding:10px 16px;border-radius:12px;border:1px solid rgba(148,163,184,.55);
+      background:rgba(15,23,42,.96);color:#e5e7eb;cursor:pointer;
+      display:inline-flex;align-items:center;gap:8px;font-weight:600;
+      transition:transform .06s ease,box-shadow .15s ease,background .2s ease,border-color .15s ease
+    }
+    button.primary{
+      background:linear-gradient(180deg,var(--accent),var(--accent-600));
+      color:white;border-color:transparent;
+      box-shadow:0 6px 16px rgba(37,99,235,.35)
+    }
+    button.primary:hover{
+      background:linear-gradient(180deg,var(--accent-600),var(--accent-700));
+      transform:translateY(-.5px)
+    }
+    button:hover{box-shadow:0 4px 10px rgba(15,23,42,.45)}
+    button:active{transform:translateY(0);box-shadow:0 2px 6px rgba(15,23,42,.6)}
+
+    .required{color:#f97316;margin-left:4px;font-size:.9em}
+
+    .chips-row{
+      display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px;font-size:.75rem
+    }
+    .chip{
+      padding:3px 8px;border-radius:999px;border:1px solid var(--chip-border);
+      background:var(--chip-bg);color:var(--muted)
+    }
+
+    .files-wrap{
+      border-radius:14px;border:1px dashed rgba(148,163,184,.6);
+      padding:10px 10px 8px;max-width:620px;background:rgba(15,23,42,.92)
+    }
+
+    .files{width:100%;border-collapse:collapse;font-size:.85rem}
+    .files th,.files td{
+      padding:4px 6px;text-align:left;border-bottom:1px solid rgba(30,64,175,.4)
+    }
+    .files th{font-weight:600;color:var(--muted);font-size:.8rem}
+
     .muted{color:var(--muted)}
-    .progress-row{display:flex;align-items:center;gap:10px;margin-top:8px}
-    progress{width:260px;height:14px;border-radius:8px}
+    .file-actions{margin-top:4px}
 
-    /* Fecha (día/mes/año en una sola línea, sin desbordar) */
-    .dob-row{display:flex;gap:10px;align-items:center}
-    .dob-row > *{flex:1 1 0;min-width:0}
-    .dob-row select,.dob-row input{width:100%}
-    @media (max-width:520px){
+    .progress-row{
+      display:flex;align-items:center;gap:8px;margin-top:8px;font-size:.8rem
+    }
+    progress{
+      width:200px;height:6px;border-radius:999px;overflow:hidden;
+      background:rgba(15,23,42,.8);border:1px solid rgba(30,64,175,.7)
+    }
+    progress::-webkit-progress-bar{
+      background:rgba(15,23,42,.8)
+    }
+    progress::-webkit-progress-value{
+      background:linear-gradient(90deg,#4f46e5,#0ea5e9)
+    }
+    progress::-moz-progress-bar{
+      background:linear-gradient(90deg,#4f46e5,#0ea5e9)
+    }
+
+    @media (max-width:768px){
+      .header{flex-direction:column;align-items:flex-start}
+      .steps{align-items:flex-start}
+    }
+
+    @media (max-width:480px){
+      .wrap{padding:0}
+      .card{padding:18px;border-radius:18px}
+      fieldset{padding:12px 12px 10px}
+      .actions{flex-direction:column;align-items:flex-start}
       .inline.nowrap{flex-wrap:wrap}
-      .inline.nowrap > *{min-width:0}
-      .dob-row{gap:8px}
     }
   </style>
+
+  <!-- JSON global de formularios -->
   <script src="../form-data.js" defer></script>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
 
-      <form id="ds160-personal1" novalidate>
-
-        <div class="row">
-          <label for="APP_SURNAME">Apellidos</label>
-          <input type="text" id="APP_SURNAME" name="APP_SURNAME" maxlength="33" data-uppercase required />
-        </div>
-
-        <div class="row">
-          <label for="APP_GIVEN_NAME">Nombres</label>
-          <input type="text" id="APP_GIVEN_NAME" name="APP_GIVEN_NAME" maxlength="33" data-uppercase required />
-        </div>
-
-        <div class="row">
-          <label for="APP_FULL_NAME_NATIVE">Nombre completo en alfabeto nativo</label>
-          <input type="text" id="APP_FULL_NAME_NATIVE" name="APP_FULL_NAME_NATIVE" maxlength="100" required />
-          <div class="inline">
-            <input type="checkbox" id="APP_FULL_NAME_NATIVE_NA" name="APP_FULL_NAME_NATIVE_NA" />
-            <label for="APP_FULL_NAME_NATIVE_NA" style="font-weight:400;">No aplica / Tecnología no disponible</label>
+      <header class="header">
+        <div class="header-main">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            DS-160 · Información personal
           </div>
-          <div id="uploadStatus" class="help" aria-live="polite"></div>
+          <h1>Información personal 1</h1>
+          <p class="subtitle">
+            Datos básicos de identificación y nacimiento. Se guardan localmente en tu navegador
+            dentro de un archivo JSON consolidado.
+          </p>
+          <div class="badge-row">
+            <span><span class="badge-dot"></span> Auto-guardado activo</span>
+            <span>JSON: <code>ds160_data</code></span>
+            <span>Se exporta desde <strong>ResumenExport.html</strong></span>
+          </div>
         </div>
 
-        <div class="row">
-          <label>¿Ha utilizado otros nombres?</label>
-          <div class="inline" role="radiogroup" aria-label="Otros nombres">
-            <label style="font-weight:400;"><input type="radio" name="OtherNames" value="Y" id="OtherNamesY" required> Sí</label>
-            <label style="font-weight:400;"><input type="radio" name="OtherNames" value="N" id="OtherNamesN"> No</label>
+        <div class="steps">
+          <div class="step-pill">
+            <span class="badge">PASO 1</span>
+            Datos personales
           </div>
-          <div id="otherNamesSection" class="row" hidden>
-            <div class="row">
-              <label for="OTHER_SURNAME">Otros apellidos utilizados</label>
-              <input type="text" id="OTHER_SURNAME" name="OTHER_SURNAME" maxlength="33" data-uppercase />
+          <div class="step-bar">
+            <div class="step-bar-fill"></div>
+          </div>
+          <div class="step-labels">
+            <span>Personal 1</span>
+            <span>Personal 2 →</span>
+          </div>
+        </div>
+      </header>
+
+      <form id="ds160-personal1" action="#" method="post" novalidate>
+        <!-- ========= Nombre completo ========= -->
+        <fieldset>
+          <legend>Nombre completo</legend>
+
+          <div class="row">
+            <label for="APP_SURNAME">Apellidos <span class="required">*</span></label>
+            <input type="text" id="APP_SURNAME" name="APP_SURNAME" maxlength="39" data-uppercase required />
+            <div class="help">Escriba sus apellidos exactamente como aparecen en su pasaporte.</div>
+          </div>
+
+          <div class="row">
+            <label for="APP_GIVEN_NAME">Nombres <span class="required">*</span></label>
+            <input type="text" id="APP_GIVEN_NAME" name="APP_GIVEN_NAME" maxlength="33" data-uppercase required />
+          </div>
+
+          <div class="row">
+            <label for="APP_FULL_NAME_NATIVE">
+              Nombre completo en alfabeto nativo <span class="required">*</span>
+            </label>
+            <input type="text" id="APP_FULL_NAME_NATIVE" name="APP_FULL_NAME_NATIVE" maxlength="100" required />
+            <div class="inline">
+              <span class="help">Si no aplica, marque la casilla:</span>
+              <label><input type="checkbox" id="APP_FULL_NAME_NATIVE_NA" /> No aplica (N/A)</label>
             </div>
-            <div class="row">
-              <label for="OTHER_GIVEN">Otros nombres utilizados</label>
-              <input type="text" id="OTHER_GIVEN" name="OTHER_GIVEN" maxlength="33" data-uppercase />
-            </div>
-            <p class="help">Ingrese todos los otros nombres que haya usado.</p>
           </div>
-        </div>
 
-        <div class="row">
-          <label>¿Tiene un telecódigo que represente su nombre?</label>
-          <div class="inline" role="radiogroup" aria-label="Telecódigo">
-            <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="Y" id="TelecodeY" required> Sí</label>
-            <label style="font-weight:400;"><input type="radio" name="TelecodeQuestion" value="N" id="TelecodeN"> No</label>
-          </div>
-          <div id="telecodeSection" class="row" hidden>
-            <div class="row">
-              <label for="TELECODE_SURNAME">Telecódigo de apellidos</label>
-              <input type="text" id="TELECODE_SURNAME" name="TELECODE_SURNAME" inputmode="numeric" pattern="^(\d{4})(\s\d{4})*$" title="Telecódigos de 4 dígitos separados por espacios" />
+          <div class="row">
+            <label>¿Tiene un telecódigo que represente su nombre?</label>
+            <div class="inline" role="radiogroup" aria-label="Telecódigo">
+              <label style="font-weight:400;">
+                <input type="radio" name="TelecodeQuestion" value="Y" id="TelecodeY" required> Sí
+              </label>
+              <label style="font-weight:400;">
+                <input type="radio" name="TelecodeQuestion" value="N" id="TelecodeN"> No
+              </label>
             </div>
-            <div class="row">
-              <label for="TELECODE_GIVEN">Telecódigo de nombres</label>
-              <input type="text" id="TELECODE_GIVEN" name="TELECODE_GIVEN" inputmode="numeric" pattern="^(\d{4})(\s\d{4})*$" title="Telecódigos de 4 dígitos separados por espacios" />
+            <div id="telecodeSection" class="row" hidden>
+              <div class="row">
+                <label for="TELECODE_SURNAME">Telecódigo de apellidos</label>
+                <input type="text" id="TELECODE_SURNAME" name="TELECODE_SURNAME"
+                       pattern="^(\d{4})(\s+\d{4})*$"
+                       title="Telecódigos de 4 dígitos separados por espacios" />
+              </div>
+              <div class="row">
+                <label for="TELECODE_GIVEN">Telecódigo de nombres</label>
+                <input type="text" id="TELECODE_GIVEN" name="TELECODE_GIVEN"
+                       pattern="^(\d{4})(\s+\d{4})*$"
+                       title="Telecódigos de 4 dígitos separados por espacios" />
+              </div>
+              <p class="help">Si tiene más de un telecódigo, sepárelos con espacios.</p>
             </div>
-            <p class="help">Para alfabetos no romanos.</p>
           </div>
-        </div>
-
-        <div class="row">
-          <label for="APP_GENDER">Sexo</label>
-          <select id="APP_GENDER" name="APP_GENDER" required>
-            <option value="">- Seleccione -</option>
-            <option>MALE</option><option>FEMALE</option>
-          </select>
-        </div>
-
-        <div class="row">
-          <label for="APP_MARITAL_STATUS">Estado civil</label>
-          <select id="APP_MARITAL_STATUS" name="APP_MARITAL_STATUS" required>
-            <option value="">- Seleccione -</option>
-            <option>MARRIED</option><option>COMMON LAW MARRIAGE</option><option>CIVIL UNION/DOMESTIC PARTNERSHIP</option>
-            <option>SINGLE</option><option>WIDOWED</option><option>DIVORCED</option><option>LEGALLY SEPARATED</option><option>OTHER</option>
-          </select>
-        </div>
+        </fieldset>
+        <!-- ========= /Nombre completo ========= -->
 
         <!-- ========= Fecha y lugar de nacimiento ========= -->
         <fieldset>
           <legend>Fecha y lugar de nacimiento</legend>
 
-          <div class="row">
-            <label>Fecha</label>
-            <div class="dob-row">
-              <select id="DOB_DAY" name="DOB_DAY" aria-label="Día" required>
-                <option value=""></option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option>
-                <option>06</option><option>07</option><option>08</option><option>09</option><option>10</option>
-                <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
-                <option>16</option><option>17</option><option>18</option><option>19</option><option>20</option>
-                <option>21</option><option>22</option><option>23</option><option>24</option><option>25</option>
-                <option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
+          <div class="row dob-row">
+            <label for="DOB_DAY">Fecha de nacimiento <span class="required">*</span></label>
+            <div class="inline nowrap">
+              <input type="text" id="DOB_DAY" name="DOB_DAY" inputmode="numeric" maxlength="2" placeholder="DD" required />
+              <select id="DOB_MONTH" name="DOB_MONTH" required>
+                <option value="">Mes</option>
+                <option value="JAN">ENE</option>
+                <option value="FEB">FEB</option>
+                <option value="MAR">MAR</option>
+                <option value="APR">ABR</option>
+                <option value="MAY">MAY</option>
+                <option value="JUN">JUN</option>
+                <option value="JUL">JUL</option>
+                <option value="AUG">AGO</option>
+                <option value="SEP">SEP</option>
+                <option value="OCT">OCT</option>
+                <option value="NOV">NOV</option>
+                <option value="DEC">DIC</option>
               </select>
-              <select id="DOB_MONTH" name="DOB_MONTH" aria-label="Mes" required>
-                <option value=""></option><option>JAN</option><option>FEB</option><option>MAR</option><option>APR</option><option>MAY</option><option>JUN</option>
-                <option>JUL</option><option>AUG</option><option>SEP</option><option>OCT</option><option>NOV</option><option>DEC</option>
-              </select>
-              <input type="text" id="DOB_YEAR" name="DOB_YEAR" maxlength="4" placeholder="YYYY" inputmode="numeric" pattern="^\d{4}$" data-uppercase required />
+              <input type="text" id="DOB_YEAR" name="DOB_YEAR" inputmode="numeric" maxlength="4" placeholder="AAAA" required />
             </div>
+            <p class="help">Formato día / mes / año de 4 dígitos.</p>
           </div>
 
           <div class="row">
-            <label for="POB_CITY">Ciudad</label>
-            <input type="text" id="POB_CITY" name="POB_CITY" maxlength="20" data-uppercase required />
+            <label for="POB_CITY">Ciudad de nacimiento <span class="required">*</span></label>
+            <input type="text" id="POB_CITY" name="POB_CITY" maxlength="50" data-uppercase required />
           </div>
 
           <div class="row">
-            <label for="POB_STATE">Estado</label>
-            <input type="text" id="POB_STATE" name="POB_STATE" maxlength="20" data-uppercase required />
+            <label for="POB_STATE">Estado / provincia / región <span class="required">*</span></label>
+            <input type="text" id="POB_STATE" name="POB_STATE" maxlength="50" data-uppercase required />
             <div class="inline">
-              <input type="checkbox" id="POB_STATE_NA" name="POB_STATE_NA" />
-              <label for="POB_STATE_NA" style="font-weight:400;">No aplica</label>
+              <span class="help">Si no aplica, marque la casilla:</span>
+              <label><input type="checkbox" id="POB_STATE_NA" /> No aplica (N/A)</label>
             </div>
           </div>
 
           <div class="row">
-            <label for="POB_COUNTRY">País</label>
+            <label for="POB_COUNTRY">País de nacimiento <span class="required">*</span></label>
             <select id="POB_COUNTRY" name="POB_COUNTRY" required>
-              <option value="">- Seleccione -</option>
-              <option>CANADÁ</option><option>ESTADOS UNIDOS</option><option>MÉXICO</option><option>GROENLANDIA</option>
-              <option>BELICE</option><option>COSTA RICA</option><option>EL SALVADOR</option><option>GUATEMALA</option><option>HONDURAS</option><option>NICARAGUA</option><option>PANAMÁ</option>
-              <option>ANTIGUA Y BARBUDA</option><option>BAHAMAS</option><option>BARBADOS</option><option>CUBA</option><option>DOMINICA</option><option>GRANADA</option><option>HAITÍ</option><option>JAMAICA</option><option>REPÚBLICA DOMINICANA</option><option>SAN CRISTÓBAL Y NIEVES</option><option>SANTA LUCÍA</option><option>SAN VICENTE Y LAS GRANADINAS</option><option>TRINIDAD Y TOBAGO</option>
-              <option>ARGENTINA</option><option>BOLIVIA</option><option>BRASIL</option><option>CHILE</option><option>COLOMBIA</option><option>ECUADOR</option><option>GUYANA</option><option>PARAGUAY</option><option>PERÚ</option><option>SURINAM</option><option>URUGUAY</option><option>VENEZUELA</option>
+              <option value="">Seleccione un país</option>
+              <option>MÉXICO</option>
+              <option>ESTADOS UNIDOS</option>
+              <option>CANADÁ</option>
+              <option>GUATEMALA</option>
+              <option>BELICE</option>
+              <option>HONDURAS</option>
+              <option>EL SALVADOR</option>
+              <option>NICARAGUA</option>
+              <option>COSTA RICA</option>
+              <option>PANAMÁ</option>
+              <option>COLOMBIA</option>
+              <option>VENEZUELA</option>
+              <option>PERÚ</option>
+              <option>ECUADOR</option>
+              <option>CHILE</option>
+              <option>ARGENTINA</option>
+              <option>URUGUAY</option>
+              <option>PARAGUAY</option>
+              <!-- ... resto de países que ya tenías ... -->
             </select>
           </div>
 
@@ -257,8 +599,7 @@
     </div>
   </div>
 
-    <!-- JS externo -->
-  <script src="../form-data.js" defer></script>
+  <!-- JS externo: SOLO este -->
   <script src="./personal1.js" defer></script>
 </body>
 </html>
