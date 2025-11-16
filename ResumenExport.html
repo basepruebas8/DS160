@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Resumen y exportación</title>
+    <script src="form-data.js" defer></script>
+  </head>
+  <body>
+    <h1>Exportar respuestas DS-160</h1>
+
+    <p>
+      Haz clic en el botón para generar y descargar un archivo
+      <code>ds160.json</code> con todas las respuestas capturadas en las páginas.
+    </p>
+
+    <button type="button" onclick="FormPersistence.export('ds160.json')">
+      Descargar JSON
+    </button>
+
+    <button type="button" onclick="FormPersistence.clear()">
+      Borrar datos guardados
+    </button>
+  </body>
+</html>
