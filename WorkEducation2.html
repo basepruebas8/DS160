@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nonimmigrant Visa - Previous Work/Education/Training Information</title>
+  <title>Nonimmigrant Visa - Additional Work/Education/Training Information</title>
   <style>
     :root{
       color-scheme: light dark;
@@ -80,129 +80,145 @@
     .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
     .inline.nowrap { flex-wrap: nowrap; }
 
-    input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select, textarea {
+    input[type="text"], textarea, select {
       width: 100%; max-width: 560px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--text);
       outline: none; transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease; box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
     }
-    textarea { min-height: 96px; resize: vertical; }
-    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus, textarea:focus {
-      border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
-    }
+    input[type="text"], textarea { text-transform: uppercase; }
+    textarea { min-height: 90px; resize: vertical; }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent); }
     select.small { max-width: 420px; }
 
     .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
     .note { font-size:.92rem; color:var(--muted); }
 
-    .item { border:1px dashed var(--border); border-radius:12px; padding:12px; margin:6px 0; }
-    .item-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
-    .item-title { font-weight:700; }
-    .remove { border-color:#ef4444; color:#ef4444; }
-    .remove:hover{ background:#ef44441a; }
-
-    .warn { font-size:.9rem; color:#b91c1c; }
-
-    /* Estilos de botones-enlace */
-    a.btn {
-      text-decoration: none;
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
+    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
+    button {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 600;
       transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
     }
-    a.btn.primary {
-      background: linear-gradient(180deg, var(--accent), var(--accent-600));
-      color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35);
-    }
-    a.btn.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
+    button.primary { background: linear-gradient(180deg, var(--accent), var(--accent-600)); color: white; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+    button.primary:hover { background: linear-gradient(180deg, var(--accent-600), var(--accent-700)); transform: translateY(-0.5px); }
 
-    .actions { margin-top: 18px; display: flex; gap: 12px; align-items: center; border-top: 1px dashed var(--border); padding-top: 16px; }
-
-    /* Texto blanco para el botón “Regresar” */
-    #backLink, #backLink:visited, #backLink:hover, #backLink:active, #backLink:focus { color: #ffffff; }
+    .list-item { display:flex; gap:12px; align-items:center; }
+    .list-item button.remove { border-color:#ef4444; color:#ef4444; }
+    .list-item button.remove:hover{ background:#ef44441a; }
 
     [hidden] { display: none !important; }
   </style>
+  <script src="../form-data.js" defer></script>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <header>
-        
-      </header>
+      <header></header>
 
-      <form id="ds160-work-previous" action="#" method="post" novalidate>
+      <form id="ds160-work-edu-3" action="#" method="post" novalidate>
         <fieldset>
-          <legend>Empleo anterior</legend>
-          <p class="help">Proporcione su información de empleo de los últimos cinco años</p>
+          <legend>Información adicional</legend>
+          <p class="help">Proporcione la siguiente información relacionada con su trabajo, educación o capacitación. Brinde información completa y precisa a todas las preguntas que requieran explicación.</p>
 
-          <!-- ¿Previamente empleado? -->
+          <!-- Clan / tribu -->
           <div class="row">
-            <label>¿Ha estado previamente empleado?</label>
-            <div class="inline" role="radiogroup" aria-label="Empleo anterior">
-              <label style="font-weight:400;"><input type="radio" name="PrevEmployed" value="Y" id="PrevEmployedY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="PrevEmployed" value="N" id="PrevEmployedN"> No</label>
-            </div>
-            <p id="dupEmpMsg" class="warn" hidden>Ya existe un empleo con el mismo <em>empleador</em> y <em>periodo</em>. Revise la información.</p>
-          </div>
-
-          <!-- Lista dinámica de empleos -->
-          <div id="employmentSection" class="row" hidden>
-            <div id="employmentList" class="row"></div>
-            <div class="inline">
-              <button type="button" id="addEmploymentBtn">Agregar empleo</button>
-            </div>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Educación (secundaria o superior)</legend>
-
-          <!-- Pregunta principal -->
-          <div class="row">
-            <label>¿Ha asistido a alguna institución educativa a nivel <em>secundario</em> o superior?</label>
-            <div class="inline" role="radiogroup" aria-label="Educación secundaria o superior">
-              <label style="font-weight:400;"><input type="radio" name="OtherEduc" value="Y" id="OtherEducY" required> Sí</label>
-              <label style="font-weight:400;"><input type="radio" name="OtherEduc" value="N" id="OtherEducN"> No</label>
+            <label>¿Pertenece a algún clan o tribu?</label>
+            <div class="inline" role="radiogroup" aria-label="Pertenencia a clan o tribu">
+              <label style="font-weight:400;"><input type="radio" name="CLAN_TRIBE_IND" value="Y" id="CLAN_TRIBE_IND_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="CLAN_TRIBE_IND" value="N" id="CLAN_TRIBE_IND_N" checked> No</label>
             </div>
           </div>
 
-          <div class="help" style="margin-top:-4px;">
-            Debe responder <strong>Sí</strong> si alguna vez asistió, por cualquier periodo, a una escuela secundaria/preparatoria,
-            universidad, posgrado, doctorado o programa técnico/vocacional.
-          </div>
-
+          <!-- Idiomas que habla -->
           <div class="row" style="margin-top:8px;">
-            <p id="dupEduMsg" class="warn" hidden>Ya existe una institución con el mismo <em>nombre</em> y <em>periodo</em>. Revise la información.</p>
+            <label for="LANGUAGE_0">Proporcione una lista de idiomas que habla</label>
+            <div id="langList" class="row"></div>
+            <div class="inline">
+              <button type="button" id="addLangBtn">Agregar otro idioma</button>
+            </div>
+            <p class="help">Ejemplo: ESPAÑOL, INGLÉS, FRANCÉS.</p>
           </div>
 
-          <!-- Lista dinámica de educación -->
-          <div id="educationSection" class="row" hidden>
-            <div id="educationList" class="row"></div>
-            <div class="inline">
-              <button type="button" id="addEducationBtn">Agregar institución</button>
+          <!-- Países visitados últimos 5 años -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha viajado a algún país o región en los últimos cinco años?</label>
+            <div class="inline" role="radiogroup" aria-label="Países visitados últimos 5 años">
+              <label style="font-weight:400;"><input type="radio" name="COUNTRIES_VISITED_IND" value="Y" id="COUNTRIES_VISITED_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="COUNTRIES_VISITED_IND" value="N" id="COUNTRIES_VISITED_N" checked> No</label>
             </div>
+          </div>
+
+          <div id="countriesSection" class="row" hidden>
+            <label for="VISITED_COUNTRY_0">Lista de países/regiones visitados</label>
+            <div id="countryList" class="row"></div>
+            <div class="inline">
+              <button type="button" id="addCountryBtn">Agregar otro país</button>
+            </div>
+            <p class="help">Escriba el nombre oficial del país o región. Ejemplo: ESTADOS UNIDOS, CANADÁ, JAPÓN.</p>
+          </div>
+
+          <!-- Organizaciones -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha pertenecido, contribuido o trabajado para alguna organización profesional, social o caritativa?</label>
+            <div class="inline" role="radiogroup" aria-label="Organizaciones">
+              <label style="font-weight:400;"><input type="radio" name="ORGANIZATION_IND" value="Y" id="ORGANIZATION_IND_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="ORGANIZATION_IND" value="N" id="ORGANIZATION_IND_N" checked> No</label>
+            </div>
+          </div>
+
+          <!-- Habilidades especializadas -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Cuenta con habilidades o capacitación especializada, como armas de fuego, explosivos, experiencia nuclear, biológica o química?</label>
+            <div class="inline" role="radiogroup" aria-label="Habilidades especializadas">
+              <label style="font-weight:400;"><input type="radio" name="SPECIALIZED_SKILLS_IND" value="Y" id="SPECIALIZED_SKILLS_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="SPECIALIZED_SKILLS_IND" value="N" id="SPECIALIZED_SKILLS_N" checked> No</label>
+            </div>
+          </div>
+
+          <div id="skillsExplain" class="row" hidden>
+            <label for="SPECIALIZED_SKILLS_EXPL">Explique</label>
+            <textarea id="SPECIALIZED_SKILLS_EXPL" name="SPECIALIZED_SKILLS_EXPL" maxlength="4000" placeholder="DESCRIBA SUS HABILIDADES O CAPACITACIÓN."></textarea>
+          </div>
+
+          <!-- Servicio militar -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha servido alguna vez en las fuerzas armadas?</label>
+            <div class="inline" role="radiogroup" aria-label="Servicio militar">
+              <label style="font-weight:400;"><input type="radio" name="MILITARY_SERVICE_IND" value="Y" id="MILITARY_SERVICE_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="MILITARY_SERVICE_IND" value="N" id="MILITARY_SERVICE_N" checked> No</label>
+            </div>
+          </div>
+
+          <!-- Insurgente / paramilitar -->
+          <div class="row" style="margin-top:8px;">
+            <label>¿Ha servido en, sido miembro de o participado con una unidad paramilitar, unidad de vigilancia, grupo rebelde, guerrilla u organización insurgente?</label>
+            <div class="inline" role="radiogroup" aria-label="Organizaciones insurgentes">
+              <label style="font-weight:400;"><input type="radio" name="INSURGENT_ORG_IND" value="Y" id="INSURGENT_ORG_Y" required> Sí</label>
+              <label style="font-weight:400;"><input type="radio" name="INSURGENT_ORG_IND" value="N" id="INSURGENT_ORG_N" checked> No</label>
+            </div>
+          </div>
+
+          <div id="insurgentExplain" class="row" hidden>
+            <label for="INSURGENT_ORG_EXPL">Explique</label>
+            <textarea id="INSURGENT_ORG_EXPL" name="INSURGENT_ORG_EXPL" maxlength="4000" placeholder="PROPORCIONE DETALLES."></textarea>
           </div>
         </fieldset>
 
         <div class="actions">
-          <!-- Enlaces con fallback nativo del navegador -->
-          <a id="backLink" class="btn" href="WorkEducation1.html">Regresar</a> <!-- href actualizado a WorkEducation1.html -->
-          <a id="nextLink" class="btn primary" href="WorkEducation3.html">Siguiente</a> <!-- href actualizado a WorkEducation3.html -->
+          <button type="button" id="backBtn">Regresar</button>
+          <button type="button" id="nextBtn" class="primary">Siguiente</button>
         </div>
       </form>
     </div>
   </div>
 
   <script>
-    /* ===== Persistencia ===== */
+    // Navegación
+    const NEXT_URL = new URL('finalizar.html', window.location.href).href;
+    const BACK_URL = new URL('WorkEducation2.html', window.location.href).href;
+
+    // Persistencia
     const STORAGE_PREFIX = 'ds160:';
-    const FORM_ID = 'ds160-work-previous';
+    const FORM_ID = 'ds160-work-edu-3';
 
     function storageKey(field) {
       const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
@@ -215,7 +231,7 @@
         } else if (field.type === 'checkbox') {
           localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
         } else {
-          localStorage.setItem(storageKey(field), field.value);
+          localStorage.setItem(storageKey(field), (field.value || '').toUpperCase());
         }
       } catch(e) {}
     }
@@ -229,7 +245,7 @@
         } else if (field.type === 'checkbox') {
           field.checked = (v === '1');
         } else {
-          field.value = v;
+          field.value = v.toUpperCase();
         }
       } catch(e) {}
     }
@@ -237,12 +253,23 @@
       form.addEventListener('input', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input[type="text"], textarea')) t.value = t.value.toUpperCase();
         if (t.matches('input,select,textarea')) saveField(t);
       }, true);
       form.addEventListener('change', (e) => {
         const t = e.target;
         if (!(t instanceof HTMLElement)) return;
+        if (t.matches('input[type="text"], textarea')) t.value = t.value.toUpperCase();
         if (t.matches('input,select,textarea')) saveField(t);
+      }, true);
+      form.addEventListener('paste', (e) => {
+        const t = e.target;
+        if (t && (t.matches('input[type="text"], textarea'))) {
+          setTimeout(() => {
+            t.value = t.value.toUpperCase();
+            saveField(t);
+          }, 0);
+        }
       }, true);
     }
     function restoreForm(form) {
@@ -250,526 +277,252 @@
       fields.forEach(f => restoreField(f));
     }
 
-    /* ===== Catálogos ===== */
-    const US_STATES = [
-      "", "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV",
-      "NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY","DC","PR","GU","VI"
-    ];
+    const form = document.getElementById('ds160-work-edu-3');
 
-    const COUNTRIES = [
-      {c:"", n:"- Seleccione -"},
-      {c:"US", n:"ESTADOS UNIDOS"},
-      {c:"MX", n:"MÉXICO"},
-      {c:"CA", n:"CANADÁ"},
-      {c:"AR", n:"ARGENTINA"},
-      {c:"BR", n:"BRASIL"},
-      {c:"CL", n:"CHILE"},
-      {c:"CO", n:"COLOMBIA"},
-      {c:"CR", n:"COSTA RICA"},
-      {c:"ES", n:"ESPAÑA"},
-      {c:"FR", n:"FRANCIA"},
-      {c:"GB", n:"REINO UNIDO"},
-      {c:"DE", n:"ALEMANIA"},
-      {c:"IT", n:"ITALIA"},
-      {c:"JP", n:"JAPÓN"},
-      {c:"CN", n:"CHINA"}
-    ];
+    // ----- Idiomas -----
+    const LANG_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':LANG_COUNT';
+    const langList = document.getElementById('langList');
+    const addLangBtn = document.getElementById('addLangBtn');
 
-    function populateStateSelect(selectEl){
-      selectEl.innerHTML = '';
-      US_STATES.forEach(code => {
-        const o = document.createElement('option');
-        o.value = code;
-        o.textContent = code ? code : "- Seleccione -";
-        selectEl.appendChild(o);
+    function langCount(){
+      const v = parseInt(localStorage.getItem(LANG_COUNT_KEY) || '1', 10);
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    }
+    function setLangCount(n){
+      localStorage.setItem(LANG_COUNT_KEY, String(Math.max(1, n)));
+    }
+    function makeLangItem(index){
+      const wrap = document.createElement('div');
+      wrap.className = 'list-item';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = `LANGUAGE_${index}`;
+      input.name = `LANGUAGE_${index}`;
+      input.maxLength = 66;
+      input.placeholder = 'EJ. ESPAÑOL';
+      input.required = (index === 0);
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        langList.removeChild(wrap);
+        reindexLangItems();
+        setLangCount(langList.children.length);
+      });
+
+      wrap.appendChild(input);
+      wrap.appendChild(remove);
+      return wrap;
+    }
+    function reindexLangItems(){
+      [...langList.children].forEach((item, i) => {
+        const input = item.querySelector('input');
+        input.id = `LANGUAGE_${i}`;
+        input.name = `LANGUAGE_${i}`;
+        input.required = (i === 0);
+      });
+      refreshLangRemoveButtons();
+    }
+    function refreshLangRemoveButtons(){
+      const items = [...langList.children];
+      items.forEach((item) => {
+        const btn = item.querySelector('button.remove');
+        btn.hidden = items.length <= 1;
       });
     }
-    function populateCountries(selectEl){
-      selectEl.innerHTML = '';
-      COUNTRIES.forEach(k => {
-        const o = document.createElement('option');
-        o.value = k.c;
-        o.textContent = k.n;
-        selectEl.appendChild(o);
+    function addLanguage(){
+      const idx = langList.children.length;
+      const item = makeLangItem(idx);
+      langList.appendChild(item);
+      setLangCount(langList.children.length);
+    }
+    addLangBtn.addEventListener('click', addLanguage);
+
+    (function initLangFromStorage(){
+      const count = langCount();
+      for (let i=0; i<count; i++){
+        const item = makeLangItem(i);
+        langList.appendChild(item);
+      }
+      [...langList.querySelectorAll('input')].forEach(inp => restoreField(inp));
+      refreshLangRemoveButtons();
+    })();
+
+    // ----- Países visitados -----
+    const countryList = document.getElementById('countryList');
+    const addCountryBtn = document.getElementById('addCountryBtn');
+    const COUNTRIES_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':COUNTRIES_COUNT';
+
+    function countriesCount(){
+      const v = parseInt(localStorage.getItem(COUNTRIES_COUNT_KEY) || '1', 10);
+      return Number.isFinite(v) && v > 0 ? v : 1;
+    }
+    function setCountriesCount(n){
+      localStorage.setItem(COUNTRIES_COUNT_KEY, String(Math.max(1, n)));
+    }
+    function makeCountryItem(index){
+      const wrap = document.createElement('div');
+      wrap.className = 'list-item';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = `VISITED_COUNTRY_${index}`;
+      input.name = `VISITED_COUNTRY_${index}`;
+      input.maxLength = 64;
+      input.placeholder = 'EJ. ESTADOS UNIDOS';
+      input.required = true;
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove';
+      remove.textContent = 'Eliminar';
+      remove.addEventListener('click', () => {
+        countryList.removeChild(wrap);
+        reindexCountryItems();
+        setCountriesCount(countryList.children.length);
+      });
+
+      wrap.appendChild(input);
+      wrap.appendChild(remove);
+      return wrap;
+    }
+    function reindexCountryItems(){
+      [...countryList.children].forEach((item, i) => {
+        const input = item.querySelector('input');
+        input.id = `VISITED_COUNTRY_${i}`;
+        input.name = `VISITED_COUNTRY_${i}`;
+      });
+      refreshCountryRemoveButtons();
+    }
+    function refreshCountryRemoveButtons(){
+      const items = [...countryList.children];
+      items.forEach((item) => {
+        const btn = item.querySelector('button.remove');
+        btn.hidden = items.length <= 1;
       });
     }
+    function addCountry(){
+      const idx = countryList.children.length;
+      const item = makeCountryItem(idx);
+      countryList.appendChild(item);
+      setCountriesCount(countryList.children.length);
+    }
+    addCountryBtn.addEventListener('click', addCountry);
 
-    /* ===== Formulario ===== */
-    const form = document.getElementById('ds160-work-previous');
+    const COUNTRIES_Y = document.getElementById('COUNTRIES_VISITED_Y');
+    const COUNTRIES_N = document.getElementById('COUNTRIES_VISITED_N');
+    const countriesSection = document.getElementById('countriesSection');
+
+    function updateCountriesSection(){
+      const show = COUNTRIES_Y.checked;
+      countriesSection.hidden = !show;
+      [...countryList.querySelectorAll('input')].forEach(inp => inp.required = show);
+    }
+
+    (function initCountriesFromStorage(){
+      const count = countriesCount();
+      for (let i=0; i<count; i++){
+        const item = makeCountryItem(i);
+        countryList.appendChild(item);
+      }
+      [...countryList.querySelectorAll('input')].forEach(inp => restoreField(inp));
+      refreshCountryRemoveButtons();
+    })();
+
+    [COUNTRIES_Y, COUNTRIES_N].forEach(r => r.addEventListener('change', () => {
+      saveField(r);
+      updateCountriesSection();
+    }));
+
+    // ----- Habilidades especializadas -----
+    const SKILLS_Y = document.getElementById('SPECIALIZED_SKILLS_Y');
+    const SKILLS_N = document.getElementById('SPECIALIZED_SKILLS_N');
+    const skillsExplain = document.getElementById('skillsExplain');
+    const SKILLS_EXPL = document.getElementById('SPECIALIZED_SKILLS_EXPL');
+
+    function updateSkills(){
+      const show = SKILLS_Y.checked;
+      skillsExplain.hidden = !show;
+      SKILLS_EXPL.required = show;
+      if (!show) SKILLS_EXPL.setCustomValidity('');
+    }
+    [SKILLS_Y, SKILLS_N].forEach(r => r.addEventListener('change', () => {
+      saveField(r);
+      updateSkills();
+    }));
+
+    // ----- Insurgente / paramilitar -----
+    const INS_Y = document.getElementById('INSURGENT_ORG_Y');
+    const INS_N = document.getElementById('INSURGENT_ORG_N');
+    const insurgentExplain = document.getElementById('insurgentExplain');
+    const INS_EXPL = document.getElementById('INSURGENT_ORG_EXPL');
+
+    function updateInsurgent(){
+      const show = INS_Y.checked;
+      insurgentExplain.hidden = !show;
+      INS_EXPL.required = show;
+      if (!show) INS_EXPL.setCustomValidity('');
+    }
+    [INS_Y, INS_N].forEach(r => r.addEventListener('change', () => {
+      saveField(r);
+      updateInsurgent();
+    }));
+
+    // Restaurar y activar autosave
+    restoreForm(form);
     autosave(form);
 
-    // Radios principales
-    const PrevEmployedY = document.getElementById('PrevEmployedY');
-    const PrevEmployedN = document.getElementById('PrevEmployedN');
-    const OtherEducY = document.getElementById('OtherEducY');
-    const OtherEducN = document.getElementById('OtherEducN');
+    // Estado inicial de secciones ocultas
+    updateCountriesSection();
+    updateSkills();
+    updateInsurgent();
 
-    // Secciones dinámicas y listas
-    const employmentSection = document.getElementById('employmentSection');
-    const employmentList     = document.getElementById('employmentList');
-    const addEmploymentBtn   = document.getElementById('addEmploymentBtn');
-
-    const educationSection = document.getElementById('educationSection');
-    const educationList     = document.getElementById('educationList');
-    const addEducationBtn   = document.getElementById('addEducationBtn');
-
-    // Mensajes de duplicado
-    const dupEmpMsg = document.getElementById('dupEmpMsg');
-    const dupEduMsg = document.getElementById('dupEduMsg');
-
-    // Contadores persistentes
-    const EMP_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':EMP_COUNT';
-    const EDU_COUNT_KEY = STORAGE_PREFIX + FORM_ID + ':EDU_COUNT';
-
-    function getCount(key, def=0){
-      const v = parseInt(localStorage.getItem(key) || String(def), 10);
-      return Number.isFinite(v) && v >= 0 ? v : def;
-    }
-    function setCount(key, n){
-      localStorage.setItem(key, String(Math.max(0, n)));
-    }
-
-    /* ===== Utilidad: bloques por país ===== */
-    function attachCountryBlock(selectCountry, usBlock, nonUsBlock, stateSelect, zipInput, provInput, postalInput){
-      populateCountries(selectCountry);
-      populateStateSelect(stateSelect);
-
-      function update(){
-        const isUS = selectCountry.value === 'US';
-        usBlock.hidden = !isUS;
-        nonUsBlock.hidden = isUS;
-
-        [stateSelect, zipInput].forEach(el => el.required = isUS);
-        [provInput, postalInput].forEach(el => el.required = !isUS);
-      }
-      selectCountry.addEventListener('change', () => { saveField(selectCountry); update(); });
-      update();
-    }
-
-    /* ===== Empleos (dinámico) ===== */
-    function makeEmploymentItem(index){
-      const wrap = document.createElement('div');
-      wrap.className = 'item';
-      wrap.dataset.kind = 'employment';
-
-      const head = document.createElement('div');
-      head.className = 'item-head';
-      const title = document.createElement('div');
-      title.className = 'item-title';
-      title.textContent = `Empleo #${index+1}`;
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'remove';
-      remove.textContent = 'Eliminar';
-      remove.addEventListener('click', () => {
-        employmentList.removeChild(wrap);
-        reindexItems(employmentList, 'employment');
-        setCount(EMP_COUNT_KEY, employmentList.children.length);
-        validateDuplicatesEmployment();
-        refreshRemoveButtons();
+    // --- MOSTRAR SOLO LO DE LA IMAGEN + BOTONES VISIBLES ---
+    (function showOnlyImageFields(){
+      const fs = document.querySelector('#ds160-work-edu-3 fieldset');
+      if (!fs) return;
+      const langRow = fs.querySelector('label[for="LANGUAGE_0"]')?.closest('.row');
+      const travelRow = fs.querySelector('input[name="COUNTRIES_VISITED_IND"]')?.closest('.row');
+      [...fs.children].forEach(el => {
+        const keep = (el === langRow || el === travelRow);
+        el.hidden = !keep;
       });
-      head.append(title, remove);
+      // Asegurar que los botones se vean
+      const actions = document.querySelector('#ds160-work-edu-3 .actions');
+      if (actions) actions.hidden = false;
+    })();
 
-      const gridA = document.createElement('div');
-      gridA.className = 'grid-2';
-      gridA.innerHTML = `
-        <div>
-          <label for="EMPLOYER_NAME_${index}">Nombre del empleador</label>
-          <input type="text" id="EMPLOYER_NAME_${index}" name="EMPLOYER_NAME_${index}" maxlength="120" required>
-        </div>
-        <div>
-          <label for="EMP_OCCUPATION_${index}">Ocupación/Profesión</label>
-          <input type="text" id="EMP_OCCUPATION_${index}" name="EMP_OCCUPATION_${index}" maxlength="120" required>
-        </div>
-      `;
-
-      const addr = document.createElement('div');
-      addr.className = 'row';
-      addr.innerHTML = `
-        <label for="EMP_ADDR1_${index}">Dirección (línea 1)</label>
-        <input type="text" id="EMP_ADDR1_${index}" name="EMP_ADDR1_${index}" maxlength="120" required>
-        <label for="EMP_ADDR2_${index}">Dirección (línea 2) <span class="note">(opcional)</span></label>
-        <input type="text" id="EMP_ADDR2_${index}" name="EMP_ADDR2_${index}" maxlength="120">
-      `;
-
-      const gridB = document.createElement('div');
-      gridB.className = 'grid-2';
-      gridB.innerHTML = `
-        <div>
-          <label for="EMP_CITY_${index}">Ciudad</label>
-          <input type="text" id="EMP_CITY_${index}" name="EMP_CITY_${index}" maxlength="64" required>
-        </div>
-        <div>
-          <label for="EMP_COUNTRY_${index}">País/Región</label>
-          <select id="EMP_COUNTRY_${index}" name="EMP_COUNTRY_${index}" class="small" required></select>
-        </div>
-      `;
-
-      const usBlock = document.createElement('div');
-      usBlock.className = 'grid-2';
-      usBlock.id = `EMP_US_BLOCK_${index}`;
-      usBlock.innerHTML = `
-        <div>
-          <label for="EMP_US_STATE_${index}">Estado (EE. UU.)</label>
-          <select id="EMP_US_STATE_${index}" name="EMP_US_STATE_${index}"></select>
-        </div>
-        <div>
-          <label for="EMP_US_ZIP_${index}">Código postal</label>
-          <input type="text" id="EMP_US_ZIP_${index}" name="EMP_US_ZIP_${index}" inputmode="numeric" maxlength="10" placeholder="##### o #####-####">
-        </div>
-      `;
-
-      const nonUSBlock = document.createElement('div');
-      nonUSBlock.className = 'grid-2';
-      nonUSBlock.id = `EMP_NONUS_BLOCK_${index}`;
-      nonUSBlock.innerHTML = `
-        <div>
-          <label for="EMP_PROVINCE_${index}">Estado/Provincia</label>
-          <input type="text" id="EMP_PROVINCE_${index}" name="EMP_PROVINCE_${index}" maxlength="64">
-        </div>
-        <div>
-          <label for="EMP_POSTAL_${index}">Código postal</label>
-          <input type="text" id="EMP_POSTAL_${index}" name="EMP_POSTAL_${index}" maxlength="16">
-        </div>
-      `;
-
-      const gridC = document.createElement('div');
-      gridC.className = 'grid-2';
-      gridC.innerHTML = `
-        <div>
-          <label for="EMP_FROM_${index}">Fecha de inicio</label>
-          <input type="date" id="EMP_FROM_${index}" name="EMP_FROM_${index}" required>
-        </div>
-        <div>
-          <label for="EMP_TO_${index}">Fecha de finalización</label>
-          <input type="date" id="EMP_TO_${index}" name="EMP_TO_${index}" required>
-        </div>
-      `;
-
-      const duties = document.createElement('div');
-      duties.className = 'row';
-      duties.innerHTML = `
-        <label for="EMP_DUTIES_${index}">Descripción de funciones <span class="note">(opcional)</span></label>
-        <textarea id="EMP_DUTIES_${index}" name="EMP_DUTIES_${index}" maxlength="600"></textarea>
-      `;
-
-      wrap.append(head, gridA, addr, gridB, usBlock, nonUSBlock, gridC, duties);
-      employmentList.appendChild(wrap);
-
-      const EMP_COUNTRY   = wrap.querySelector(`#EMP_COUNTRY_${index}`);
-      const EMP_US_STATE  = wrap.querySelector(`#EMP_US_STATE_${index}`);
-      const EMP_US_ZIP    = wrap.querySelector(`#EMP_US_ZIP_${index}`);
-      const EMP_PROVINCE  = wrap.querySelector(`#EMP_PROVINCE_${index}`);
-      const EMP_POSTAL    = wrap.querySelector(`#EMP_POSTAL_${index}`);
-      attachCountryBlock(EMP_COUNTRY, usBlock, nonUSBlock, EMP_US_STATE, EMP_US_ZIP, EMP_PROVINCE, EMP_POSTAL);
-
-      wrap.querySelectorAll('input,select,textarea').forEach(el => restoreField(el));
-      return wrap;
-    }
-
-    /* ===== Educación (dinámico) ===== */
-    function makeEducationItem(index){
-      const wrap = document.createElement('div');
-      wrap.className = 'item';
-      wrap.dataset.kind = 'education';
-
-      const head = document.createElement('div');
-      head.className = 'item-head';
-      const title = document.createElement('div');
-      title.className = 'item-title';
-      title.textContent = `Institución #${index+1}`;
-      const remove = document.createElement('button');
-      remove.type = 'button';
-      remove.className = 'remove';
-      remove.textContent = 'Eliminar';
-      remove.addEventListener('click', () => {
-        educationList.removeChild(wrap);
-        reindexItems(educationList, 'education');
-        setCount(EDU_COUNT_KEY, educationList.children.length);
-        validateDuplicatesEducation();
-        refreshRemoveButtons();
-      });
-      head.append(title, remove);
-
-      const nameRow = document.createElement('div');
-      nameRow.className = 'row';
-      nameRow.innerHTML = `
-        <label for="EDU_NAME_${index}">Nombre de la institución</label>
-        <input type="text" id="EDU_NAME_${index}" name="EDU_NAME_${index}" maxlength="120" required>
-      `;
-
-      const addr = document.createElement('div');
-      addr.className = 'row';
-      addr.innerHTML = `
-        <label for="EDU_ADDR1_${index}">Dirección (línea 1)</label>
-        <input type="text" id="EDU_ADDR1_${index}" name="EDU_ADDR1_${index}" maxlength="120" required>
-        <label for="EDU_ADDR2_${index}">Dirección (línea 2) <span class="note">(opcional)</span></label>
-        <input type="text" id="EDU_ADDR2_${index}" name="EDU_ADDR2_${index}" maxlength="120">
-      `;
-
-      const gridB = document.createElement('div');
-      gridB.className = 'grid-2';
-      gridB.innerHTML = `
-        <div>
-          <label for="EDU_CITY_${index}">Ciudad</label>
-          <input type="text" id="EDU_CITY_${index}" name="EDU_CITY_${index}" maxlength="64" required>
-        </div>
-        <div>
-          <label for="EDU_COUNTRY_${index}">País/Región</label>
-          <select id="EDU_COUNTRY_${index}" name="EDU_COUNTRY_${index}" class="small" required></select>
-        </div>
-      `;
-
-      const usBlock = document.createElement('div');
-      usBlock.className = 'grid-2';
-      usBlock.id = `EDU_US_BLOCK_${index}`;
-      usBlock.innerHTML = `
-        <div>
-          <label for="EDU_US_STATE_${index}">Estado (EE. UU.)</label>
-          <select id="EDU_US_STATE_${index}" name="EDU_US_STATE_${index}"></select>
-        </div>
-        <div>
-          <label for="EDU_US_ZIP_${index}">Código postal</label>
-          <input type="text" id="EDU_US_ZIP_${index}" name="EDU_US_ZIP_${index}" inputmode="numeric" maxlength="10" placeholder="##### o #####-####">
-        </div>
-      `;
-
-      const nonUSBlock = document.createElement('div');
-      nonUSBlock.className = 'grid-2';
-      nonUSBlock.id = `EDU_NONUS_BLOCK_${index}`;
-      nonUSBlock.innerHTML = `
-        <div>
-          <label for="EDU_PROVINCE_${index}">Estado/Provincia</label>
-          <input type="text" id="EDU_PROVINCE_${index}" name="EDU_PROVINCE_${index}" maxlength="64">
-        </div>
-        <div>
-          <label for="EDU_POSTAL_${index}">Código postal</label>
-          <input type="text" id="EDU_POSTAL_${index}" name="EDU_POSTAL_${index}" maxlength="16">
-        </div>
-      `;
-
-      const gridC = document.createElement('div');
-      gridC.className = 'grid-2';
-      gridC.innerHTML = `
-        <div>
-          <label for="EDU_FROM_${index}">Fecha de inicio</label>
-          <input type="date" id="EDU_FROM_${index}" name="EDU_FROM_${index}" required>
-        </div>
-        <div>
-          <label for="EDU_TO_${index}">Fecha de finalización</label>
-          <input type="date" id="EDU_TO_${index}" name="EDU_TO_${index}" required>
-        </div>
-      `;
-
-      const gridD = document.createElement('div');
-      gridD.className = 'grid-2';
-      gridD.innerHTML = `
-        <div>
-          <label for="EDU_COURSE_${index}">Curso/Área de estudio</label>
-          <input type="text" id="EDU_COURSE_${index}" name="EDU_COURSE_${index}" maxlength="120" required>
-        </div>
-        <div>
-          <label for="EDU_DEGREE_${index}">Título/Diploma <span class="note">(opcional)</span></label>
-          <input type="text" id="EDU_DEGREE_${index}" name="EDU_DEGREE_${index}" maxlength="120" placeholder="Ej. Bachillerato, Licenciatura, etc.">
-        </div>
-      `;
-
-      wrap.append(head, nameRow, addr, gridB, usBlock, nonUSBlock, gridC, gridD);
-      educationList.appendChild(wrap);
-
-      const EDU_COUNTRY   = wrap.querySelector(`#EDU_COUNTRY_${index}`);
-      const EDU_US_STATE  = wrap.querySelector(`#EDU_US_STATE_${index}`);
-      const EDU_US_ZIP    = wrap.querySelector(`#EDU_US_ZIP_${index}`);
-      const EDU_PROVINCE  = wrap.querySelector(`#EDU_PROVINCE_${index}`);
-      const EDU_POSTAL    = wrap.querySelector(`#EDU_POSTAL_${index}`);
-      attachCountryBlock(EDU_COUNTRY, usBlock, nonUSBlock, EDU_US_STATE, EDU_US_ZIP, EDU_PROVINCE, EDU_POSTAL);
-
-      wrap.querySelectorAll('input,select,textarea').forEach(el => restoreField(el));
-      return wrap;
-    }
-
-    /* ===== Utilidades de reindexación y UI ===== */
-    function refreshRemoveButtons(){
-      const lists = [employmentList, educationList];
-      lists.forEach(list => {
-        const items = [...list.children];
-        items.forEach(item => {
-          const btn = item.querySelector('.remove');
-          if (btn) btn.hidden = items.length <= 1;
-        });
-      });
-    }
-
-    function reindexItems(container, kind){
-      [...container.children].forEach((item, i) => {
-        const title = item.querySelector('.item-title');
-        if (title){
-          title.textContent = (kind === 'employment') ? `Empleo #${i+1}` : `Institución #${i+1}`;
-        }
-        item.querySelectorAll('[id]').forEach(el => {
-          const oldId = el.id;
-          const newId = oldId.replace(/_(\d+)$/, `_${i}`);
-          if (newId !== oldId) {
-            el.id = newId;
-            if ('name' in el) el.name = newId;
-            const lbl = item.querySelector(`label[for="${oldId}"]`);
-            if (lbl) lbl.setAttribute('for', newId);
-          }
-        });
-      });
-    }
-
-    function validateDuplicatesEmployment(){
-      const seen = new Set();
-      let dup = false;
-      [...employmentList.children].forEach(item => {
-        const name = (item.querySelector('[id^="EMPLOYER_NAME_"]')?.value || '').trim().toUpperCase();
-        const from = (item.querySelector('[id^="EMP_FROM_"]')?.value || '').trim();
-        const to   = (item.querySelector('[id^="EMP_TO_"]')?.value || '').trim();
-        const key = `${name}|${from}|${to}`;
-        if (name && from && to){
-          if (seen.has(key)) dup = true;
-          seen.add(key);
-        }
-      });
-      dupEmpMsg.hidden = !dup;
-      return !dup;
-    }
-
-    function validateDuplicatesEducation(){
-      const seen = new Set();
-      let dup = false;
-      [...educationList.children].forEach(item => {
-        const name = (item.querySelector('[id^="EDU_NAME_"]')?.value || '').trim().toUpperCase();
-        const from = (item.querySelector('[id^="EDU_FROM_"]')?.value || '').trim();
-        const to   = (item.querySelector('[id^="EDU_TO_"]')?.value || '').trim();
-        const key = `${name}|${from}|${to}`;
-        if (name && from && to){
-          if (seen.has(key)) dup = true;
-          seen.add(key);
-        }
-      });
-      dupEduMsg.hidden = !dup;
-      return !dup;
-    }
-
-    /* ===== Mostrar / requeridos por radios ===== */
-    function updateEmploymentSection(){
-      const show = PrevEmployedY.checked;
-      employmentSection.hidden = !show;
-      if (!show){
-        employmentList.querySelectorAll('input,select,textarea').forEach(el => el.required = false);
-      } else {
-        employmentList.querySelectorAll('[id^="EMPLOYER_NAME_"],[id^="EMP_OCCUPATION_"],[id^="EMP_ADDR1_"],[id^="EMP_CITY_"],[id^="EMP_COUNTRY_"],[id^="EMP_FROM_"],[id^="EMP_TO_"]')
-          .forEach(el => el.required = true);
-      }
-    }
-    function updateEducationSection(){
-      const show = OtherEducY.checked;
-      educationSection.hidden = !show;
-      if (!show){
-        educationList.querySelectorAll('input,select,textarea').forEach(el => el.required = false);
-      } else {
-        educationList.querySelectorAll('[id^="EDU_NAME_"],[id^="EDU_ADDR1_"],[id^="EDU_CITY_"],[id^="EDU_COUNTRY_"],[id^="EDU_FROM_"],[id^="EDU_TO_"],[id^="EDU_COURSE_"]')
-          .forEach(el => el.required = true);
-      }
-    }
-
-    [PrevEmployedY, PrevEmployedN].forEach(r => r.addEventListener('change', () => { saveField(r); updateEmploymentSection(); }));
-    [OtherEducY, OtherEducN].forEach(r => r.addEventListener('change', () => { saveField(r); updateEducationSection(); }));
-
-    /* ===== Inicialización ===== */
-    function initEmployment(){
-      const count = Math.max(1, getCount(EMP_COUNT_KEY, 1));
-      employmentList.innerHTML = '';
-      for (let i=0;i<count;i++) makeEmploymentItem(i);
-      refreshRemoveButtons();
-    }
-    function initEducation(){
-      const count = Math.max(1, getCount(EDU_COUNT_KEY, 1));
-      educationList.innerHTML = '';
-      for (let i=0;i<count;i++) makeEducationItem(i);
-      refreshRemoveButtons();
-    }
-
-    addEmploymentBtn.addEventListener('click', () => {
-      const idx = employmentList.children.length;
-      makeEmploymentItem(idx);
-      setCount(EMP_COUNT_KEY, employmentList.children.length);
-      refreshRemoveButtons();
-    });
-    addEducationBtn.addEventListener('click', () => {
-      const idx = educationList.children.length;
-      makeEducationItem(idx);
-      setCount(EDU_COUNT_KEY, educationList.children.length);
-      refreshRemoveButtons();
-    });
-
-    // Restaurar radios y base
-    const formEl = document.getElementById('ds160-work-previous');
-    restoreForm(formEl);
-
-    // Construir listas (respeta conteos guardados)
-    initEmployment();
-    initEducation();
-
-    // Reaplicar restore sobre campos recién creados
-    [...employmentList.querySelectorAll('input,select,textarea')].forEach(el => restoreField(el));
-    [...educationList.querySelectorAll('input,select,textarea')].forEach(el => restoreField(el));
-
-    updateEmploymentSection();
-    updateEducationSection();
-
-    // Validación de duplicados
-    formEl.addEventListener('change', (e) => {
-      const t = e.target;
-      if (!t || !(t instanceof HTMLElement)) return;
-      if (t.id?.startsWith('EMPLOYER_NAME_') || t.id?.startsWith('EMP_FROM_') || t.id?.startsWith('EMP_TO_')){
-        validateDuplicatesEmployment();
-      }
-      if (t.id?.startsWith('EDU_NAME_') || t.id?.startsWith('EDU_FROM_') || t.id?.startsWith('EDU_TO_')){
-        validateDuplicatesEducation();
-      }
-    }, true);
-
-    /* ===== Navegación (enlaces con validación/salvado) ===== */
-    const backLink = document.getElementById('backLink');
-    const nextLink = document.getElementById('nextLink');
-
-    backLink.addEventListener('click', () => {
-      // Guardado rápido (sin bloquear la navegación)
-      formEl.querySelectorAll('input,select,textarea').forEach(saveField);
-    });
-
+    // Validación (se mantiene)
     function checkForm(){
-      if (PrevEmployedY.checked){
-        if (employmentList.children.length < 1){
-          employmentSection.scrollIntoView({behavior:'smooth', block:'center'});
-          return false;
-        }
-        if (!validateDuplicatesEmployment()) return false;
+      const firstLang = document.getElementById('LANGUAGE_0');
+      if (firstLang && !firstLang.value.trim()){
+        firstLang.setCustomValidity('INDIQUE AL MENOS UN IDIOMA.');
+      } else if (firstLang){
+        firstLang.setCustomValidity('');
       }
-      if (OtherEducY.checked){
-        if (educationList.children.length < 1){
-          educationSection.scrollIntoView({behavior:'smooth', block:'center'});
-          return false;
-        }
-        if (!validateDuplicatesEducation()) return false;
-      }
-      return formEl.checkValidity();
+      if (skillsExplain.hidden) SKILLS_EXPL.setCustomValidity('');
+      if (insurgentExplain.hidden) INS_EXPL.setCustomValidity('');
+
+      return form.checkValidity();
     }
 
-    nextLink.addEventListener('click', (e) => {
-      // Si el formulario no pasa validación, cancelamos la navegación del enlace
+    // Navegación
+    document.getElementById('backBtn').addEventListener('click', () => {
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(BACK_URL);
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
       if (!checkForm()){
-        e.preventDefault();
-        formEl.reportValidity();
-        const firstInvalid = formEl.querySelector(':invalid');
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
         if (firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
         return;
       }
-      formEl.querySelectorAll('input,select,textarea').forEach(saveField);
-      // El navegador seguirá el href del enlace.
+      form.querySelectorAll('input,select,textarea').forEach(saveField);
+      window.location.assign(NEXT_URL);
     });
   </script>
 </body>
