@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nonimmigrant Visa - Personal Information 2</title>
+  
+  <style>
+    :root{
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
+                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --border-strong: #cbd5f5;
+      --accent: #2563eb;
+      --accent-600: #1d4ed8;
+      --accent-700: #1e40af;
+      --danger: #ef4444;
+      --ring: #bfdbfe;
+      --shadow: 0 18px 45px rgba(15,23,42,.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: saturate(120%) blur(4px);
+    }
+
+    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
+    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin: 16px 0;
+      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
+    }
+    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
+    legend::after{
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
+      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+
+    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
+    .row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
+    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      max-width: 560px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+      font: inherit;
+      resize: vertical;
+    }
+
+    textarea { min-height: 80px; }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    input[type="tel"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
+    }
+
+    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
+    .note { font-size:.92rem; color:var(--muted); }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      border-top: 1px dashed var(--border);
+      padding-top: 16px;
+    }
+    .actions-left,
+    .actions-right {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
+    }
+    button.primary {
+      background: linear-gradient(180deg, var(--accent), var(--accent-600));
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 6px 16px rgba(37,99,235,.35);
+    }
+    button.primary:hover {
+      background: linear-gradient(180deg, var(--accent-600), var(--accent-700));
+      transform: translateY(-0.5px);
+    }
+    button.secondary {
+      background: #f8fafc;
+    }
+    button.secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .tag {
+      font-size:.8rem;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      color:var(--muted);
+      background:rgba(148,163,184,.08);
+    }
+
+    [hidden] { display:none !important; }
+
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 4px 4px; vertical-align: top; }
+
+    @media (max-width: 720px){
+      .grid-2 { grid-template-columns: minmax(0,1fr); }
+      .actions { flex-direction: column; align-items: stretch; }
+      .actions-left, .actions-right { justify-content: space-between; }
+      button { width: 100%; justify-content: center; }
+      table { font-size: .9rem; }
+    }
+  </style>
+
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="card">
+      
+      <header>
+        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
+        <div class="subtle">Sección: <strong>Help:</strong></div>
+      </header>
+    
+      <form id="ds160-help" action="#" method="post" novalidate>
+        <table border="0" cellspacing="0" id="ctl00_SiteContentPlaceHolder_FormView1" style="border-collapse:collapse;">
+<tr>
+<td colspan="2">
+<h2>
+<span class="tooltip_text" onmousemove="widetip=true; tip='Información Personal 2'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_Label1">Personal Information 2</span>
+</span>
+</h2>
+<div class="error-message" id="ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary" style="color:Red;background-color:White;display:none;">
+</div>
+<div class="fieldset-group">
+<fieldset>
+<div class="field-groups">
+<div id="ctl00_SiteContentPlaceHolder_FormView1_upnlNatl">
+<div class="field-groups">
+<div class="field-group full">
+<a id="ctl00_SiteContentPlaceHolder_FormView1_stophere" name="stophere" style="color: black" tabindex="50"><span class="tooltip_text" onmousemove="widetip=false; tip='Nacionalidad'; delayToolTip(event,tip,widetip,0,-10);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_NATL" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_NATL">Country/Region of Origin (Nationality)</label></span></a>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAPP_NATL" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<br/>
+<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_NATL" name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_NATL" onchange="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_NATL\',\'\')', 0)" onfocus="return ValidNavigation();" style="width:340px;" tabindex="100">
+<option selected="selected" value="">- Select One -</option>
+<option value="AFGH">AFGHANISTAN</option>
+<option value="ALB">ALBANIA</option>
+<option value="ALGR">ALGERIA</option>
+<option value="ANDO">ANDORRA</option>
+<option value="ANGL">ANGOLA</option>
+<option value="ANGU">ANGUILLA</option>
+<option value="ANTI">ANTIGUA AND BARBUDA</option>
+<option value="ARG">ARGENTINA</option>
+<option value="ARM">ARMENIA</option>
+<option value="ASTL">AUSTRALIA</option>
+<option value="AUST">AUSTRIA</option>
+<option value="AZR">AZERBAIJAN</option>
+<option value="BAMA">BAHAMAS</option>
+<option value="BAHR">BAHRAIN</option>
+<option value="BANG">BANGLADESH</option>
+<option value="BRDO">BARBADOS</option>
+<option value="BYS">BELARUS</option>
+<option value="BELG">BELGIUM</option>
+<option value="BLZ">BELIZE</option>
+<option value="BENN">BENIN</option>
+<option value="BERM">BERMUDA</option>
+<option value="BHU">BHUTAN</option>
+<option value="BOL">BOLIVIA</option>
+<option value="BIH">BOSNIA-HERZEGOVINA</option>
+<option value="BOT">BOTSWANA</option>
+<option value="BRZL">BRAZIL</option>
+<option value="BRNI">BRUNEI</option>
+<option value="BULG">BULGARIA</option>
+<option value="BURK">BURKINA FASO</option>
+<option value="BURM">BURMA</option>
+<option value="BRND">BURUNDI</option>
+<option value="CBDA">CAMBODIA</option>
+<option value="CMRN">CAMEROON</option>
+<option value="CAN">CANADA</option>
+<option value="CAVI">CABO VERDE</option>
+<option value="CAYI">CAYMAN ISLANDS</option>
+<option value="CAFR">CENTRAL AFRICAN REPUBLIC</option>
+<option value="CHAD">CHAD</option>
+<option value="CHIL">CHILE</option>
+<option value="CHIN">CHINA</option>
+<option value="COL">COLOMBIA</option>
+<option value="COMO">COMOROS</option>
+<option value="COD">CONGO, DEMOCRATIC REPUBLIC OF THE</option>
+<option value="CONB">CONGO, REPUBLIC OF THE</option>
+<option value="CSTR">COSTA RICA</option>
+<option value="IVCO">COTE D`IVOIRE</option>
+<option value="HRV">CROATIA</option>
+<option value="CUBA">CUBA</option>
+<option value="CYPR">CYPRUS</option>
+<option value="CZEC">CZECH REPUBLIC</option>
+<option value="DEN">DENMARK</option>
+<option value="DJI">DJIBOUTI</option>
+<option value="DOMN">DOMINICA</option>
+<option value="DOMR">DOMINICAN REPUBLIC</option>
+<option value="ECUA">ECUADOR</option>
+<option value="EGYP">EGYPT</option>
+<option value="ELSL">EL SALVADOR</option>
+<option value="EGN">EQUATORIAL GUINEA</option>
+<option value="ERI">ERITREA</option>
+<option value="EST">ESTONIA</option>
+<option value="SZLD">ESWATINI</option>
+<option value="ETH">ETHIOPIA</option>
+<option value="FIJI">FIJI</option>
+<option value="FIN">FINLAND</option>
+<option value="FRAN">FRANCE</option>
+<option value="GABN">GABON</option>
+<option value="GAM">GAMBIA, THE</option>
+<option value="GEO">GEORGIA</option>
+<option value="GER">GERMANY</option>
+<option value="GHAN">GHANA</option>
+<option value="GIB">GIBRALTAR</option>
+<option value="GRC">GREECE</option>
+<option value="GREN">GRENADA</option>
+<option value="GUAT">GUATEMALA</option>
+<option value="GNEA">GUINEA</option>
+<option value="GUIB">GUINEA - BISSAU</option>
+<option value="GUY">GUYANA</option>
+<option value="HAT">HAITI</option>
+<option value="VAT">HOLY SEE (VATICAN CITY)</option>
+<option value="HOND">HONDURAS</option>
+<option value="HOKO">HONG KONG BNO</option>
+<option value="HNK">HONG KONG SAR</option>
+<option value="HUNG">HUNGARY</option>
+<option value="ICLD">ICELAND</option>
+<option value="IND">INDIA</option>
+<option value="IDSA">INDONESIA</option>
+<option value="IRAN">IRAN</option>
+<option value="IRAQ">IRAQ</option>
+<option value="IRE">IRELAND</option>
+<option value="ISRL">ISRAEL</option>
+<option value="ITLY">ITALY</option>
+<option value="JAM">JAMAICA</option>
+<option value="JPN">JAPAN</option>
+<option value="JORD">JORDAN</option>
+<option value="KAZ">KAZAKHSTAN</option>
+<option value="KENY">KENYA</option>
+<option value="KIRI">KIRIBATI</option>
+<option value="PRK">KOREA, DEMOCRATIC REPUBLIC OF (NORTH)</option>
+<option value="KOR">KOREA, REPUBLIC OF (SOUTH)</option>
+<option value="KSV">KOSOVO</option>
+<option value="KUWT">KUWAIT</option>
+<option value="KGZ">KYRGYZSTAN</option>
+<option value="LAOS">LAOS</option>
+<option value="LATV">LATVIA</option>
+<option value="LEBN">LEBANON</option>
+<option value="LES">LESOTHO</option>
+<option value="LIBR">LIBERIA</option>
+<option value="LBYA">LIBYA</option>
+<option value="LCHT">LIECHTENSTEIN</option>
+<option value="LITH">LITHUANIA</option>
+<option value="LXM">LUXEMBOURG</option>
+<option value="MAC">MACAU</option>
+<option value="MKD">MACEDONIA, NORTH</option>
+<option value="MADG">MADAGASCAR</option>
+<option value="MALW">MALAWI</option>
+<option value="MLAS">MALAYSIA</option>
+<option value="MLDV">MALDIVES</option>
+<option value="MALI">MALI</option>
+<option value="MLTA">MALTA</option>
+<option value="RMI">MARSHALL ISLANDS</option>
+<option value="MAUR">MAURITANIA</option>
+<option value="MRTS">MAURITIUS</option>
+<option value="MEX">MEXICO</option>
+<option value="FSM">MICRONESIA</option>
+<option value="MLD">MOLDOVA</option>
+<option value="MON">MONACO</option>
+<option value="MONG">MONGOLIA</option>
+<option value="MTG">MONTENEGRO</option>
+<option value="MONT">MONTSERRAT</option>
+<option value="MORO">MOROCCO</option>
+<option value="MOZ">MOZAMBIQUE</option>
+<option value="NAMB">NAMIBIA</option>
+<option value="NAU">NAURU</option>
+<option value="NEP">NEPAL</option>
+<option value="NETH">NETHERLANDS</option>
+<option value="NZLD">NEW ZEALAND</option>
+<option value="NIC">NICARAGUA</option>
+<option value="NIR">NIGER</option>
+<option value="NRA">NIGERIA</option>
+<option value="NORW">NORWAY</option>
+<option value="OMAN">OMAN</option>
+<option value="PKST">PAKISTAN</option>
+<option value="PALA">PALAU</option>
+<option value="PAL">PALESTINIAN AUTHORITY</option>
+<option value="PAN">PANAMA</option>
+<option value="PNG">PAPUA NEW GUINEA</option>
+<option value="PARA">PARAGUAY</option>
+<option value="PERU">PERU</option>
+<option value="PHIL">PHILIPPINES</option>
+<option value="PITC">PITCAIRN ISLANDS</option>
+<option value="POL">POLAND</option>
+<option value="PORT">PORTUGAL</option>
+<option value="QTAR">QATAR</option>
+<option value="ROM">ROMANIA</option>
+<option value="RUS">RUSSIA</option>
+<option value="RWND">RWANDA</option>
+<option value="WSAM">SAMOA</option>
+<option value="SMAR">SAN MARINO</option>
+<option value="STPR">SAO TOME AND PRINCIPE</option>
+<option value="SARB">SAUDI ARABIA</option>
+<option value="SENG">SENEGAL</option>
+<option value="SBA">SERBIA</option>
+<option value="SEYC">SEYCHELLES</option>
+<option value="SLEO">SIERRA LEONE</option>
+<option value="SING">SINGAPORE</option>
+<option value="SVK">SLOVAKIA</option>
+<option value="SVN">SLOVENIA</option>
+<option value="SLMN">SOLOMON ISLANDS</option>
+<option value="SOMA">SOMALIA</option>
+<option value="SAFR">SOUTH AFRICA</option>
+<option value="SSDN">SOUTH SUDAN</option>
+<option value="SPN">SPAIN</option>
+<option value="SRL">SRI LANKA</option>
+<option value="SHEL">ST. HELENA</option>
+<option value="STCN">ST. KITTS AND NEVIS</option>
+<option value="SLCA">ST. LUCIA</option>
+<option value="STVN">ST. VINCENT AND THE GRENADINES</option>
+<option value="XXX">STATELESS</option>
+<option value="SUDA">SUDAN</option>
+<option value="SURM">SURINAME</option>
+<option value="SWDN">SWEDEN</option>
+<option value="SWTZ">SWITZERLAND</option>
+<option value="SYR">SYRIA</option>
+<option value="TWAN">TAIWAN</option>
+<option value="TJK">TAJIKISTAN</option>
+<option value="TAZN">TANZANIA</option>
+<option value="THAI">THAILAND</option>
+<option value="TMOR">TIMOR-LESTE</option>
+<option value="TOGO">TOGO</option>
+<option value="TONG">TONGA</option>
+<option value="TRIN">TRINIDAD AND TOBAGO</option>
+<option value="TNSA">TUNISIA</option>
+<option value="TRKY">TURKEY</option>
+<option value="TKM">TURKMENISTAN</option>
+<option value="TCIS">TURKS AND CAICOS ISLANDS</option>
+<option value="TUV">TUVALU</option>
+<option value="UGAN">UGANDA</option>
+<option value="UKR">UKRAINE</option>
+<option value="UAE">UNITED ARAB EMIRATES</option>
+<option value="GRBR">UNITED KINGDOM</option>
+<option value="URU">URUGUAY</option>
+<option value="UZB">UZBEKISTAN</option>
+<option value="VANU">VANUATU</option>
+<option value="VENZ">VENEZUELA</option>
+<option value="VTNM">VIETNAM</option>
+<option value="BRVI">VIRGIN ISLANDS, BRITISH</option>
+<option value="WAFT">WALLIS AND FUTUNA ISLANDS</option>
+<option value="SSAH">WESTERN SAHARA</option>
+<option value="YEM">YEMEN</option>
+<option value="ZAMB">ZAMBIA</option>
+<option value="ZIMB">ZIMBABWE</option>
+</select>
+</div>
+<br/>
+</div>
+</div>
+<div id="ctl00_SiteContentPlaceHolder_FormView1_upnlAPP_OTH_NATL_IND">
+<div class="field-groups">
+<div class="q">
+<span class="tooltip_text" onmousemove="widetip=true; tip='¿Usted cuenta o ha contado con alguna otra nacionalidad diferente a la indicada arriba en el rubro de \'Nacionalidad\'?'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_OTH_NATL_IND" tabindex="200">Do you hold or have you held any nationality other than the one indicated above on nationality?</label></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAPP_OTH_NATL_IND" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvDupNation" style="color:Red;visibility:hidden;"><img alt="" height="0" src="../../_res/img/trg_bk.GIF" width="0"/> </span>
+</div>
+<div class="a">
+<div class="field-group radio">
+<span class="RadioCheck"><span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<table border="0" class="additional-hide-othernationalities" id="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND" onfocus="return ValidNavigation();">
+<tr>
+<td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND_0" name="ctl00$SiteContentPlaceHolder$FormView1$rblAPP_OTH_NATL_IND" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblAPP_OTH_NATL_IND$0\',\'\')', 0)" tabindex="200" type="radio" value="Y"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND_0">Yes</label></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND_1" name="ctl00$SiteContentPlaceHolder$FormView1$rblAPP_OTH_NATL_IND" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblAPP_OTH_NATL_IND$1\',\'\')', 0)" tabindex="200" type="radio" value="N"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblAPP_OTH_NATL_IND_1">No</label></td>
+</tr>
+</table>
+</span></span>
+</div>
+<div id="ctl00_SiteContentPlaceHolder_FormView1_upnlOTHER_NATL">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="help">
+<div id="ctl00_SiteContentPlaceHolder_FormView1_Help">
+</div>
+</div>
+</fieldset>
+<div class="hr">
+</div>
+<fieldset id="fldsPermResOtherCntry">
+<div class="field-groups">
+<div id="ctl00_SiteContentPlaceHolder_FormView1_upnlPermResOtherCntryInd">
+<div class="field-groups">
+<div class="q">
+<span class="tooltip_text" onmousemove="widetip=true; tip='Es usted residente permanente de algún país/región que no sea su país/región de origen (nacionalidad) arriba indicadas?'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd" id="ctl00_SiteContentPlaceHolder_FormView1_lblPermResOtherCntryInd" tabindex="200">Are you a permanent resident of a country/region other than your country/region of origin (nationality) indicated above?
+</label></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvPermResOtherCntryInd" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvDupPermRes" style="color:Red;visibility:hidden;"><img alt="" height="0" src="../../_res/img/trg_bk.GIF" width="0"/> </span>
+</div>
+<div class="a">
+<div class="field-group radio">
+<span class="RadioCheck"><span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<table border="0" class="additional-hide-othernationalities" id="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd" onfocus="return ValidNavigation();">
+<tr>
+<td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd_0" name="ctl00$SiteContentPlaceHolder$FormView1$rblPermResOtherCntryInd" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblPermResOtherCntryInd$0\',\'\')', 0)" tabindex="200" type="radio" value="Y"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd_0">Yes</label></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd_1" name="ctl00$SiteContentPlaceHolder$FormView1$rblPermResOtherCntryInd" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblPermResOtherCntryInd$1\',\'\')', 0)" tabindex="200" type="radio" value="N"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblPermResOtherCntryInd_1">No</label></td>
+</tr>
+</table>
+</span></span>
+</div>
+<div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel2">
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="help">
+<div id="ctl00_SiteContentPlaceHolder_FormView1_upnlOthPermResCntryHelp">
+</div>
+</div>
+<div class="help">
+<h4>
+<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,20,0);return false">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_Label8" style="color:#891300;">Help:</span></span>
+<span><span class="tooltip_text" onmousemove="widetip=false; tip=''; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_Label9">Permanent Resident</span></span>
+</span>
+</h4>
+<p>
+<span class="tooltip_text" onmousemove="widetip=true; tip=''; delayToolTip(event,tip,widetip,65,0);return false" onmouseout="hideToolTip()">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_Label10">Permanent resident means any individual who has been legally granted by a country/region permission to live and work without time limitation in that country/region.</span></span>
+</p>
+</div>
+</fieldset>
+<div class="hr">
+</div>
+<fieldset>
+<div class="field-groups">
+<div class="field full" style="padding-bottom: 0%">
+<span class="tooltip_text" onmousemove="widetip=false; tip='Número de Identificación Nacional'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_NATIONAL_ID" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_NATIONAL_ID">National Identification Number</label></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAPP_NATIONAL_ID" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<br/>
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_NATIONAL_ID" maxlength="20" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_NATIONAL_ID" onchange="javascript:setDirty();" style="background-color:White;" tabindex="400" type="text"/>
+<div class="field full" style="text-align: right; padding-bottom: 0%">
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_NATIONAL_ID_NA" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_NATIONAL_ID_NA" type="hidden"/>
+<span class="RadioCheck"><span class="tooltip_text" onmousemove="widetip=false; tip='No aplica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_NATIONAL_ID_NA" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_NATIONAL_ID_NA" onclick="javascript:setDirty(); return enableTbx('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_NATIONAL_ID', 'ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_NATIONAL_ID_NA');" tabindex="410" type="checkbox"/><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_NATIONAL_ID_NA">Does Not Apply</label>
+</span></span>
+</div>
+</div>
+<div class="field full">
+<span class="tooltip_text" onmousemove="widetip=false; tip='Número de Seguridad Social de los Estados Unidos de Norteamérica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN1" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_SSN">U.S. Social Security Number</label></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAPP_SSN" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<br/>
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN1" maxlength="3" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SSN1" onchange="javascript:setDirty();" style="background-color:White;width:25px;" tabindex="500" type="text"/>
+                            -
+                            <input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN2" maxlength="2" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SSN2" onchange="javascript:setDirty();" style="background-color:White;width:20px;" tabindex="510" type="text"/>
+                            -
+                            <input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN3" maxlength="4" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SSN3" onchange="javascript:setDirty();" style="background-color:White;width:30px;" tabindex="520" type="text"/>
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN_NA" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SSN_NA" type="hidden"/>
+                              <span class="RadioCheck">
+<span class="tooltip_text" onmousemove="widetip=false; tip='No aplica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_SSN_NA" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_SSN_NA" onclick="javascript:setDirty(); return enableTbx3('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN1', 'ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN2','ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN3','ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SSN_NA');" tabindex="530" type="checkbox"/><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_SSN_NA">Does Not Apply</label></span>
+</span>
+</div>
+<div class="field full">
+<span class="tooltip_text" onmousemove="widetip=false; tip='Número de Identificación de Contribuyente en los Estados Unidos de Norteamérica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_TAX_ID" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_TAX_ID">U.S. Taxpayer ID Number</label></span>
+<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAPP_TAX_ID" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
+<br/>
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_TAX_ID" maxlength="20" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_TAX_ID" onchange="javascript:setDirty();" style="background-color:White;" tabindex="600" type="text"/>
+<div class="field full" style="text-align: right">
+<span class="RadioCheck">
+<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_TAX_ID_NA" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_TAX_ID_NA" type="hidden"/>
+<span class="tooltip_text" onmousemove="widetip=false; tip='No aplica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_TAX_ID_NA" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_TAX_ID_NA" onclick="javascript:setDirty(); return enableTbx('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_TAX_ID', 'ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_TAX_ID_NA');" tabindex="610" type="checkbox"/><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_TAX_ID_NA">Does Not Apply</label></span>
+</span>
+</div>
+</div>
+</div>
+<div class="help">
+<h4>
+<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,20,0);return false">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_Label5" style="color:#891300;">Help:</span></span>
+<span><span class="tooltip_text" onmousemove="widetip=false; tip='Números de identificación'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp1">Identification Numbers</span></span>
+</span>
+</h4>
+<p>
+<span class="tooltip_text" onmousemove="widetip=true; tip='Su Número de Identificación Nacional es un número único que su gobierno le proporciona. El Gobierno de los EE.UU. ofrece números exclusivos para aquellas personas quienes buscan empleo(Número de Seguridad Social) o para quienes pagan impuestos (Identificación del contribuyente).'; delayToolTip(event,tip,widetip,65,0);return false" onmouseout="hideToolTip()">
+<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp2">Your National ID Number is a unique number that your government provides. The U.S. Government provides unique numbers to those who seek employment (Social Security Number) or pay taxes (Taxpayer ID).</span></span>
+</p>
+</div>
+</fieldset>
+</div>
+</td>
+</tr>
+</table>
+        <div class="actions">
+          <div class="actions-left">
+            <span class="tag">Clon DS-160</span>
+          </div>
+          <div class="actions-right">
+            <button type="button" class="secondary" id="downloadJsonBtn">Descargar JSON</button>
+            <button type="submit" class="primary" id="nextBtn">Siguiente</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+<script type="text/javascript">
+(function() {
+    function noop() { return true; }
+
+    if (typeof window.setDirty === 'undefined') {
+        window.setDirty = function () {};
+    }
+
+    if (typeof window.ShowHideDiv === 'undefined') {
+        window.ShowHideDiv = function (id, mode) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var show = true;
+            if (typeof mode !== 'undefined') {
+                if (mode === 'off' || mode === false || mode === 0) {
+                    show = false;
+                } else if (mode === 'on' || mode === true || mode === 1) {
+                    show = true;
+                }
+            }
+            el.style.display = show ? '' : 'none';
+        };
+    }
+
+    if (typeof window.ValidNavigationSelect === 'undefined') {
+        window.ValidNavigationSelect = noop;
+    }
+    if (typeof window.confirmExitPage === 'undefined') {
+        window.confirmExitPage = noop;
+    }
+    if (typeof window.CheckNodeClicked === 'undefined') {
+        window.CheckNodeClicked = function() {};
+    }
+    if (typeof window.CheckDirty === 'undefined') {
+        window.CheckDirty = noop;
+    }
+    if (typeof window.Navigate === 'undefined') {
+        window.Navigate = noop;
+    }
+    if (typeof window.LimitInput === 'undefined') {
+        window.LimitInput = function() {};
+    }
+    if (typeof window.doPaste === 'undefined') {
+        window.doPaste = function() {};
+    }
+    if (typeof window.delayToolTip === 'undefined') {
+        window.delayToolTip = function() {};
+    }
+    if (typeof window.hideToolTip === 'undefined') {
+        window.hideToolTip = function() {};
+    }
+    if (typeof window.__doPostBack === 'undefined') {
+        window.__doPostBack = function() {};
+    }
+})();
+</script>
+
+
+<script type="text/javascript">
+(function(){
+  const FORM_ID = 'ds160-help';
+  const STORAGE_PREFIX = 'ds160:';
+  const JSON_KEY = STORAGE_PREFIX + FORM_ID + ':json';
+  const JSON_FILENAME = 'ds160-help.json';
+
+  function storageKey(field){
+    const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
+    return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
+  }
+  function saveField(field){
+    try{
+      if(field.type === 'radio'){
+        if(field.checked) localStorage.setItem(storageKey(field), field.value);
+      }else if(field.type === 'checkbox'){
+        localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
+      }else{
+        localStorage.setItem(storageKey(field), field.value);
+      }
+    }catch(e){}
+  }
+  function restoreField(field){
+    try{
+      const key = storageKey(field);
+      const v = localStorage.getItem(key);
+      if(v == null) return;
+      if(field.type === 'radio'){
+        field.checked = (field.value === v);
+      }else if(field.type === 'checkbox'){
+        field.checked = (v === '1');
+      }else{
+        field.value = v;
+      }
+    }catch(e){}
+  }
+  function autosave(form){
+    form.addEventListener('input',(e)=>{
+      const t=e.target;
+      if(!t || !(t instanceof HTMLElement))return;
+      if(t.matches('input,select,textarea')) saveField(t);
+    },true);
+    form.addEventListener('change',(e)=>{
+      const t=e.target;
+      if(!t || !(t instanceof HTMLElement))return;
+      if(t.matches('input,select,textarea')) saveField(t);
+    },true);
+  }
+
+  function collectFormData(form){
+    const data = {};
+    const radioHandled = new Set();
+    const elements = Array.from(form.elements).filter(el => el.name || el.id);
+
+    elements.forEach(el => {
+      const key = el.name || el.id;
+      if(!key) return;
+      if(el.type === 'radio'){
+        if(radioHandled.has(key)) return;
+        radioHandled.add(key);
+        const checked = form.querySelector('input[type="radio"][name="' + CSS.escape(key) + '"]:checked');
+        data[key] = checked ? checked.value : null;
+      }else if(el.type === 'checkbox'){
+        data[key] = !!el.checked;
+      }else{
+        data[key] = el.value;
+      }
+    });
+    return data;
+  }
+
+  function downloadJson(filename, jsonStr){
+    try{
+      const blob = new Blob([jsonStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }catch(e){ console.error(e); }
+  }
+
+  function exportJson(form, doDownload){
+    const fields = collectFormData(form);
+    const payload = {
+      page: document.title || FORM_ID,
+      formId: FORM_ID,
+      generatedAt: new Date().toISOString(),
+      fields: fields
+    };
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+      try {
+        google.script.run.saveFormData(payload);
+      } catch(e) {}
+    }
+
+const jsonStr = JSON.stringify(payload, null, 2);
+    try {
+      localStorage.setItem(JSON_KEY, jsonStr);
+    } catch(e) {}
+    if(doDownload) downloadJson(JSON_FILENAME, jsonStr);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById(FORM_ID);
+    if(!form) return;
+
+    form.querySelectorAll('input,select,textarea').forEach(restoreField);
+    autosave(form);
+
+    const dlBtn = document.getElementById('downloadJsonBtn');
+    if(dlBtn){
+      dlBtn.addEventListener('click', () => {
+        exportJson(form, true);
+      });
+    }
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      if(!form.checkValidity()){
+        form.reportValidity();
+        const firstInvalid = form.querySelector(':invalid');
+        if(firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+      exportJson(form, true);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
