@@ -1,1135 +1,1631 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nonimmigrant Visa - Personal Information 1</title>
-  
-  <style>
-    :root{
-      color-scheme: light dark;
-      --bg: #f6f7fb;
-      --bg-grad: radial-gradient(1200px 600px at 10% -10%, #dfe7ff55, transparent 60%),
-                 radial-gradient(800px 400px at 110% 10%, #ffe6d655, transparent 60%);
-      --card: #ffffff;
-      --text: #0f172a;
-      --muted: #475569;
-      --border: #e2e8f0;
-      --border-strong: #cbd5f5;
-      --accent: #2563eb;
-      --accent-600: #1d4ed8;
-      --accent-700: #1e40af;
-      --danger: #ef4444;
-      --ring: #bfdbfe;
-      --shadow: 0 18px 45px rgba(15,23,42,.16);
-    }
 
-    * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      background-image: var(--bg-grad);
-    }
-
-    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 24px;
-      box-shadow: var(--shadow);
-      backdrop-filter: saturate(120%) blur(4px);
-    }
-
-    header h1 { font-size: 1.35rem; margin: 0 0 6px; letter-spacing: -.01em; }
-    .subtle { color: var(--muted); font-size: .95rem; margin-bottom: 18px; }
-
-    fieldset {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      margin: 16px 0;
-      background: linear-gradient(180deg, rgba(148,163,184,.06), transparent 60%);
-    }
-    legend { font-weight: 700; padding: 0 10px; font-size: .98rem; }
-    legend::after{
-      content: ""; display: inline-block; width: 8px; height: 8px; margin-left: 8px; border-radius: 999px;
-      background: var(--accent); box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
-    }
-
-    label { display: inline-block; margin: 8px 0 6px; font-weight: 600; }
-    .row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
-    .grid-2 { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:12px; }
-    .inline { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="email"],
-    textarea,
-    select {
-      width: 100%;
-      max-width: 560px;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--card);
-      color: var(--text);
-      outline: none;
-      transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-      font: inherit;
-      resize: vertical;
-    }
-
-    textarea { min-height: 80px; }
-
-    input[type="text"]:focus,
-    input[type="date"]:focus,
-    input[type="number"]:focus,
-    input[type="tel"]:focus,
-    input[type="email"]:focus,
-    textarea:focus,
-    select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 45%, transparent);
-    }
-
-    .help { font-size: .9rem; color: var(--muted); margin-top: 2px; }
-    .note { font-size:.92rem; color:var(--muted); }
-
-    .actions {
-      margin-top: 18px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      border-top: 1px dashed var(--border);
-      padding-top: 16px;
-    }
-    .actions-left,
-    .actions-right {
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    button {
-      padding: 10px 16px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      transition: transform .06s ease, box-shadow .15s ease, background .2s ease, border-color .15s ease;
-    }
-    button.primary {
-      background: linear-gradient(180deg, var(--accent), var(--accent-600));
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 6px 16px rgba(37,99,235,.35);
-    }
-    button.primary:hover {
-      background: linear-gradient(180deg, var(--accent-600), var(--accent-700));
-      transform: translateY(-0.5px);
-    }
-    button.secondary {
-      background: #f8fafc;
-    }
-    button.secondary:hover {
-      background: #e2e8f0;
-    }
-
-    .tag {
-      font-size:.8rem;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      color:var(--muted);
-      background:rgba(148,163,184,.08);
-    }
-
-    [hidden] { display:none !important; }
-
-    table { width: 100%; border-collapse: collapse; }
-    td { padding: 4px 4px; vertical-align: top; }
-
-    @media (max-width: 720px){
-      .grid-2 { grid-template-columns: minmax(0,1fr); }
-      .actions { flex-direction: column; align-items: stretch; }
-      .actions-left, .actions-right { justify-content: space-between; }
-      button { width: 100%; justify-content: center; }
-      table { font-size: .9rem; }
-    }
-  </style>
-
-</head>
-<body>
-
-  <div class="wrap">
-    <div class="card">
-      
-      <header>
-        <h1>Solicitud de Visa de No Inmigrante en línea (DS-160)</h1>
-        <div class="subtle">Sección: <strong>Help:</strong></div>
-      </header>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
     
-      <form id="ds160-help" action="#" method="post" novalidate>
-        <table border="0" cellspacing="0" id="ctl00_SiteContentPlaceHolder_FormView1" style="border-collapse:collapse;">
-<tr>
-<td colspan="2">
-<table border="0" cellpadding="0" cellspacing="0" style="text-align: center; width: 550px">
-<tr>
-<td style="text-align: left">
-<h2>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=true; tip='Información personal 1'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_PersonalInfoLabel" style="width: auto">Personal Information 1</span></span>
-</h2>
-</td>
-<td style="text-align: right; width: auto">
-<br/>
-<div class="burden">
-<table>
-<tr>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='NUMERO DE CONTROL OMB'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblOMBControlNo">OMB CONTROL NUMBER:</span></span></td>
-<td style="white-space:nowrap;">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblOMBControlNoValue">1405-0182</span></td>
-</tr>
-<tr>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='NUMERO DEL FORMULARIO:'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblFormNo">FORM NUMBER:</span></span></td>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='DS-160'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblFormNoValue">DS-160</span></span>
-</td>
-</tr>
-<tr>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Fecha de expiración:'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblExpireDate">EXPIRATION DATE:</span></span></td>
-<td style="white-space:nowrap;">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblExpireDateValue">09/30/2023</span>
-</td>
-</tr>
-<tr>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Carga estimada:'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblEstBurden">ESTIMATED BURDEN:</span></span></td>
-<td style="white-space:nowrap;">
-<span class="tooltip_text" onmousemove="widetip=false; tip='90 minutos'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblEstBurdenValue">90 MIN</span></span></td>
-</tr>
-</table>
-</div>
-</td>
-</tr>
-</table>
-<br/>
-<br/>
-<div class="error-message" id="ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary" style="color:Red;background-color:White;display:none;">
-</div>
-<div class="note">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=true; tip='Nota: Los datos registrados en esta página deberán coincidir con los que aparecen en su pasaporte.'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblPageNote1">NOTE: Data on this page must match the information as it is written in your passport.</span></span>
-</div>
-<div class="fieldset-group">
-<fieldset>
-<div class="field-groups">
-<div class="field full">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Apellidos'; delayToolTip(event,tip,widetip,0,0);return false">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_SURNAME">Surnames</label></span>
-
-<span id="ctl00_SiteContentPlaceHolder_FormView1_customValSurname" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases" style="color:Red;visibility:hidden;"><img alt="" height="0" src="../../_res/img/trg_bk.GIF" width="0"/> </span>
-<br/>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME" maxlength="33" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SURNAME" onchange="javascript:setDirty();" style="width: 95%" tabindex="100" type="text"/>
-<div class="hint">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='(Por ejemplo:FERNANDEZ GARCIA)'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lbl_APP_SURNAME_EXAMPLE">(e.g., FERNANDEZ GARCIA)</span></span>
-</div>
-</div>
-<div class="field full" style="margin-top: 40px">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GIVEN_NAME">Given Names</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<br/>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME" maxlength="33" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_GIVEN_NAME" onchange="javascript:setDirty();" style="width: 95%" tabindex="110" type="text"/><br/>
-<div class="hint">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='(por ejemplo: Juan Miguel)'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GIVEN_NAME_EXAMPLE">(e.g., JUAN MIGUEL)</span></span>
-</div>
-</div>
-<div class="field full">
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Nombre completo en su alfabeto nativo'; delayToolTip(event,tip,widetip,0,0);return false">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_FULL_NAME_NATIVE">Full Name in Native Alphabet</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE" maxlength="100" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_FULL_NAME_NATIVE" onchange="javascript:setDirty();" style="background-color:White;width: 95%" tabindex="120" type="text"/>
-<div class="field full" style="text-align: right">
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE_NA" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_FULL_NAME_NATIVE_NA" type="hidden"/>
-<span class="RadioCheck"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='No aplica/Tecnología no disponible'; delayToolTip(event,tip,widetip,0,0);return false">
-<input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_FULL_NAME_NATIVE_NA" onclick="javascript:setDirty(); return enableTbx('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE','ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE_NA');" tabindex="130" type="checkbox"/><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA">Does Not Apply/Technology Not Available</label></span>
-</span>
-</div>
-</div>
-</div>
-<div class="help" style="margin-top: -7px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp" style="color:#891300;">Help:</span></span>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Apellidos'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp1">Surnames</span></span></h4>
-<p>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=true; tip='Inserte sus apellidos tal y como aparecen registrados en su pasaporte. Si sólo aparece uno, entonces escríbalo.'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp2">Enter all surnames as listed in your passport. If only one name is listed in your
-                                    passport, enter that Surname.</span></span>
-</p>
-</div>
-<div class="help" style="margin-top: 0px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp3" style="color:#891300;">Help:</span></span>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp4">Given Names</span></span></h4>
-<p>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=true; tip='Si su pasaporte no incluye un nombre de pila, anotar \'FNU\' en ese espacio.'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp5">If your passport does not include a given name, please enter 'FNU' in Given Names.</span></span>
-</p>
-</div>
-</fieldset>
-<div class="hr">
-</div>
-<div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel1">
-<fieldset>
-<div class="field-groups">
-<div class="field-group">
-<div class="q">
-<span class="tooltip_text" onmousemove="widetip=true; tip='¿Ha utilizado otros nombres (por ejemplo: appellidos de soltera, religiosos, profesionales, alias, etc.)?'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames" id="ctl00_SiteContentPlaceHolder_FormView1_lblOtherNamesUsed" tabindex="200">Have you ever used other names (i.e., maiden, religious, professional, alias, etc.)?</label></span><span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-</div>
-<div class="a">
-<div class="field-group radio">
-<div class="field full">
-<span class="RadioCheck"><span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<table border="0" id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames" onfocus="return ValidNavigation();">
-<tr>
-<td><span tooltip="Sí"><input id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_0" name="ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames$0\',\'\')', 0)" tabindex="205" type="radio" value="Y"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_0">Yes</label></span></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1" name="ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames$1\',\'\')', 0)" tabindex="205" type="radio" value="N"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1">No</label></td>
-</tr>
-</table></span> </span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="help" id="ctl00_SiteContentPlaceHolder_FormView1_divOtherNamesHelp" style="margin-top: 0px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label1" style="color:#891300;">Help:</span></span>
-<span><span class="tooltip_text" onmousemove="widetip=false; tip='Otros nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp16">Other Names</span></span>
-</span>
-</h4>
-<p>
-<span class="tooltip_text" onmousemove="widetip=true; tip='Otros nombres usados incluyen los apellidos de soltera, los religiosos, los profesionales o cualquier otro nombre por el que se le conoce o conoció en algún momento.'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp17">Other names used include your maiden name, religious name, professional name, or any other names which you are known by or have been known by in the past.</span></span>
-</p>
-</div>
-</fieldset>
-<fieldset>
-<div class="field-groups">
-<div class="field-group">
-</div>
-</div>
-</fieldset>
-</div>
-<div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel2">
-<fieldset>
-<div class="field-groups">
-<div class="field-group">
-<div class="q">
-<span class="tooltip_text" onmousemove="widetip=true; tip='¿Cuenta usted con una clave telecode que represente su nombre?'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion" id="ctl00_SiteContentPlaceHolder_FormView1_lblTelecodeQuestion" tabindex="500">Do you have a telecode that represents your name?</label></span><span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-</div>
-<div class="a">
-<div class="field-group radio">
-<div class="field full">
-<span class="RadioCheck">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<table border="0" id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion" onfocus="return ValidNavigation();">
-<tr>
-<td><span tooltip="Sí"><input id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_0" name="ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion$0\',\'\')', 0)" tabindex="510" type="radio" value="Y"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_0">Yes</label></span></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1" name="ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion" onclick="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion$1\',\'\')', 0)" tabindex="510" type="radio" value="N"/><label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1">No</label></td>
-</tr>
-</table>
-</span>
-</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="help" id="ctl00_SiteContentPlaceHolder_FormView1_telecodeHelpDiv" style="margin-top: 0px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label6" style="color:#891300;">Help:</span></span>
-<span><span class="tooltip_text" onmousemove="widetip=false; tip='Telecode'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label7">Telecode</span></span>
-</span>
-</h4>
-<p>
-<span class="tooltip_text" onmousemove="widetip=true; tip='Los \'Telecodes\' son números de 4 dígitos que representan letras/símbolos en algunos nombres de alfabetos no romanos.'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label8">Telecodes are 4 digit code numbers that represent characters in some non-Roman alphabet names.</span></span>
-</p>
-</div>
-</fieldset>
-<fieldset>
-<div class="field-groups">
-<div class="field-group">
-</div>
-</div>
-</fieldset>
-</div>
-<div class="hr">
-</div>
-<fieldset>
-<div class="field-groups">
-<div class="field full">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Sexo'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GENDER">Sex</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<br/>
-<div class="field-group dropdownlist">
-<span class="DropDownCheck">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Masculino o Femenino'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER" name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_GENDER" onchange="javascript:setDirty();" tabindex="600">
-<option selected="selected" value="">- Select One -</option>
-<option value="M">MALE</option>
-<option value="F">FEMALE</option>
-</select>
-</span>
-</span>
-</div>
-</div>
-<div class="field full">
-<div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel3">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Estado civil'; delayToolTip(event,tip,widetip,0,-10);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_MARITAL_STATUS">Marital Status</label>
-</span>
-<input alt="Click here for more information" id="ctl00_SiteContentPlaceHolder_FormView1_HelpButton1" name="ctl00$SiteContentPlaceHolder$FormView1$HelpButton1" onclick="window.open('/GenNIV/Help/Help.aspx#MaritalStatus','Help','height=760,width=778,toolbar=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,modal=yes,help=no');return false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$FormView1$HelpButton1&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" src="../../_res/img/infopop.bmp" style="height:15px;width:15px;border-width:0px;" tabindex="610" type="image"/>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS" name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_MARITAL_STATUS" onchange="javascript:setDirty();setTimeout('__doPostBack(\'ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_MARITAL_STATUS\',\'\')', 0)" onfocus="return ValidNavigation();" tabindex="615">
-<option selected="selected" value="">-Select One-</option>
-<option value="M">MARRIED</option>
-<option value="C">COMMON LAW MARRIAGE</option>
-<option value="P">CIVIL UNION/DOMESTIC PARTNERSHIP</option>
-<option value="S">SINGLE</option>
-<option value="W">WIDOWED</option>
-<option value="D">DIVORCED</option>
-<option value="L">LEGALLY SEPARATED</option>
-<option value="O">OTHER</option>
-</select>
-</div>
-</div>
-</div>
-<div class="help" style="margin-top: -7px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label11" style="color:#891300;">Help:</span></span>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip=''; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label12">Sex</span></span></h4>
-<p>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=true; tip=''; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label13">Please select MALE or FEMALE</span></span>
-</p>
-</div>
-</fieldset>
-<div class="hr">
-</div>
-<fieldset>
-<div class="field-groups">
-<h4>
-<span class="tooltip_text" onmousemove="widetip=false; tip='Fecha y lugar de nacimiento'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblDatePlaceOfBirth">Date and Place of Birth</span></span>
-</h4>
-<div class="field-group callout">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Fecha'; delayToolTip(event,tip,widetip,0,-10);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_DOB" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_DOB">Date</label></span>
-<input alt="Click here for more information" id="ctl00_SiteContentPlaceHolder_FormView1_HelpButton2" name="ctl00$SiteContentPlaceHolder$FormView1$HelpButton2" onclick="window.open('/GenNIV/Help/Help.aspx#Month','Help','height=760,width=778,toolbar=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,modal=yes,help=no');return false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$FormView1$HelpButton2&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" src="../../_res/img/infopop.bmp" style="height:15px;width:15px;border-width:0px;" tabindex="720" type="image"/>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_customValDOB" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<div class="field full">
-<div class="date">
-<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlDOBDay" name="ctl00$SiteContentPlaceHolder$FormView1$ddlDOBDay" onchange="javascript:setDirty();" style="width:45px;" tabindex="730">
-<option selected="selected" value="  "></option>
-<option value="01">01</option>
-<option value="02">02</option>
-<option value="03">03</option>
-<option value="04">04</option>
-<option value="05">05</option>
-<option value="06">06</option>
-<option value="07">07</option>
-<option value="08">08</option>
-<option value="09">09</option>
-<option value="10">10</option>
-<option value="11">11</option>
-<option value="12">12</option>
-<option value="13">13</option>
-<option value="14">14</option>
-<option value="15">15</option>
-<option value="16">16</option>
-<option value="17">17</option>
-<option value="18">18</option>
-<option value="19">19</option>
-<option value="20">20</option>
-<option value="21">21</option>
-<option value="22">22</option>
-<option value="23">23</option>
-<option value="24">24</option>
-<option value="25">25</option>
-<option value="26">26</option>
-<option value="27">27</option>
-<option value="28">28</option>
-<option value="29">29</option>
-<option value="30">30</option>
-<option value="31">31</option>
-</select>
-<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlDOBMonth" name="ctl00$SiteContentPlaceHolder$FormView1$ddlDOBMonth" onchange="javascript:setDirty();" style="width:55px;" tabindex="740">
-<option selected="selected" value="   "></option>
-<option value="JAN">JAN</option>
-<option value="FEB">FEB</option>
-<option value="MAR">MAR</option>
-<option value="APR">APR</option>
-<option value="MAY">MAY</option>
-<option value="JUN">JUN</option>
-<option value="JUL">JUL</option>
-<option value="AUG">AUG</option>
-<option value="SEP">SEP</option>
-<option value="OCT">OCT</option>
-<option value="NOV">NOV</option>
-<option value="DEC">DEC</option>
-</select>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxDOBYear" maxlength="4" name="ctl00$SiteContentPlaceHolder$FormView1$tbxDOBYear" onchange="javascript:setDirty();" style="width:35px;" tabindex="750" type="text"/>
-<div class="hint">
-<span class="tooltip_text" onmousemove="widetip=false; tip='(Formato:DD-MMM-AAAA)'; delayToolTip(event,tip,widetip,0,10);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblDateFormat">(Format: DD-MMM-YYYY)</span></span>
-</div>
-</div>
-<br/>
-<div class="field full">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Ciudad'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_CITY">City</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY" maxlength="20" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_CITY" onchange="javascript:setDirty();" style="width: 99%" tabindex="755" type="text"/>
-</div>
-<div class="field full" style="padding-bottom: 0px">
-<span class="tooltip_text" onmousemove="widetip=false; tip='Estado/Provincia'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_ST_PROVINCE">State/Province</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE" maxlength="20" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_ST_PROVINCE" onchange="javascript:setDirty();" style="background-color:White;width: 99%" tabindex="760" type="text"/>
-<div class="field full" style="text-align: right; padding-bottom: 0px;">
-<input id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE_NA" name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_ST_PROVINCE_NA" type="hidden"/>
-<span class="RadioCheck">
-<span class="tooltip_text" onmousemove="widetip=false; tip='No aplica'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_POB_ST_PROVINCE_NA" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_POB_ST_PROVINCE_NA" onclick="javascript:setDirty(); return enableTbx('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE','ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE_NA');" tabindex="770" type="checkbox"/><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_POB_ST_PROVINCE_NA">Does Not Apply</label>
-</span>
-</span>
-</div>
-</div>
-<span class="tooltip_text" onmousemove="widetip=false; tip='País/Región'; delayToolTip(event,tip,widetip,0,-10);return false" onmouseout="hideToolTip()">
-<label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_CNTRY">Country/Region</label></span>
-<span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF"/></span>
-<select id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY" name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_POB_CNTRY" onchange="javascript:setDirty();" style="width: 98%" tabindex="780">
-<option selected="selected" value="">- Select One -</option>
-<option value="AFGH">AFGHANISTAN</option>
-<option value="ALB">ALBANIA</option>
-<option value="ALGR">ALGERIA</option>
-<option value="ASMO">AMERICAN SAMOA</option>
-<option value="ANDO">ANDORRA</option>
-<option value="ANGL">ANGOLA</option>
-<option value="ANGU">ANGUILLA</option>
-<option value="ANTI">ANTIGUA AND BARBUDA</option>
-<option value="ARG">ARGENTINA</option>
-<option value="ARM">ARMENIA</option>
-<option value="ARB">ARUBA</option>
-<option value="XAS">AT SEA</option>
-<option value="ASTL">AUSTRALIA</option>
-<option value="AUST">AUSTRIA</option>
-<option value="AZR">AZERBAIJAN</option>
-<option value="BAMA">BAHAMAS</option>
-<option value="BAHR">BAHRAIN</option>
-<option value="BANG">BANGLADESH</option>
-<option value="BRDO">BARBADOS</option>
-<option value="BYS">BELARUS</option>
-<option value="BELG">BELGIUM</option>
-<option value="BLZ">BELIZE</option>
-<option value="BENN">BENIN</option>
-<option value="BERM">BERMUDA</option>
-<option value="BHU">BHUTAN</option>
-<option value="BOL">BOLIVIA</option>
-<option value="BIH">BOSNIA-HERZEGOVINA</option>
-<option value="BOT">BOTSWANA</option>
-<option value="BRZL">BRAZIL</option>
-<option value="IOT">BRITISH INDIAN OCEAN TERRITORY</option>
-<option value="BRNI">BRUNEI</option>
-<option value="BULG">BULGARIA</option>
-<option value="BURK">BURKINA FASO</option>
-<option value="BURM">BURMA</option>
-<option value="BRND">BURUNDI</option>
-<option value="CBDA">CAMBODIA</option>
-<option value="CMRN">CAMEROON</option>
-<option value="CAN">CANADA</option>
-<option value="CAVI">CABO VERDE</option>
-<option value="CAYI">CAYMAN ISLANDS</option>
-<option value="CAFR">CENTRAL AFRICAN REPUBLIC</option>
-<option value="CHAD">CHAD</option>
-<option value="CHIL">CHILE</option>
-<option value="CHIN">CHINA</option>
-<option value="CHRI">CHRISTMAS ISLAND</option>
-<option value="COCI">COCOS KEELING ISLANDS</option>
-<option value="COL">COLOMBIA</option>
-<option value="COMO">COMOROS</option>
-<option value="COD">CONGO, DEMOCRATIC REPUBLIC OF THE</option>
-<option value="CONB">CONGO, REPUBLIC OF THE</option>
-<option value="CKIS">COOK ISLANDS</option>
-<option value="CSTR">COSTA RICA</option>
-<option value="IVCO">COTE D`IVOIRE</option>
-<option value="HRV">CROATIA</option>
-<option value="CUBA">CUBA</option>
-<option value="CUR">CURACAO</option>
-<option value="CYPR">CYPRUS</option>
-<option value="CZEC">CZECH REPUBLIC</option>
-<option value="DEN">DENMARK</option>
-<option value="DJI">DJIBOUTI</option>
-<option value="DOMN">DOMINICA</option>
-<option value="DOMR">DOMINICAN REPUBLIC</option>
-<option value="ECUA">ECUADOR</option>
-<option value="EGYP">EGYPT</option>
-<option value="ELSL">EL SALVADOR</option>
-<option value="EGN">EQUATORIAL GUINEA</option>
-<option value="ERI">ERITREA</option>
-<option value="EST">ESTONIA</option>
-<option value="SZLD">ESWATINI</option>
-<option value="ETH">ETHIOPIA</option>
-<option value="FKLI">FALKLAND ISLANDS</option>
-<option value="FRO">FAROE ISLANDS</option>
-<option value="FIJI">FIJI</option>
-<option value="FIN">FINLAND</option>
-<option value="FRAN">FRANCE</option>
-<option value="FPOL">FRENCH POLYNESIA</option>
-<option value="FSAT">FRENCH SOUTHERN AND ANTARCTIC TERRITORIES</option>
-<option value="GABN">GABON</option>
-<option value="GAM">GAMBIA, THE</option>
-<option value="XGZ">GAZA STRIP</option>
-<option value="GEO">GEORGIA</option>
-<option value="GER">GERMANY</option>
-<option value="GHAN">GHANA</option>
-<option value="GIB">GIBRALTAR</option>
-<option value="GRC">GREECE</option>
-<option value="GRLD">GREENLAND</option>
-<option value="GREN">GRENADA</option>
-<option value="GUAM">GUAM</option>
-<option value="GUAT">GUATEMALA</option>
-<option value="GNEA">GUINEA</option>
-<option value="GUIB">GUINEA - BISSAU</option>
-<option value="GUY">GUYANA</option>
-<option value="HAT">HAITI</option>
-<option value="HMD">HEARD AND MCDONALD ISLANDS</option>
-<option value="VAT">HOLY SEE (VATICAN CITY)</option>
-<option value="HOND">HONDURAS</option>
-<option value="HOKO">HONG KONG BNO</option>
-<option value="HNK">HONG KONG SAR</option>
-<option value="XHI">HOWLAND ISLAND</option>
-<option value="HUNG">HUNGARY</option>
-<option value="ICLD">ICELAND</option>
-<option value="XIR">IN THE AIR</option>
-<option value="IND">INDIA</option>
-<option value="IDSA">INDONESIA</option>
-<option value="IRAN">IRAN</option>
-<option value="IRAQ">IRAQ</option>
-<option value="IRE">IRELAND</option>
-<option value="ISRL">ISRAEL</option>
-<option value="ITLY">ITALY</option>
-<option value="JAM">JAMAICA</option>
-<option value="JPN">JAPAN</option>
-<option value="JRSM">JERUSALEM</option>
-<option value="JORD">JORDAN</option>
-<option value="KAZ">KAZAKHSTAN</option>
-<option value="KENY">KENYA</option>
-<option value="KIRI">KIRIBATI</option>
-<option value="PRK">KOREA, DEMOCRATIC REPUBLIC OF (NORTH)</option>
-<option value="KOR">KOREA, REPUBLIC OF (SOUTH)</option>
-<option value="KSV">KOSOVO</option>
-<option value="KUWT">KUWAIT</option>
-<option value="KGZ">KYRGYZSTAN</option>
-<option value="LAOS">LAOS</option>
-<option value="LATV">LATVIA</option>
-<option value="LEBN">LEBANON</option>
-<option value="LES">LESOTHO</option>
-<option value="LIBR">LIBERIA</option>
-<option value="LBYA">LIBYA</option>
-<option value="LCHT">LIECHTENSTEIN</option>
-<option value="LITH">LITHUANIA</option>
-<option value="LXM">LUXEMBOURG</option>
-<option value="MAC">MACAU</option>
-<option value="MKD">MACEDONIA, NORTH</option>
-<option value="MADG">MADAGASCAR</option>
-<option value="MALW">MALAWI</option>
-<option value="MLAS">MALAYSIA</option>
-<option value="MLDI">MALDEN ISLAND</option>
-<option value="MLDV">MALDIVES</option>
-<option value="MALI">MALI</option>
-<option value="MLTA">MALTA</option>
-<option value="RMI">MARSHALL ISLANDS</option>
-<option value="MAUR">MAURITANIA</option>
-<option value="MRTS">MAURITIUS</option>
-<option value="MYT">MAYOTTE</option>
-<option value="AGS">MEXICO - AGUASCALIENTES</option>
-<option value="BC">MEXICO - BAJA CALIFORNIA NORTE</option>
-<option value="BCSR">MEXICO - BAJA CALIFORNIA SUR</option>
-<option value="CAMP">MEXICO - CAMPECHE</option>
-<option value="CHIS">MEXICO - CHIAPAS</option>
-<option value="CHIH">MEXICO - CHIHUAHUA</option>
-<option value="COAH">MEXICO - COAHUILA</option>
-<option value="COLI">MEXICO - COLIMA</option>
-<option value="DF">MEXICO - DISTRITO FEDERAL</option>
-<option value="DGO">MEXICO - DURANGO</option>
-<option value="GTO">MEXICO - GUANAJUATO</option>
-<option value="GRO">MEXICO - GUERRERO</option>
-<option value="HGO">MEXICO - HIDALGO</option>
-<option value="JAL">MEXICO - JALISCO</option>
-<option value="MCH">MEXICO - MICHOACAN</option>
-<option value="MOR">MEXICO - MORELOS</option>
-<option value="NAY">MEXICO - NAYARIT</option>
-<option value="NL">MEXICO - NUEVO LEON</option>
-<option value="OAX">MEXICO - OAXACA</option>
-<option value="PUE">MEXICO - PUEBLA</option>
-<option value="QRO">MEXICO - QUERETARO</option>
-<option value="QROO">MEXICO - QUINTANA ROO</option>
-<option value="SLP">MEXICO - SAN LUIS POTOSI</option>
-<option value="SIN">MEXICO - SINALOA</option>
-<option value="SON">MEXICO - SONORA</option>
-<option value="MXCO">MEXICO - STATE OF MEXICO</option>
-<option value="TAB">MEXICO - TABASCO</option>
-<option value="TAMP">MEXICO - TAMAULIPAS</option>
-<option value="TLAX">MEXICO - TLAXCALA</option>
-<option value="VER">MEXICO - VERACRUZ</option>
-<option value="YUC">MEXICO - YUCATAN</option>
-<option value="ZAC">MEXICO - ZACATECAS</option>
-<option value="FSM">MICRONESIA</option>
-<option value="MDWI">MIDWAY ISLANDS</option>
-<option value="MLD">MOLDOVA</option>
-<option value="MON">MONACO</option>
-<option value="MONG">MONGOLIA</option>
-<option value="MTG">MONTENEGRO</option>
-<option value="MONT">MONTSERRAT</option>
-<option value="MORO">MOROCCO</option>
-<option value="MOZ">MOZAMBIQUE</option>
-<option value="NAMB">NAMIBIA</option>
-<option value="NAU">NAURU</option>
-<option value="NEP">NEPAL</option>
-<option value="NETH">NETHERLANDS</option>
-<option value="NCAL">NEW CALEDONIA</option>
-<option value="NZLD">NEW ZEALAND</option>
-<option value="NIC">NICARAGUA</option>
-<option value="NIR">NIGER</option>
-<option value="NRA">NIGERIA</option>
-<option value="NIUE">NIUE</option>
-<option value="NFK">NORFOLK ISLAND</option>
-<option value="MNP">NORTH MARIANA ISLANDS</option>
-<option value="NIRE">NORTHERN IRELAND</option>
-<option value="NORW">NORWAY</option>
-<option value="OMAN">OMAN</option>
-<option value="PKST">PAKISTAN</option>
-<option value="PALA">PALAU</option>
-<option value="PLMR">PALMYRA ATOLL</option>
-<option value="PAN">PANAMA</option>
-<option value="PNG">PAPUA NEW GUINEA</option>
-<option value="PARA">PARAGUAY</option>
-<option value="PERU">PERU</option>
-<option value="PHIL">PHILIPPINES</option>
-<option value="PITC">PITCAIRN ISLANDS</option>
-<option value="POL">POLAND</option>
-<option value="PORT">PORTUGAL</option>
-<option value="PR">PUERTO RICO</option>
-<option value="QTAR">QATAR</option>
-<option value="ROM">ROMANIA</option>
-<option value="RUS">RUSSIA</option>
-<option value="RWND">RWANDA</option>
-<option value="MAF">SAINT MARTIN</option>
-<option value="WSAM">SAMOA</option>
-<option value="SMAR">SAN MARINO</option>
-<option value="STPR">SAO TOME AND PRINCIPE</option>
-<option value="SARB">SAUDI ARABIA</option>
-<option value="SENG">SENEGAL</option>
-<option value="SBA">SERBIA</option>
-<option value="SEYC">SEYCHELLES</option>
-<option value="SLEO">SIERRA LEONE</option>
-<option value="SING">SINGAPORE</option>
-<option value="STM">SINT MAARTEN</option>
-<option value="SVK">SLOVAKIA</option>
-<option value="SVN">SLOVENIA</option>
-<option value="SLMN">SOLOMON ISLANDS</option>
-<option value="SOMA">SOMALIA</option>
-<option value="SAFR">SOUTH AFRICA</option>
-<option value="SGS">SOUTH GEORGIA AND THE SOUTH SANDWICH ISLAND</option>
-<option value="SSDN">SOUTH SUDAN</option>
-<option value="SPN">SPAIN</option>
-<option value="SRL">SRI LANKA</option>
-<option value="STBR">ST. BARTHELEMY</option>
-<option value="SHEL">ST. HELENA</option>
-<option value="STCN">ST. KITTS AND NEVIS</option>
-<option value="SLCA">ST. LUCIA</option>
-<option value="SPMI">ST. PIERRE AND MIQUELON</option>
-<option value="STVN">ST. VINCENT AND THE GRENADINES</option>
-<option value="SUDA">SUDAN</option>
-<option value="SURM">SURINAME</option>
-<option value="SJM">SVALBARD</option>
-<option value="SWDN">SWEDEN</option>
-<option value="SWTZ">SWITZERLAND</option>
-<option value="SYR">SYRIA</option>
-<option value="TWAN">TAIWAN</option>
-<option value="TJK">TAJIKISTAN</option>
-<option value="TAZN">TANZANIA</option>
-<option value="THAI">THAILAND</option>
-<option value="TMOR">TIMOR-LESTE</option>
-<option value="TOGO">TOGO</option>
-<option value="TKL">TOKELAU</option>
-<option value="TONG">TONGA</option>
-<option value="TRIN">TRINIDAD AND TOBAGO</option>
-<option value="TNSA">TUNISIA</option>
-<option value="TRKY">TURKEY</option>
-<option value="TKM">TURKMENISTAN</option>
-<option value="TCIS">TURKS AND CAICOS ISLANDS</option>
-<option value="TUV">TUVALU</option>
-<option value="UGAN">UGANDA</option>
-<option value="UKR">UKRAINE</option>
-<option value="UAE">UNITED ARAB EMIRATES</option>
-<option value="GRBR">UNITED KINGDOM</option>
-<option value="USA">UNITED STATES OF AMERICA</option>
-<option value="URU">URUGUAY</option>
-<option value="UZB">UZBEKISTAN</option>
-<option value="VANU">VANUATU</option>
-<option value="VENZ">VENEZUELA</option>
-<option value="VTNM">VIETNAM</option>
-<option value="VI">VIRGIN ISLANDS (U.S.)</option>
-<option value="BRVI">VIRGIN ISLANDS, BRITISH</option>
-<option value="WKI">WAKE ISLAND</option>
-<option value="WAFT">WALLIS AND FUTUNA ISLANDS</option>
-<option value="XWB">WEST BANK</option>
-<option value="SSAH">WESTERN SAHARA</option>
-<option value="YEM">YEMEN</option>
-<option value="ZAMB">ZAMBIA</option>
-<option value="ZIMB">ZIMBABWE</option>
-</select>
-</div>
-</div>
-</div>
-<div class="help" style="margin-top: 20px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label4" style="color:#891300;">Help:</span></span>
-<span><span class="tooltip_text" onmousemove="widetip=false; tip='Fecha de nacimiento'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp7">Date of Birth</span></span></span></h4>
-<p>
-<span class="tooltip_text" onmousemove="widetip=true; tip='Si desconoce el día y el mes, entonces anótelos tal y como aparecen en su pasaporte.'; delayToolTip(event,tip,widetip,60,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp8">If day or month is unknown, enter as shown in passport.</span></span>
-</p>
-</div>
-<div class="help" style="margin-top: 90px">
-<h4>
-<span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,50,0);return false">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_Label5" style="color:#891300;">Help:</span></span>
-<span><span class="tooltip_text" onmousemove="widetip=false; tip='País/Región'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp10">Country/Region</span></span></span></h4>
-<p>
-<span class="tooltip_text" onmousemove="widetip=true; tip='Seleccione el nombre que se utiliza en la actualidad para indicar el lugar donde nació.'; delayToolTip(event,tip,widetip,60,0);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp11">Select the name that is currently in use for the place where you were born.</span></span>
-</p>
-</div>
-</fieldset>
-<div class="hr">
-</div>
-<div style="font-size: 10px">
-<span class="tooltip_text" onmousemove="widetip=true; tip='La carga del reporte público de esta recopilación de información promedia 90 minutos por respuesta, incluyendo el tiempo que uno se toma en la busqueda de los recursos de datos existentes; en la preparación de la documentación necesaria; al proveer dicha información y/o documentos requeridos y en la revisión final de todo lo recopilado. No es necesario proporcionar esta información al menos que contenga un número de control OMB. Si tiene comentarios sobre la precisión de esta carga estimada y/o recomendaciones para poder reducirla, sírvase enviarlos a: U.S. Department of State, A/ISS/DIR, 1800 G St. NW, Washington, DC 20520'; delayToolTip(event,tip,widetip,0,140);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblPublicBurdenNotice">Public reporting burden for this collection of information is estimated to average 90 minutes per response, including time required for searching existing data sources, gathering the necessary documentation, providing the information and/or documents required, and reviewing the final collection.  You do not have to supply this information unless this collection displays a currently valid OMB control number.  If you have comments on the accuracy of this burden estimate and/or recommendations for reducing it, please send them to:</span>
-</span>
-<b>
-<span class="tooltip_text" onmousemove="widetip=true; tip='A/ISS/DIR,Room 2400 SA-22,U.S. Department of State, Washington, DC 20522-22-2'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
-<a href="mailto:PRA_BurdenComments@state.gov" tabindex="800">PRA_BurdenComments@state.gov</a>
-</span>
-</b>
-<br/><br/>
-<span class="tooltip_text" onmousemove="widetip=true; tip='Sección 222(f)del Acuerdo Nacional de Inmigración(INA)proveé que los registros del Departamento de Estado y de las oficinas diplomáticas y consulares de los Estados Unidos de Norteamérica en relación a la emisión y rechazo de visas o permisos para ingresar a territorio norteamericano, deberán considerarse confidenciales y usados única y exclusivamente para la formulación, enmiendas, administración o para la ejecución de las leyes norteamericanas de inmigración, nacionalidad y otras más. Copias certificadas de tales registros se pueden poner a la disposición de los tribunales siempre y cuando estos certifiquen que la información ahí encontrada es indispensable en el juicio.'; delayToolTip(event,tip,widetip,0,140);return false" onmouseout="hideToolTip()">
-<span id="ctl00_SiteContentPlaceHolder_FormView1_lblPaperworkReductionNotice"><b>Confidentiality Statement</b><br/>
-The information asked for on this form is requested pursuant to Section 222 of the Immigration and Nationality Act. INA Section 222(f) provides that the records of the Department of State and of diplomatic and consular offices of the United States pertaining to the issuance and refusal of visas or permits to enter the United States shall be considered confidential and shall be used only for the formulation, amendment, administration, or enforcement of the immigration, nationality, and other laws of the United States. Certified copies of such records may be made available to a court provided the court certifies that the information contained in such records is needed in a case pending before the court.</span>
-</span>
-</div>
-<br/>
-</div>
-</td>
-</tr>
-</table>
-        <div class="actions">
-          <div class="actions-left">
-            <span class="tag">Clon DS-160</span>
-          </div>
-          <div class="actions-right">
-            <button type="button" class="secondary" id="downloadJsonBtn">Descargar JSON</button>
-            <button type="submit" class="primary" id="nextBtn">Siguiente</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-
+<head id="ctl00_Head1">
+<APM_DO_NOT_TOUCH>
 
 <script type="text/javascript">
-(function() {
-    function noop() { return true; }
+(function(){
+window.Ssx=!!window.Ssx;try{(function(){(function(){var S={decrypt:function(S){try{return JSON.parse(function(S){S=S.split("l");var I="";for(var l=0;l<S.length;++l)I+=String.fromCharCode(S[l]);return I}(S))}catch(l){}}};return S={configuration:S.decrypt("123l34l97l99l116l105l118l101l34l58l34l110l111l34l44l34l100l101l98l117l103l103l105l110l103l34l58l34l110l111l34l44l34l109l111l100l117l108l101l49l34l58l34l101l110l97l98l108l101l100l34l44l34l109l111l100l117l108l101l50l34l58l34l101l110l97l98l108l101l100l34l44l34l109l111l100l117l108l101l51l34l58l34l101l110l97l98l108l101l100l34l44l34l109l111l100l117l108l101l52l34l58l34l101l110l97l98l108l101l100l34l125")}})();
+var jS=91;try{var lS,oS,zS=_(178)?1:0,sS=_(189)?1:0,I_=_(230)?1:0,j_=_(64)?1:0,o_=_(501)?1:0,z_=_(449)?1:0,Z_=_(134)?1:0;for(var Si=(_(534),0);Si<oS;++Si)zS+=_(422)?2:1,sS+=_(330)?2:1,I_+=(_(597),2),j_+=(_(164),2),o_+=(_(264),2),z_+=_(804)?1:2,Z_+=_(989)?2:3;lS=zS+sS+I_+j_+o_+z_+Z_;window.zO===lS&&(window.zO=++lS)}catch(_i){window.zO=lS}var Ii=!0;function O(S,I){S+=I;return S.toString(36)}
+function Ji(S){var I=1;!S||document[J(I,119,106,116,106,99,106,109,106,117,122,84,117,98,117,102)]&&document[L(I,119,106,116,106,99,106,109,106,117,122,84,117,98,117,102)]!==O(68616527665,I)||(Ii=!1);return Ii}function L(S){var I=arguments.length,l=[];for(var z=1;z<I;++z)l.push(arguments[z]-S);return String.fromCharCode.apply(String,l)}function li(){}Ji(window[li[L(jS,201,188,200,192)]]===li);Ji(typeof ie9rgb4!==O(1242178186108,jS));
+Ji(RegExp("\x3c")[O(1372114,jS)](function(){return"\x3c"})&!RegExp(O(42798,jS))[O(1372114,jS)](function(){return"'x3'+'d';"}));
+var Oi=window[J(jS,188,207,207,188,190,195,160,209,192,201,207)]||RegExp(J(jS,200,202,189,196,215,188,201,191,205,202,196,191),O(-73,jS))[O(1372114,jS)](window["\x6e\x61vi\x67a\x74\x6f\x72"]["\x75\x73e\x72A\x67\x65\x6et"]),zi=+new Date+(_(838)?700958:6E5),Zi,_I,iI,II=window[J(jS,206,192,207,175,196,200,192,202,208,207)],jI=Oi?_(444)?3E4:24030:_(932)?8225:6E3;
+document[J(jS,188,191,191,160,209,192,201,207,167,196,206,207,192,201,192,205)]&&document[L(jS,188,191,191,160,209,192,201,207,167,196,206,207,192,201,192,205)](L(jS,209,196,206,196,189,196,199,196,207,212,190,195,188,201,194,192),function(S){var I=76;document[J(I,194,181,191,181,174,181,184,181,192,197,159,192,173,192,177)]&&(document[L(I,194,181,191,181,174,181,184,181,192,197,159,192,173,192,177)]===O(1058781907,I)&&S[J(I,181,191,160,190,193,191,192,177,176)]?iI=!0:document[L(I,194,181,191,181,
+174,181,184,181,192,197,159,192,173,192,177)]===O(68616527590,I)&&(Zi=+new Date,iI=!1,JI()))});function J(S){var I=arguments.length,l=[],z=1;while(z<I)l[z-1]=arguments[z++]-S;return String.fromCharCode.apply(String,l)}function JI(){if(!document[J(90,203,207,191,204,211,173,191,198,191,189,206,201,204)])return!0;var S=+new Date;if(S>zi&&(_(259)?6E5:467534)>S-Zi)return Ji(!1);var I=Ji(_I&&!iI&&Zi+jI<S);Zi=S;_I||(_I=!0,II(function(){_I=!1},_(306)?1:0));return I}JI();
+var LI=[_(868)?22286264:17795081,_(882)?2147483647:27611931586,_(551)?1558153217:1997203149];function oI(S){var I=35;S=typeof S===O(1743045641,I)?S:S[L(I,151,146,118,151,149,140,145,138)](_(138)?36:44);var l=window[S];if(!l||!l[L(I,151,146,118,151,149,140,145,138)])return;var z=""+l;window[S]=function(S,I){_I=!1;return l(S,I)};window[S][J(I,151,146,118,151,149,140,145,138)]=function(){return z}}for(var OI=(_(153),0);OI<LI[O(1294399114,jS)];++OI)oI(LI[OI]);Ji(!1!==window[L(jS,174,206,211)]);
+window.So=window.So||{};window.So.ZlJ="0852572a3216e8006ab49b4528e78df773fc2b08b0d0d6601337d638285bb7b4ede75de42e4c070602237baa769c8909a80be0b2b44ce3468c1ea59f9f65c19ba1e53a959b26a08e83ec512ea3b69132efc8ee6deacdfe5e35a37ee3fe6486ef0b8456863a3363c33d7866491a4287dee4d7314238bc76cc0b613145f2f8e9edeeef3ade19dd3cb717883638b6441cf68b2c5f2f27b6679c120598c59b3d441c4ff8f96556e773ae4dad0e8fdf0f99a1b06dde9cc4afcec1a6db0bcd6e07b072f57d65b6b5c935c6104f9648b354629372adcb396590049abaf12b04c6a262d34b4828b0e8fbaa35797212528e1bcfb9";function zI(S){var I=+new Date,l;!document[J(65,178,182,166,179,186,148,166,173,166,164,181,176,179,130,173,173)]||I>zi&&(_(675)?690948:6E5)>I-Zi?l=Ji(!1):(l=Ji(_I&&!iI&&Zi+jI<I),Zi=I,_I||(_I=!0,II(function(){_I=!1},_(541)?1:0)));return!(arguments[S]^l)}function _(S){return 640>S}(function ij(I){I&&"number"!==typeof I||("number"!==typeof I&&(I=1E3),I=Math.max(I,1),setInterval(function(){ij(I-10)},I))})(!0);})();}catch(x){}finally{ie9rgb4=void(0);};function ie9rgb4(a,b){return a>>b>>0};
 
-    if (typeof window.setDirty === 'undefined') {
-        window.setDirty = function () {};
-    }
-
-    if (typeof window.ShowHideDiv === 'undefined') {
-        window.ShowHideDiv = function (id, mode) {
-            var el = document.getElementById(id);
-            if (!el) return;
-            var show = true;
-            if (typeof mode !== 'undefined') {
-                if (mode === 'off' || mode === false || mode === 0) {
-                    show = false;
-                } else if (mode === 'on' || mode === true || mode === 1) {
-                    show = true;
-                }
-            }
-            el.style.display = show ? '' : 'none';
-        };
-    }
-
-    if (typeof window.ValidNavigationSelect === 'undefined') {
-        window.ValidNavigationSelect = noop;
-    }
-    if (typeof window.confirmExitPage === 'undefined') {
-        window.confirmExitPage = noop;
-    }
-    if (typeof window.CheckNodeClicked === 'undefined') {
-        window.CheckNodeClicked = function() {};
-    }
-    if (typeof window.CheckDirty === 'undefined') {
-        window.CheckDirty = noop;
-    }
-    if (typeof window.Navigate === 'undefined') {
-        window.Navigate = noop;
-    }
-    if (typeof window.LimitInput === 'undefined') {
-        window.LimitInput = function() {};
-    }
-    if (typeof window.doPaste === 'undefined') {
-        window.doPaste = function() {};
-    }
-    if (typeof window.delayToolTip === 'undefined') {
-        window.delayToolTip = function() {};
-    }
-    if (typeof window.hideToolTip === 'undefined') {
-        window.hideToolTip = function() {};
-    }
-    if (typeof window.__doPostBack === 'undefined') {
-        window.__doPostBack = function() {};
-    }
 })();
+
+</script>
+</APM_DO_NOT_TOUCH>
+
+<script type="text/javascript" src="/TSPD/0883343043ab2000b7aa02e68c3ef5ec6c9eb1b3e038262c2454bb6c9d9cb30fa1690c52978b20e3?type=17"></script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JNS6XTMRTN"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-JNS6XTMRTN');
+    </script>
+    
+    <title>
+	Nonimmigrant Visa - Personal Information 1
+</title><script>window['adrum-start-time'] = new Date().getTime(); var appKey='EUM-AAB-AUA';</script><script type="text/javascript" src="https://eum.state.gov/appd.21.7.0.3493.js"></script><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /><link href="../../_res/css/print.css" rel="stylesheet" type="text/css" media="print" /><link href="../../_res/css/screen.css" rel="stylesheet" type="text/css" media="screen" /><link href="../../_res/css/tooltip.css" rel="stylesheet" type="text/css" media="screen" />    
+    <script language="javascript" type="text/javascript" src='/GenNIV/_res/js/Common.js'></script>
+    <script language="javascript" type="text/javascript" src='/GenNIV/_res/js/UI.js'></script>
+    <script language="javascript" type="text/javascript" src='/GenNIV/_res/js/Usability.js'></script>
+    
+    <script type="text/javascript">         
+        
+        var exitBtnID= 'ctl00_lbtnExit';        
+        var hdFieldID = 'ctl00_HDClearSession';        
+        var timeoutUrl = '/GenNIV/Logout.aspx';
+        
+        function SessionAlert()
+        {
+             // Call serverside function
+            var msg = 'There has been no activity for 15 minutes. As a security measure, your session will time out in 5 minutes. Click OK to continue.';
+        
+            var now = new Date();
+            alert("[" + now + "] " + msg);
+            //document.forms[0].submit();
+            needToConfirm = false;  // Turn off navigation message
+            location.reload(true);  // Refresh page
+            setTimeout("SessionAlert()", 15 * 60 * 1000);
+        }
+        
+        function StopMe()
+        {
+            var anchor = document.getElementById("stophere");
+            
+            if(anchor)
+            {
+                scroll(0,0);
+                document.getElementById("stophere").focus();
+            }
+        }
+
+      
+    </script>
+    <script language="javascript" type="text/javascript"  src='/GenNIV/_res/js/CheckBrowserClose.js'></script>
+    <script type='text/javascript' src='/CEAC/GoogleAnalytics.js'></script>
+    <script language="javascript" id="_fed_an_ua_tag" src="/CEAC/UniversalFederated-Analytics.js?agency=DOS&subagency=CA"></script>    
+</head>
+<body onload="InitializeTimeoutTimer('20', 'False'); StopMe(); history.go(+1); ClearConfirmPgSession();">
+    
+    <input id="Hidden1" type="hidden"  />
+    <form name="aspnetForm" method="post" action="./complete_personal.aspx?node=Personal1" onsubmit="javascript:return WebForm_OnSubmit();" id="aspnetForm">
+<div>
+<input type="hidden" name="__LASTFOCUS" id="__LASTFOCUS" value="" />
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="YCOSFP0tuIS+fEtmin8Vj8h4ibf3nS3F7cPjqILtSzs9oZ+MnnzLuhvBJ+v2UkNYZPiLw5peijzc7xTiz0671sZ5wAO7RSxMH1vmDZS7lrxuH7v+U+mD9J17+035iQwnck1bA57R50jzM+987+s18IpqU5ySqsWyPIgcTGdN+Jg9A9ltruOAQPh+iY7EvhjxtJhqkvx7NE6RXQMTBnMve7wofnayd50AEvdYne+g8PMjM/Ltq+fiTKo4bsZ5Cm76oAxQrMrNrck4NKMJ6lokcDEq8Saqe5yUc3gIVPQsWevBl9DvKz1n0bonhoDBeu372SpKxIqMUZ2ts/91UnmA/63tlOKggrViQi4X5mFR78sX8gVp4Esb5hpk3Woq8t90ryXOvZhKLLv/oDlp4nKt3u6HlGsC4MU7o7ehGM7EhZvtPEgmaPy1F3TRUlaUSC0tlsiopsEC7zHdP2FnJRPolPUALm2iPWXWxUCckY4sRlz9AnRndAHbzcIb0r1pIJKKKeUFpvdoMQzvw1rnT288Z4ycb9JT2v2wo16iybzUa6Om1VnMcN8M5EjH8+1gi3yoixR1AFdERBc9OA00TyLXDlSXbPTQ9SOrIbpqrlOkfVVuIxCA/UWt6+eckRiEYpKlGBSzDfut0D5eT+QHNCO4y4VU/4J4wDzmFhYFqY4hdcZVP0nkOu8I9KYgg9Vnf3cz8T86QpI8xiG0NAeK3Iz2iSmIJ5WVVPR/WDLo1abrpr7Cq3+m8lDjpAwdT1WXoaB6vaQpxaC9XIlKsiwOng4FEVzg29GNE26B9zNrYVHc2XFsWaq7B4AnWUiYaweZAP3L3wePO/zxsxAnvn5ZajCKCOiYtnjK7UvltSFmEgDHqgqy9A3d6B1RVHnUSN6Y6YORlNrAuB1Jf3CvR3YCUINkMLUwGNzCDpWG/pTX6lp3/pb5xBYvUOqTraZ3UCzxcatW7RobkEocMKdXgc+Q65f6tog3kaSurukNp6tstyExz5UNBuOAr/CcF0l1Pu3RrukuapjEUxlVe64W3Jwhzk0nTljeTeEeHc2vlSIE50MepUzBuBI0IHrB53NoOCXtkBny0gIup3yj89drqIrnQaoLUS69tRgC0cVrMpE4Ok32FoZlTlaxeZJKkGl/VGE0QUwRJ+hX8b3EHq81GxG+2dzAZgzY53atPFrsASlMsbdmRG6ouEhIssPxzCLZEbmKB53dCnNhHzC4jHcfApB3A4UJ/NWTGLK9+Rfew+6kLwULJGno84F1gNhipPW0eCQ/6WnAdvqL84uaYfscpxb+EyXwPfGkB+bYsvCuDbcN9e7ClGdqjsalXDyoG5KEqMOML2QUU4r5MrtWEKKrmM52w3KggYfSuiFyImIR+kAR2pOkayOtGC67WqoBe8Nzenr6NFd31OT0zGfxGC5VP4QhNyaQeW5XG4ELjXHrEG5rayTRaIHPHChs8ENz+FxhVAm4+xCjhvDNR5E6JRZQfF7pX5udqEHjiQbgNFP9hg6xi/y0AaX22WkiV9iZNf4Dihm0sv+U+wkLUSUGgS2trpgnGIgAu7hIrp2gZHQP2CzCcT5Z83B2a0106A2aw8hSI/x+8Sox48OT1mnTp0V5FH+1u/y4jLUwQP+E/8SWb6jjTwU3rPPN3FT8uHOa2LA0enUDP0Pb1W6ah/E3o0Kw0ZcxB/FL0awqYEJf0h1DhZpSLVbCU5LtOfgi9Aoj/S6Em2j77UFKvGGZksu3uPL8JijNhbW1XNKnorme2gyChDvzL00DHQvVnFszQ5h4v8vO80nfufDW8LAikumi/IluJ0gJViPMsErmEwUpN9C5LM1cNl/q0IhQbRMZJlxgmD+Joy69eTdn2T/SZy4weKffyFulrS20cpau99NRu3PN9qH5+RxxYRaUAykfAUHQ1hgNbLnySxRlofb7JXofW5N07CZ74jsUj56FwES3k4ImAVOnLLk6HBe+eUFMMFM4+6bIVW4GdtHffcGhYa0ys9OU8kEFW9QuzlQ3hdAOQqkVxkGP/dnP4K7cZQiT+hK9fGf4T0YLVi1i/uvz/xhZkgg2mS3P2+hXESFIjPQeB+mYCTtWPvqp4bUvbgev8wekjjcp7/IMsYiprrPrKIgNXcrWZYtiQJS7ebL7706rXz31XbSuU7PmOfb0UY4jD+7pn4REx0JNLuqojE8IIHTnLw/T4cQOkp9OwlZ6GlKMz9m9oSfJ7FaJVLCCXH/l1ARN+5OXmaqZc0uGr72oixMFWaRjcw9IBPjfas97yPe8xFEj1qowgmb8w5AqKRSdlxHmRnky5/U0vvSxMyrjvUSuUatN2l600+VFxy5BIVCf3OrvnS60fx4fZlAby5a+3/CjHxJo8tyJQrrzFI920UdZE7BC8lskyOOw//8uonur1tM1SB63SAEx2Fj9RF/Q5IxHS2Go7/+aCRrIWEsf2SiZ3+lgE4MuGWRjg1/BaO2edM8JaG/JaYTvalcvL3y9Hg8pqjXiUZNgBOYc0jDStnnvk4Wej8OeRAjdCLRakwOJsT9SGEtfmfdwcYVem8Rskqh0FeYiet9An1NTxLbO8sYIrPFCXK+wXN3ollAUS9E/dOapKrfpElG1iF9gCp/BXAz1evcMQdrYuajmkU1ry0Sa7dHBRYqU6id5J7KC1tGXYnmkkpIzy9DXgTf5ZJFi3E1tHeV6CW+rTJ4tL4JrYEHHj3C+911ujK44lSzkLc1GCI+Hnu8wMcd/603vLH6v8ITKzMUEAl2vqtFVLQxgz4tOpeNOCvEUnuu8q0inayG3GroVKV9c6FxzzmA6639pCdcZzvRN+pHugWBP7hyC9IYCnRxlD9KrJ7yvIcMFvn8Mtiw3vdKxC56kN7GepBoZdfXGbqEV87qJzDDVS+LYy1yldo3x4R7rC+GpY4y420zoBWuJ6d0MFk/SN8tmZNMq68p6+k/U5wJSiHM/udjeDAo7Wzk2qNvzPAucU5VfJk4SwgPXytU/QLECiR3tQjZJf2xSdAokk0OmiHaD1wsRfUROSRxE3vfQIEUECBy1HF+ciBVPjm2VsvtG/wK02W/ByxCvTQZAgLnU3VJ1QzucnUICsln7CZpuO/EHB8BPHdWlTlkIUMBh1nXHfVVpAxlWu2vQSjNqvZhySEYwgCGIgiXyZCClp2b+NZ55rp5RNO0WPGiflSuSD7VCrERXOnO06HUR0JdA+EySsG7MsaCQIYugId0Jo4Ckeo6Pzi7/CGctp7iY1TpKrkcLQxe39xaPTwsBPqSfp7ugALRwW046CKvoUig12KylQZCcfpnDkU+nrGFyieYep+nIz3use8IcqMH4viGQHkanDL3sHVY+VhrsGqa1wuRh7SUsQYlelKreNNVBXFMjHcoRLIi7amSIz05TMMW8vznlF2B5cZm3sQKaffQfuqtxVvwRNWE9qbpR9a3AzGuFxGd0hOoQs1TTqFlRpHH6/1wGPIZwQud6oT7Am515GK890JYEVtCkVOYfR3Cq4KwxeVwFaIpUJX0IARfR8CB8n4Kis1rE4GuhRSaUauW/+TpkVHrLBs6Dr1FR65Htb9+n6DdYsHgHESSM4Z39HL/BplXC/DUQBstI5wQbGdylPCGNu4XnfqNc597uvKUCR3ald7tKSukRuAyr1141JTC2/NlL3HxVmU6GcHlQ5vDneOb+9YYNsqABPiMlAiW9v/Ee0HLGevHIM6/kJ2mst8OVhfbPn8cFJ6NRMsf6gSWz15NmXrVLTF7snufkr0+0hXLe8XUdoZ/HKhoBXqStYLWhWKyiyEfmWdTzJxknDe0I0uhSiz8Whb8FRUNCkKIf1+zm8H8BbzwpNUxosulef9nS8xkMib+zxj0MwCVKANFUyFIV/cpQp3kBjAxXDG3WhssDMPrK+EbaEDj4OpMIgL1XQGEtzzXXh6gz23Yvr95YL356qPe8l1Ch3IttXXgmi6o0hod861jqh+uJsA/y0x8EC10rYR5Rx5Fcym2nFrg2vGZE32e8qcsVLgsyngxkRiSfeRjualpnG3uxRBvKbXCPN6+4TQcNP9eXzv9yszwcELf1HheO1gGEaRss26RjC6sPJyGrKXHGyxCd8/XwbiJymqlPMnzu2rwYy8HiOLnx1huDQ+axHqaM5OH25SDhHmqSmqy96VwbmF0U7n2Q6rNJiRP40jok6z6fd663riUWhbradVg1kC29ypKrHUlvrnP+gCgF+zfy8ibQCMbvpHWP9GLKBYtouonZ5cFxDIyV6gZJ2tl1puwHX1oNZsz3E6E57pr9zb2PAIB4u2RwJ31TnzeEXI/2r9+a8bJbz96xQKoU2f0HnVHMZhZx6bJfdkaP0iYFIeSEMBz1Hi6TUcMl5VFWkiW7D1YFiJZNCQVRhOn63VIEKmr2rrwODregoYX1fpzn4AGSsOogv1tdoZQ0jfNyFVRuFLHjAM0gJDCmu7MWAuRYQGhELnhDHXxQvWmFzbNAuVs9BAxIBKav63zAlmvE4KKr7+orDqGvXENl71PBfTNZSziZyl14Wdl2z59pKqjZdNZ9w7Sa9Qk6f/K4ZCFQFl0dogbpRVWvPhTL4iCz2+AFZXqppwsZdcguTECtCJuJYNFBsJD1hPs2MiXjoLGVaZ25eqjiyMY8l0ET5N4UY+4DocPx0oM6W6CIzVbmvSKjK8XKsMc1hrUUijGlyCllRY2/s01x+GqJ/S60lyQnpzoKrWN55Yl6U71/khe0CndYEx9EfgL5JCGIaaCDnSChrUDmfkXfYLOacv3e5nJ0CaJa/wUmzouDql7K+gAo8KJKd/d+6fhJGuwB/eTT4epyejAvNc4Zu69m0h/wAySODaN2ZCWo6HvjK2EoyuZ7Q4dTStNxZyy7T3dkrbUpImke6Z9GsAINC5fBzfa7WnX0DQJHLteib+Ghbq0VmKV+3sFaSBVJ+aDWOjIdNlT8Nsh7rJ3hfmuGT6AlNuZyTXes6qfar5inKbkt+/QN3mUJzLnQGIo/J95PICyyxiTgywKeOTPl9qt6yZ17GE4hmgUrQnsO77jNp001kR0INKIfo/Rf+jDZqeNyXMYMcwdCsHAO8mnJUMCwgOcIGjn/BGlJzg5PV/0MGdZCxT6MjQiqgOWC1n1cm0xA" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/GenNIV/WebResource.axd?d=pynGkmcFUV13He1Qd6_TZIzbRPcdJzOwoniuioP5g_XVbGIYrW6mr-_nDDg3-JhlsmTFyA2&amp;t=638901320248157332" type="text/javascript"></script>
+
+
+<script src="/GenNIV/WebResource.axd?d=VWTPrjnEYXMhaTiWZxweiaaE5B13rRvzc0IHGPE9I932nzM8mm3nmQXTvVmgnUSKcoH_9dq9EFOBbnZp_NGdB1JCjv1QTvAfrkQ6gu6V-DWCWDrjpy_x2-zXo7huhnws_ikDkw2&amp;t=637080630980000000" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=1HpV3OVB0CaEXoaafcqmhiwZ4Azj4q75PynXQ0lrkgBfJOfuixT5hapC6GFTXbjeoHunFX3rDxtDjsEJBYNAep3xwyaNIXh8SH1V9twNDAku19XLyr-xlv9C1lO-By_AaSkVIQ2&amp;t=ffffffff93d1c106" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=myY3Two0UxZV16VMBw4qxWRoloQx_cmdJLciSxWPtIe3oHY9aXBxxDNnH3l7cnWxh1-LLKdLpQ8Xo12Zmg2pPeOzUPujfTSAq-C9SBGmP92YlhJf0&amp;t=f2cd5c5" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+if (typeof(Sys) === 'undefined') throw new Error('ASP.NET Ajax client-side framework failed to load.');
+//]]>
+</script>
+
+<script src="/GenNIV/ScriptResource.axd?d=on1t6Pk2_uvvrXX5hXL_DQdEzKeGRhH0Z7Bg0DJDVNJfDTe1D2eWaZVemVtCNhQhTasdxQ50fHsApm29TXYkoOHBb3-6e6lzw02WVaceDJA21wBYmZx0hYP6KkCjww6M9fxMUw2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="../../_res/js/AjaxHandler.js" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=HOXFl7MMm1dB63GFuHwdy66XR5-YemMh9tTPZYHjBLNN9LBL5iJce2AoRH1tC2kqKF7m6V_SQlP5HfMz_A-fgURCEKnEd0e_yr03r3RpT4278-ua0&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=VipJU41JWT5zhAy2EhOGe5K4pl6IuN2Ap0A3UnwbaqzBmbtCTuq9mXk9FVlPiBbyhFibdxyV_rdS_VYp5iZGa7LW932q9Rx5X_Q_V0inbDeEnbHplbo2XEDEo76VmeOcq7a3Ug2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=v95q3qf1xhRg1mB88UuDaQhChlYrWvb9cwuMTRkiPk66PIVuQgDb8P9r1VZHLGmYSroE9SVgX64AHD-96hsry3yCceLrSuWbgcJ-uvljdrDBVB0P6FIekJJQNsWJXyFZSpZkdA2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=OAE9ClUEcsgee1-mWvA7NvL_nQMR5v0pzM6xRPiHWqPmJ5ZrSAsC8opdtutRDSxvEbn_65cC6VP8nBqfSt6uRdRrn68B7FMPdhKYSYWDDcM8prKfmRFlm7gPIz8UFDEV-8_o6Q2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=Ef49HqY8EDCeDRvfO32pSujierS8rrD7pOO7F1zjWD99AF26LcvFgUcEFpzvzJYx4p1w2nVayoYSfw8FsmXvrvejpJ6IRe63yHxYkNUJGNluxe-TrA5WpmOetIeBF-F6P3_D3A2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=ycWHSRTz2JfXv4-ckw4wkF-HTNsbAS4Mr7iryHUUSVsjubBTCah_OMIJIZarS53NuEKkz8Wx32m21sVBd-9vfXXqoPMlLIw3w6tVlz7-vZ15qvK-S_Z36f2_Nx5mjddVrGIG5D-U-26wmUF70vzVdl4ma8A1&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=a53AFrlAb22MOZaVDtwQLj0J2NswVrCxCNtZ80rc2-0TXrKloNpV9HlI1RkVUDWsMyFcel6UHou7APRl561wmZzcwENJMg_f5_JPTGrsnNJYADyaKYFikqsHgUU8z7SUyl-HlA2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=0hUvKPd2V8OOzW4RzGyB0Nj71_-WFFm2TMBn7UWNIcZ0m1-JAOZ5FdbVRqBxLWsfbVlkpBFYxRyc3MRNsg9corlRCATSNmdK446aS_UofJhXufgpw3YRdDJdltSBXXWMeMafVt_T8FZvpndG2c08LBMnoOs1&amp;t=f2cd5c5" type="text/javascript"></script>
+<script src="/GenNIV/ScriptResource.axd?d=ij9jo0pDYZ5QzVK3xJOGApLVY_De7JsdzsVJkvy3DwGF4ueNry1acJ0MVFDG25nFi9YzBY5Bj9gRPsJ8GuEPh_TSq_3oV8eXr8CXxCoDARH1dOEHRgN3Erk4DV_l3bIDsu1cOw2&amp;t=f2cd5c5" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+var PageMethods = function() {
+PageMethods.initializeBase(this);
+this._timeout = 0;
+this._userContext = null;
+this._succeeded = null;
+this._failed = null;
+}
+PageMethods.prototype = {
+_get_path:function() {
+ var p = this.get_path();
+ if (p) return p;
+ else return PageMethods._staticInstance.get_path();},
+SaveAndContinue:function(url,succeededCallback, failedCallback, userContext) {
+/// <param name="url" type="String">System.String</param>
+/// <param name="succeededCallback" type="Function" optional="true" mayBeNull="true"></param>
+/// <param name="failedCallback" type="Function" optional="true" mayBeNull="true"></param>
+/// <param name="userContext" optional="true" mayBeNull="true"></param>
+return this._invoke(this._get_path(), 'SaveAndContinue',false,{url:url},succeededCallback,failedCallback,userContext); }}
+PageMethods.registerClass('PageMethods',Sys.Net.WebServiceProxy);
+PageMethods._staticInstance = new PageMethods();
+PageMethods.set_path = function(value) {
+PageMethods._staticInstance.set_path(value); }
+PageMethods.get_path = function() { 
+/// <value type="String" mayBeNull="true">The service url.</value>
+return PageMethods._staticInstance.get_path();}
+PageMethods.set_timeout = function(value) {
+PageMethods._staticInstance.set_timeout(value); }
+PageMethods.get_timeout = function() { 
+/// <value type="Number">The service timeout.</value>
+return PageMethods._staticInstance.get_timeout(); }
+PageMethods.set_defaultUserContext = function(value) { 
+PageMethods._staticInstance.set_defaultUserContext(value); }
+PageMethods.get_defaultUserContext = function() { 
+/// <value mayBeNull="true">The service default user context.</value>
+return PageMethods._staticInstance.get_defaultUserContext(); }
+PageMethods.set_defaultSucceededCallback = function(value) { 
+ PageMethods._staticInstance.set_defaultSucceededCallback(value); }
+PageMethods.get_defaultSucceededCallback = function() { 
+/// <value type="Function" mayBeNull="true">The service default succeeded callback.</value>
+return PageMethods._staticInstance.get_defaultSucceededCallback(); }
+PageMethods.set_defaultFailedCallback = function(value) { 
+PageMethods._staticInstance.set_defaultFailedCallback(value); }
+PageMethods.get_defaultFailedCallback = function() { 
+/// <value type="Function" mayBeNull="true">The service default failed callback.</value>
+return PageMethods._staticInstance.get_defaultFailedCallback(); }
+PageMethods.set_enableJsonp = function(value) { PageMethods._staticInstance.set_enableJsonp(value); }
+PageMethods.get_enableJsonp = function() { 
+/// <value type="Boolean">Specifies whether the service supports JSONP for cross domain calling.</value>
+return PageMethods._staticInstance.get_enableJsonp(); }
+PageMethods.set_jsonpCallbackParameter = function(value) { PageMethods._staticInstance.set_jsonpCallbackParameter(value); }
+PageMethods.get_jsonpCallbackParameter = function() { 
+/// <value type="String">Specifies the parameter name that contains the callback function name for a JSONP request.</value>
+return PageMethods._staticInstance.get_jsonpCallbackParameter(); }
+PageMethods.set_path("complete_personal.aspx");
+PageMethods.SaveAndContinue= function(url,onSuccess,onFailed,userContext) {
+/// <param name="url" type="String">System.String</param>
+/// <param name="succeededCallback" type="Function" optional="true" mayBeNull="true"></param>
+/// <param name="failedCallback" type="Function" optional="true" mayBeNull="true"></param>
+/// <param name="userContext" optional="true" mayBeNull="true"></param>
+PageMethods._staticInstance.SaveAndContinue(url,onSuccess,onFailed,userContext); }
+//]]>
+</script>
+
+<script src="/GenNIV/WebResource.axd?d=JoBkLzP19aTuxbWOhHobYsxj_QRjGT6MZbwVbeq6H2Qn49dmYa17IJzedHnA1RZhTOsUUQ2&amp;t=638901320248157332" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+function WebForm_OnSubmit() {
+if (typeof(ValidatorOnSubmit) == "function" && ValidatorOnSubmit() == false) return false;
+return true;
+}
+//]]>
+</script>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="D023C631" />
+	<input type="hidden" name="__SCROLLPOSITIONX" id="__SCROLLPOSITIONX" value="0" />
+	<input type="hidden" name="__SCROLLPOSITIONY" id="__SCROLLPOSITIONY" value="0" />
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+	<input type="hidden" name="__PREVIOUSPAGE" id="__PREVIOUSPAGE" value="N-8M7z5kU7OOd3zg6Ss0VDXvj045sbXTjROFll5vIl00ACbQ-qX2hMtUUr82TRZQtpf3ejnPId8i2Wthl8n59XYsFE1MImC5bQ09pNUWsbOJmQwb0" />
+</div>
+        <div id="container">
+            <div id="branding">
+                <div id="branding-logo">
+                    <img id="ctl00_banner" src="../../_res/img/design/banner.png" alt="U.S. Department of State Electronic Application Center" usemap="#ImageMapctl00_banner" style="border-width:0px;" /><map name="ImageMapctl00_banner" id="ImageMapctl00_banner">
+	<area shape="circle" coords="45,38,34" href="javascript:__doPostBack(&#39;ctl00$banner&#39;,&#39;0&#39;)" title="Go to the DS-160 home page" alt="Go to the DS-160 home page" />
+</map>   
+                </div>
+            </div>
+            <hr />
+            <div id="tools">
+                <div id="tools-language">
+                    <p>
+                        <div id="ctl00_pnlSelectLanguage">
+	
+                            <label for="ctl00_ddlLanguage" id="ctl00_TTLabel5" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Seleccionar el idioma para el mensaje de ayuda&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Select Tooltip Language</label> 
+                            <select name="ctl00$ddlLanguage" onchange="needToConfirm = false;setTimeout(&#39;__doPostBack(\&#39;ctl00$ddlLanguage\&#39;,\&#39;\&#39;)&#39;, 0)" id="ctl00_ddlLanguage" onclick="return ValidNavigationSelect();" style="width:190px;">
+		<option value="en-US">English</option>
+		<option value="ar-EG">العربية (Arabic)</option>
+		<option value="bn-BD">বাংলা (Bangla)</option>
+		<option value="zh-CN">中文(简体）(Chinese-Simplified) </option>
+		<option value="zh-TW">中文(繁體）(Chinese-Traditional) </option>
+		<option value="fr-FR">Fran&#231;ais (French)</option>
+		<option value="de-DE">Deutsch (German)</option>
+		<option value="he-IL">עברית (Hebrew)</option>
+		<option value="hi-IN">हिन्दी (Hindi)</option>
+		<option value="id-ID">Indonesia (Indonesian)</option>
+		<option value="it-IT">Italiano (Italian)</option>
+		<option value="ja-JP">日本語 (Japanese)</option>
+		<option value="ko-KR">한국어 (Korean)</option>
+		<option value="sr-Latn-CS">Crnogorski (Montenegrin(Latin))</option>
+		<option value="fa-IR">فارسی (Persian(Farsi))</option>
+		<option value="pl-PL">Polski (Polish)</option>
+		<option value="pt-BR">Portugu&#234;s (Portuguese)</option>
+		<option value="ro-RO">Rom&#226;nă (Romanian)</option>
+		<option value="ru-RU">Русский (Russian)</option>
+		<option selected="selected" value="es-MX">Espa&#241;ol (Spanish)</option>
+		<option value="th-TH">ภาษาไทย (Thai)</option>
+		<option value="tr-TR">T&#252;rk&#231;e (Turkish)</option>
+		<option value="ur-PK">اردو (Urdu)</option>
+		<option value="vi-VN">Việt (Vietnamese)</option>
+
+	</select>
+                        
+</div>
+                    </p>
+                </div>
+            </div>
+            <hr />
+            <div id="nav">
+                <div id="nav-global">
+                    <ul>
+                        
+                        <li>
+                            <div id="ctl00_TTPanel2" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Contáctenos&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+	
+                                <a onclick="window.open(&#39;https://mx.usembassy.gov/visas/&#39;);return false;" id="ctl00_lbtnContactUs" href="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$lbtnContactUs&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, true))">Contact Us</a>
+                            
+</div>
+                        </li>
+                        <li id="ctl00_lbtnHelp2">
+                            <div id="ctl00_TTPanel1" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Ayuda&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+	
+                                <a onclick="window.open(&#39;/GenNIV/Help/Help.aspx&#39;,&#39;Help&#39;,&#39;height=760,width=778,toolbar=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,modal=yes,help=no&#39;);return false;" id="ctl00_lbtnHelp" href="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$lbtnHelp&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, true))">Help</a>
+                            
+</div>
+                        </li>
+                        <li>
+                            <div class="tooltip_text" onmousemove="widetip=false; tip=&#39;Salir&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+	
+                                <a id="ctl00_lbtnExit" href="javascript:__doPostBack(&#39;ctl00$lbtnExit&#39;,&#39;&#39;)">Exit</a>
+                                <input name="ctl00$HDClearSession" type="hidden" id="ctl00_HDClearSession" />                                
+                            
+</div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="nav-main" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="urn:CSD-Namespace" >
+  <table cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;">
+    <tr>
+      <td>
+        <li class="on" style="width:253px; display:inline-block;"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Completar'; delayToolTip(event,tip,widetip,0,0);return false"><a class="main" style="width:253px; display:inline-block;" href="/GenNIV/General/complete/complete_personal.aspx?node=Personal1" id="COMPLETE">COMPLETE</a></span></li>
+      </td>
+      <td>
+        <li class="" style="width:253px; display:inline-block;"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Resumen'; delayToolTip(event,tip,widetip,0,0);return false"><a class="main" style="width:253px; display:inline-block;" disabled="true" id="REVIEW">REVIEW</a></span></li>
+      </td>
+      <td>
+        <li class="" style="width:254px;"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Firma'; delayToolTip(event,tip,widetip,0,0);return false"><a class="main" style="width:254px;" disabled="true" id="ESIGN">SIGN</a></span></li>
+      </td>
+    </tr>
+  </table>
+</div>              
+            </div>
+            <hr />
+            <!--- side navigation menu --->
+            <div id="sideNav" class="nav-sidebar-main">
+                <div id="hideobject" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:user="urn:CSD-Namespace" >
+  <div id="nav-sidebar">
+    <ul class="nav-side1">
+      <li class="complete"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Dar inicio'; delayToolTip(event,tip,widetip,0,0);return false"><a href="/GenNIV/Default.aspx" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('GetStarted');" id="GetStarted">Getting Started</a></span></li>
+      <li class="current on"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Personal'; delayToolTip(event,tip,widetip,0,0);return false"><a href="/GenNIV/General/complete/complete_personal.aspx?node=Personal1" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('Personal');" id="Personal">Personal</a></span><ul class="nav-side2">
+          <li class="Level2complete on"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Personal 1'; delayToolTip(event,tip,widetip,0,0);return false"><a href="/GenNIV/General/complete/complete_personal.aspx?node=Personal1" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('Personal1');" id="Personal1">Personal 1</a></span></li>
+          <li class="correction"><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Personal 2'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('Personal2');" id="Personal2">Personal 2</a></span></li>
+        </ul>
+      </li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Viaje'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('Travel');" id="Travel">Travel</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Acompañtes de viaje'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('TravelCompanions');" id="TravelCompanions">Travel Companions</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Previo viaje a los EE.UU.'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('PreviousUSTravel');" id="PreviousUSTravel">Previous U.S. Travel</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Domicilio y Número telefónico'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('AddressPhone');" id="AddressPhone">Address and Phone</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Pasaporte'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('PptVisa');" id="PptVisa">Passport</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Contacto en los EE.UU.'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('USContact');" id="USContact">U.S. Contact</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Familia'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('Family');" id="Family">Family</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='TRabajo/Educación/Entrenamiento'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('WorkEducationMain');" id="WorkEducationMain">Work / Education / Training</a></span></li>
+      <li class=""><span class="tooltip_text" onmouseout="hideToolTip()" onmouseover="widetip=false; tip='Seguridad y antecedentes'; delayToolTip(event,tip,widetip,0,0);return false"><a disabled="true" onClick="javascript:confirmExitPage(this,'Personal1'); return false; CheckNodeClicked('SecAndBackMain');" id="SecAndBackMain">Security and Background</a></span></li>
+    </ul>
+  </div>
+</div>  
+                <div id="nav-sidebar-help" class="noprint">
+                    <div id="ctl00_pnlSidebarHelp" class="sidebar-help">
+	
+                        <h4>
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_Label5" style="color:#891300;">Help:</span>
+                            </span>
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Botones de navegación'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_Label6">Navigation Buttons</span>
+                            </span>
+                        </h4>
+                        <p>
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Seleccione usted alguno de los botones y haga click para accesar a datos previamente ingresados.'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_Label7">Click on the buttons above to access previously entered data.</span>
+                            </span>
+                        </p>
+                    
+</div>
+                </div>
+            </div>
+            <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager1', 'aspnetForm', ['tctl00$ucNavigateOption$ucNavPanel$updConfirm','','tctl00$SiteContentPlaceHolder$FormView1$UpdatePanel1','','tctl00$SiteContentPlaceHolder$FormView1$UpdatePanel2','','tctl00$SiteContentPlaceHolder$FormView1$UpdatePanel3',''], [], [], 180, 'ctl00');
+//]]>
+</script>
+
+            <span id="ctl00_ToolTipManager1">
+<div id="bubble_tooltip">
+    <div class="bubble_middle" style="direction:ltr;">
+        <span id="bubble_tooltip_content" ></span></div>
+    </div>
+    <div id="widebubble_tooltip">
+    <div class="widebubble_middle" style="direction:ltr;">
+    <span id="widebubble_tooltip_content" ></span></div>
+</div></span> 
+
+            <div id="content">
+                <div id="content-main">
+                    <div id="ctl00_Panel1">
+	
+                        <h1 style="width:99%">
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Solicitud de la Visa de No-inmigrante (DS-160)en línea '; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()" style="float:none;"><!-- Ken Snyder changed the float:left to float:none to fix a problem with alignment in Safari-->
+                                <span id="ctl00_Label2">Online Nonimmigrant Visa Application (DS-160)</span>
+                            </span>
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Número de solicitud'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()"  style="float:right;">
+                                <span id="ctl00_lblAppIDLabel" style="color:#666; font-size:small;">Application ID</span>
+                                <span id="ctl00_lblAppID" style="color:#790000; font-weight:bold;">AA00F5NCG1</span>                            
+                            </span>
+                        </h1>
+                    
+</div>
+                    
+    <input name="ctl00$SiteContentPlaceHolder$HiddenPageValid" type="hidden" id="ctl00_SiteContentPlaceHolder_HiddenPageValid" />
+    <table cellspacing="0" border="0" id="ctl00_SiteContentPlaceHolder_FormView1" style="border-collapse:collapse;">
+	<tr>
+		<td colspan="2">
+            <table border="0" cellpadding="0" cellspacing="0" style="text-align: center; width: 550px">
+                <tr>
+                    <td style="text-align: left">
+                        <h2>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=true; tip='Informaci&#243;n personal 1'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_PersonalInfoLabel" style="width: auto">Personal Information 1</span></span>
+                        </h2>
+                    </td>
+                    <td style="text-align: right; width: auto">
+                    <br />                        
+                        <div class="burden">
+                            <table>
+                                <tr>
+                                    <td style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='NUMERO DE CONTROL OMB'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblOMBControlNo">OMB CONTROL NUMBER:</span></span></td>
+                                    <td  style="white-space:nowrap;">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblOMBControlNoValue">1405-0182</span></td>
+                                        
+                                </tr>
+                                <tr>
+                                    <td  style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='NUMERO DEL FORMULARIO:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblFormNo">FORM NUMBER:</span></span></td>
+                                    <td  style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='DS-160'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblFormNoValue">DS-160</span></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td  style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='Fecha de expiraci&#243;n:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblExpireDate">EXPIRATION DATE:</span></span></td>
+                                    <td  style="white-space:nowrap;">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblExpireDateValue">09/30/2023</span>
+                                        
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td  style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='Carga estimada:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblEstBurden">ESTIMATED BURDEN:</span></span></td>
+                                    <td  style="white-space:nowrap;">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='90 minutos'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblEstBurdenValue">90 MIN</span></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <br />
+            <br />
+            <div id="ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary" class="error-message" style="color:Red;background-color:White;display:none;">
+
+		</div>
+            <div class="note">
+                
+                <span class="tooltip_text" onmouseover="widetip=true; tip='Nota: Los datos registrados en esta p&#225;gina deber&#225;n coincidir con los que aparecen en su pasaporte.'; delayToolTip(event,tip,widetip,0,0);return false"
+                    onmouseout="hideToolTip()">
+                    <span id="ctl00_SiteContentPlaceHolder_FormView1_lblPageNote1">NOTE: Data on this page must match the information as it is written in your passport.</span></span>
+            </div>
+
+            
+            <div class="fieldset-group">
+                <fieldset>
+                    <div class="field-groups">
+                        <div class="field full">
+
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Apellidos'; delayToolTip(event,tip,widetip,0,0);return false"
+                            onmouseout="hideToolTip()">
+                            
+                            <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_SURNAME">Surnames</label></span>
+                            </span>
+
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_customValSurname" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+
+                            
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases" style="color:Red;visibility:hidden;"><img alt="" src="../../_res/img/trg_bk.GIF" height ="0" width ="0" /> </span>                  
+                            
+                            <br />
+                            <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_SURNAME" type="text" maxlength="33" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME" tabindex="100" onchange="javascript:setDirty();" style="width: 95%" />
+                            <div class="hint">
+                                
+                                <span class="tooltip_text" onmouseover="widetip=false; tip='(Por ejemplo:FERNANDEZ GARCIA)'; delayToolTip(event,tip,widetip,0,0);return false"
+                                    onmouseout="hideToolTip()">
+                                    <span id="ctl00_SiteContentPlaceHolder_FormView1_lbl_APP_SURNAME_EXAMPLE">(e.g., FERNANDEZ GARCIA)</span></span>
+                            </div>
+                        </div>
+                        <div class="field full" style="margin-top: 40px">
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GIVEN_NAME">Given Names</label></span>
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                            <br />
+                            <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_GIVEN_NAME" type="text" maxlength="33" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME" tabindex="110" onchange="javascript:setDirty();" style="width: 95%" /><br />
+                            <div class="hint">
+                                
+                                <span class="tooltip_text" onmouseover="widetip=false; tip='(por ejemplo: Juan Miguel)'; delayToolTip(event,tip,widetip,0,0);return false"
+                                    onmouseout="hideToolTip()">
+                                    <span id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GIVEN_NAME_EXAMPLE">(e.g., JUAN MIGUEL)</span></span>                                    
+                            </div>
+                        </div>
+                        <div class="field full">
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Nombre completo en su alfabeto nativo'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_FULL_NAME_NATIVE">Full Name in Native Alphabet</label></span>
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                            <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_FULL_NAME_NATIVE" type="text" maxlength="100" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE" tabindex="120" onchange="javascript:setDirty();" style="background-color:White;width: 95%" />
+                            <div class="field full" style="text-align: right">
+                                <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_FULL_NAME_NATIVE_NA" type="hidden" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE_NA" />
+                                <span class="RadioCheck"><span class="tooltip_text" onmouseover="widetip=false; tip='No aplica/Tecnología no disponible'; delayToolTip(event,tip,widetip,0,0);return false"
+                                    onmouseout="hideToolTip()">
+                                    <input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA" type="checkbox" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_FULL_NAME_NATIVE_NA" onclick="javascript:setDirty(); return enableTbx(&#39;ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE&#39;,&#39;ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE_NA&#39;);" tabindex="130" /><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_FULL_NAME_NATIVE_NA">Does Not Apply/Technology Not Available</label></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="help" style="margin-top: -7px">
+                        <h4>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp" style="color:#891300;">Help:</span></span>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Apellidos'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp1">Surnames</span></span></h4>
+                        <p>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=true; tip='Inserte sus apellidos tal y como aparecen registrados en su pasaporte. Si s&#243;lo aparece uno, entonces escr&#237;balo.'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp2">Enter all surnames as listed in your passport. If only one name is listed in your
+                                    passport, enter that Surname.</span></span>
+                        </p>
+                    </div>
+                    <div class="help" style="margin-top: 0px">
+                        <h4>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp3" style="color:#891300;">Help:</span></span>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp4">Given Names</span></span></h4>
+                        <p>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=true; tip='Si su pasaporte no incluye un nombre de pila, anotar \&#39;FNU\&#39; en ese espacio.'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp5">If your passport does not include a given name, please enter 'FNU' in Given Names.</span></span>
+                        </p>
+                    </div>
+                </fieldset>
+                <div class="hr">
+                </div>
+                <div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel1">
+			
+                        <fieldset>
+                            <div class="field-groups">
+                                <div class="field-group">
+                                
+                                    <div class="q">
+                                        <span class="tooltip_text" onmousemove="widetip=true; tip='&#191;Ha utilizado otros nombres (por ejemplo: appellidos de soltera, religiosos, profesionales, alias, etc.)?'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames" id="ctl00_SiteContentPlaceHolder_FormView1_lblOtherNamesUsed" tabindex="200">Have you ever used other names (i.e., maiden, religious, professional, alias, etc.)?</label></span><span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                    </div>
+                                    <div class="a">
+                                        <div class="field-group radio">
+                                            <div class="field full">
+                                                <span class="RadioCheck"><span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false"
+                                                    onmouseout="hideToolTip()">
+                                                    <table id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames" onfocus="return ValidNavigation();" border="0">
+				<tr>
+					<td><span ToolTip="Sí"><input id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_0" type="radio" name="ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames" value="Y" onclick="javascript:setDirty();setTimeout(&#39;__doPostBack(\&#39;ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames$0\&#39;,\&#39;\&#39;)&#39;, 0)" tabindex="205" /><label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_0">Yes</label></span></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1" type="radio" name="ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames" value="N" onclick="javascript:setDirty();setTimeout(&#39;__doPostBack(\&#39;ctl00$SiteContentPlaceHolder$FormView1$rblOtherNames$1\&#39;,\&#39;\&#39;)&#39;, 0)" tabindex="205" /><label for="ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames_1">No</label></td>
+				</tr>
+			</table></span> </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ctl00_SiteContentPlaceHolder_FormView1_divOtherNamesHelp" class="help" style="margin-top: 0px">
+                                <h4>
+                                    
+                                    <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_Label1" style="color:#891300;">Help:</span></span>
+                                    <span><span class="tooltip_text" onmousemove="widetip=false; tip='Otros nombres de pila'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp16">Other Names</span></span>
+                                    </span>
+                                </h4>
+                                <p>
+                                    <span class="tooltip_text" onmousemove="widetip=true; tip='Otros nombres usados incluyen los apellidos de soltera, los religiosos, los profesionales o cualquier otro nombre por el que se le conoce o conoci&#243; en alg&#250;n momento.'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp17">Other names used include your maiden name, religious name, professional name, or any other names which you are known by or have been known by in the past.</span></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="field-groups">
+                                <div class="field-group">
+                                    
+                                </div>
+                            </div>
+                            
+                        </fieldset>
+                    
+		</div>
+                <div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel2">
+			
+                        <fieldset>
+                            <div class="field-groups">
+                                <div class="field-group">
+                                
+                                    <div class="q">
+                                        <span class="tooltip_text" onmousemove="widetip=true; tip='&#191;Cuenta usted con una clave telecode que represente su nombre?'; delayToolTip(event,tip,widetip,0,0);return false"
+                                            onmouseout="hideToolTip()">
+                                            <label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion" id="ctl00_SiteContentPlaceHolder_FormView1_lblTelecodeQuestion" tabindex="500">Do you have a telecode that represents your name?</label></span><span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                    </div>
+                                    <div class="a">
+                                        <div class="field-group radio">
+                                            <div class="field full">
+                                                <span class="RadioCheck">
+                                                    <span class="tooltip_text" onmousemove="widetip=false; tip='Sí o No'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+                                                        <table id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion" onfocus="return ValidNavigation();" border="0">
+				<tr>
+					<td><span ToolTip="Sí"><input id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_0" type="radio" name="ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion" value="Y" onclick="javascript:setDirty();setTimeout(&#39;__doPostBack(\&#39;ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion$0\&#39;,\&#39;\&#39;)&#39;, 0)" tabindex="510" /><label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_0">Yes</label></span></td><td><input id="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1" type="radio" name="ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion" value="N" onclick="javascript:setDirty();setTimeout(&#39;__doPostBack(\&#39;ctl00$SiteContentPlaceHolder$FormView1$rblTelecodeQuestion$1\&#39;,\&#39;\&#39;)&#39;, 0)" tabindex="510" /><label for="ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion_1">No</label></td>
+				</tr>
+			</table>
+                                                    </span> 
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div id="ctl00_SiteContentPlaceHolder_FormView1_telecodeHelpDiv" class="help" style="margin-top: 0px">
+                                <h4>
+                                    
+                                    <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_Label6" style="color:#891300;">Help:</span></span>
+                                    <span><span class="tooltip_text" onmousemove="widetip=false; tip='Telecode'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_Label7">Telecode</span></span>
+                                    </span>
+                                </h4>
+                                <p>
+                                    <span class="tooltip_text" onmousemove="widetip=true; tip='Los \&#39;Telecodes\&#39; son n&#250;meros de 4 d&#237;gitos que representan letras/s&#237;mbolos en algunos nombres de alfabetos no romanos.'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <span id="ctl00_SiteContentPlaceHolder_FormView1_Label8">Telecodes are 4 digit code numbers that represent characters in some non-Roman alphabet names.</span></span>
+                                </p>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="field-groups">
+                                <div class="field-group">
+                                    
+                                </div>
+                            </div>
+                        </fieldset>
+                    
+		</div>
+                <div class="hr">
+                </div>
+                
+                <fieldset>
+                    <div class="field-groups">
+                        <div class="field full">
+                            <span class="tooltip_text" onmousemove="widetip=false; tip='Sexo'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_GENDER">Sex</label></span>
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                            <br />
+                            <div class="field-group dropdownlist">
+                                <span class="DropDownCheck">
+                                    <span class="tooltip_text" onmousemove="widetip=false; tip='Masculino o Femenino'; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">
+                                        <select name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_GENDER" id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER" tabindex="600" onchange="javascript:setDirty();">
+			<option selected="selected" value="">- Select One -</option>
+			<option value="M">MALE</option>
+			<option value="F">FEMALE</option>
+
+		</select>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="field full">
+                            <div id="ctl00_SiteContentPlaceHolder_FormView1_UpdatePanel3">
+			
+                                    <span class="tooltip_text" onmousemove="widetip=false; tip='Estado civil'; delayToolTip(event,tip,widetip,0,-10);return false"
+                                        onmouseout="hideToolTip()">
+                                        <label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_MARITAL_STATUS">Marital Status</label>
+                                    </span>                                    
+                                    <input type="image" name="ctl00$SiteContentPlaceHolder$FormView1$HelpButton1" id="ctl00_SiteContentPlaceHolder_FormView1_HelpButton1" tabindex="610" src="../../_res/img/infopop.bmp" alt="Click here for more information" onclick="window.open(&#39;/GenNIV/Help/Help.aspx#MaritalStatus&#39;,&#39;Help&#39;,&#39;height=760,width=778,toolbar=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,modal=yes,help=no&#39;);return false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$FormView1$HelpButton1&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" style="height:15px;width:15px;border-width:0px;" />
+                                    <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                    <select name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_MARITAL_STATUS" onchange="javascript:setDirty();setTimeout(&#39;__doPostBack(\&#39;ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_MARITAL_STATUS\&#39;,\&#39;\&#39;)&#39;, 0)" id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS" tabindex="615" onfocus="return ValidNavigation();">
+				<option selected="selected" value="">-Select One-</option>
+				<option value="M">MARRIED</option>
+				<option value="C">COMMON LAW MARRIAGE</option>
+				<option value="P">CIVIL UNION/DOMESTIC PARTNERSHIP</option>
+				<option value="S">SINGLE</option>
+				<option value="W">WIDOWED</option>
+				<option value="D">DIVORCED</option>
+				<option value="L">LEGALLY SEPARATED</option>
+				<option value="O">OTHER</option>
+
+			</select>   
+                                
+                                      
+                                
+		</div>
+                        </div>
+                    </div>
+                    <div class="help" style="margin-top: -7px">
+                        <h4>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_Label11" style="color:#891300;">Help:</span></span>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip=''; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_Label12">Sex</span></span></h4>
+                        <p>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=true; tip=''; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_Label13">Please select MALE or FEMALE</span></span>
+                        </p>
+                    </div>
+                </fieldset>
+                
+                <div class="hr">
+                </div>
+                <fieldset>
+                    <div class="field-groups">
+                        <h4>
+                            <span class="tooltip_text" onmousemove="widetip=false; tip='Fecha y lugar de nacimiento'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblDatePlaceOfBirth">Date and Place of Birth</span></span>
+                        </h4>
+                        <div class="field-group callout">
+                            <span class="tooltip_text" onmousemove="widetip=false; tip='Fecha'; delayToolTip(event,tip,widetip,0,-10);return false"
+                                onmouseout="hideToolTip()">
+                                <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_DOB" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_DOB">Date</label></span>
+                           
+                            <input type="image" name="ctl00$SiteContentPlaceHolder$FormView1$HelpButton2" id="ctl00_SiteContentPlaceHolder_FormView1_HelpButton2" tabindex="720" src="../../_res/img/infopop.bmp" alt="Click here for more information" onclick="window.open(&#39;/GenNIV/Help/Help.aspx#Month&#39;,&#39;Help&#39;,&#39;height=760,width=778,toolbar=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=no,modal=yes,help=no&#39;);return false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$FormView1$HelpButton2&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" style="height:15px;width:15px;border-width:0px;" />
+                            <span id="ctl00_SiteContentPlaceHolder_FormView1_customValDOB" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                            <div class="field full">
+                                <div class="date">
+                                    
+                                    <select name="ctl00$SiteContentPlaceHolder$FormView1$ddlDOBDay" id="ctl00_SiteContentPlaceHolder_FormView1_ddlDOBDay" tabindex="730" onchange="javascript:setDirty();" style="width:45px;">
+			<option selected="selected" value="  "></option>
+			<option value="01">01</option>
+			<option value="02">02</option>
+			<option value="03">03</option>
+			<option value="04">04</option>
+			<option value="05">05</option>
+			<option value="06">06</option>
+			<option value="07">07</option>
+			<option value="08">08</option>
+			<option value="09">09</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+			<option value="16">16</option>
+			<option value="17">17</option>
+			<option value="18">18</option>
+			<option value="19">19</option>
+			<option value="20">20</option>
+			<option value="21">21</option>
+			<option value="22">22</option>
+			<option value="23">23</option>
+			<option value="24">24</option>
+			<option value="25">25</option>
+			<option value="26">26</option>
+			<option value="27">27</option>
+			<option value="28">28</option>
+			<option value="29">29</option>
+			<option value="30">30</option>
+			<option value="31">31</option>
+
+		</select>
+                                    <select name="ctl00$SiteContentPlaceHolder$FormView1$ddlDOBMonth" id="ctl00_SiteContentPlaceHolder_FormView1_ddlDOBMonth" tabindex="740" onchange="javascript:setDirty();" style="width:55px;">
+			<option selected="selected" value="   "></option>
+			<option value="JAN">JAN</option>
+			<option value="FEB">FEB</option>
+			<option value="MAR">MAR</option>
+			<option value="APR">APR</option>
+			<option value="MAY">MAY</option>
+			<option value="JUN">JUN</option>
+			<option value="JUL">JUL</option>
+			<option value="AUG">AUG</option>
+			<option value="SEP">SEP</option>
+			<option value="OCT">OCT</option>
+			<option value="NOV">NOV</option>
+			<option value="DEC">DEC</option>
+
+		</select>
+                                    <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxDOBYear" type="text" maxlength="4" id="ctl00_SiteContentPlaceHolder_FormView1_tbxDOBYear" tabindex="750" onchange="javascript:setDirty();" style="width:35px;" />
+                                    <div class="hint">
+                                        <span class="tooltip_text" onmousemove="widetip=false; tip='(Formato:DD-MMM-AAAA)'; delayToolTip(event,tip,widetip,0,10);return false"
+                                            onmouseout="hideToolTip()">
+                                            <span id="ctl00_SiteContentPlaceHolder_FormView1_lblDateFormat">(Format: DD-MMM-YYYY)</span></span>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="field full">
+                                    <span class="tooltip_text" onmousemove="widetip=false; tip='Ciudad'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_CITY">City</label></span>
+                                    <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                    <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_CITY" type="text" maxlength="20" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY" tabindex="755" onchange="javascript:setDirty();" style="width: 99%" />
+                                </div>
+                                <div class="field full" style="padding-bottom: 0px">
+                                    <span class="tooltip_text" onmousemove="widetip=false; tip='Estado/Provincia'; delayToolTip(event,tip,widetip,0,0);return false"
+                                        onmouseout="hideToolTip()">
+                                        <label for="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_ST_PROVINCE">State/Province</label></span>
+                                    <span id="ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                    <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_ST_PROVINCE" type="text" maxlength="20" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE" tabindex="760" onchange="javascript:setDirty();" style="background-color:White;width: 99%" />
+                                    <div class="field full" style="text-align: right; padding-bottom: 0px;">
+                                        <input name="ctl00$SiteContentPlaceHolder$FormView1$tbxAPP_POB_ST_PROVINCE_NA" type="hidden" id="ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE_NA" />
+                                        <span class="RadioCheck">
+                                            <span class="tooltip_text" onmousemove="widetip=false; tip='No aplica'; delayToolTip(event,tip,widetip,0,0);return false"
+                                                onmouseout="hideToolTip()">
+                                                <input id="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_POB_ST_PROVINCE_NA" type="checkbox" name="ctl00$SiteContentPlaceHolder$FormView1$cbexAPP_POB_ST_PROVINCE_NA" onclick="javascript:setDirty(); return enableTbx(&#39;ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE&#39;,&#39;ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE_NA&#39;);" tabindex="770" /><label for="ctl00_SiteContentPlaceHolder_FormView1_cbexAPP_POB_ST_PROVINCE_NA">Does Not Apply</label>
+                                            </span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <span class="tooltip_text" onmousemove="widetip=false; tip='Pa&#237;s/Regi&#243;n'; delayToolTip(event,tip,widetip,0,-10);return false"
+                                    onmouseout="hideToolTip()">
+                                    <label for="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY" id="ctl00_SiteContentPlaceHolder_FormView1_lblAPP_POB_CNTRY">Country/Region</label></span>
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB" style="color:Red;visibility:hidden;"><img alt="Error" src="../../_res/img/trg_bk.GIF" /></span>
+                                <select name="ctl00$SiteContentPlaceHolder$FormView1$ddlAPP_POB_CNTRY" id="ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY" tabindex="780" onchange="javascript:setDirty();" style="width: 98%">
+			<option selected="selected" value="">- Select One -</option>
+			<option value="AFGH">AFGHANISTAN</option>
+			<option value="ALB">ALBANIA</option>
+			<option value="ALGR">ALGERIA</option>
+			<option value="ASMO">AMERICAN SAMOA</option>
+			<option value="ANDO">ANDORRA</option>
+			<option value="ANGL">ANGOLA</option>
+			<option value="ANGU">ANGUILLA</option>
+			<option value="ANTI">ANTIGUA AND BARBUDA</option>
+			<option value="ARG">ARGENTINA</option>
+			<option value="ARM">ARMENIA</option>
+			<option value="ARB">ARUBA</option>
+			<option value="XAS">AT SEA</option>
+			<option value="ASTL">AUSTRALIA</option>
+			<option value="AUST">AUSTRIA</option>
+			<option value="AZR">AZERBAIJAN</option>
+			<option value="BAMA">BAHAMAS</option>
+			<option value="BAHR">BAHRAIN</option>
+			<option value="BANG">BANGLADESH</option>
+			<option value="BRDO">BARBADOS</option>
+			<option value="BYS">BELARUS</option>
+			<option value="BELG">BELGIUM</option>
+			<option value="BLZ">BELIZE</option>
+			<option value="BENN">BENIN</option>
+			<option value="BERM">BERMUDA</option>
+			<option value="BHU">BHUTAN</option>
+			<option value="BOL">BOLIVIA</option>
+			<option value="BIH">BOSNIA-HERZEGOVINA</option>
+			<option value="BOT">BOTSWANA</option>
+			<option value="BRZL">BRAZIL</option>
+			<option value="IOT">BRITISH INDIAN OCEAN TERRITORY</option>
+			<option value="BRNI">BRUNEI</option>
+			<option value="BULG">BULGARIA</option>
+			<option value="BURK">BURKINA FASO</option>
+			<option value="BURM">BURMA</option>
+			<option value="BRND">BURUNDI</option>
+			<option value="CBDA">CAMBODIA</option>
+			<option value="CMRN">CAMEROON</option>
+			<option value="CAN">CANADA</option>
+			<option value="CAVI">CABO VERDE</option>
+			<option value="CAYI">CAYMAN ISLANDS</option>
+			<option value="CAFR">CENTRAL AFRICAN REPUBLIC</option>
+			<option value="CHAD">CHAD</option>
+			<option value="CHIL">CHILE</option>
+			<option value="CHIN">CHINA</option>
+			<option value="CHRI">CHRISTMAS ISLAND</option>
+			<option value="COCI">COCOS KEELING ISLANDS</option>
+			<option value="COL">COLOMBIA</option>
+			<option value="COMO">COMOROS</option>
+			<option value="COD">CONGO, DEMOCRATIC REPUBLIC OF THE</option>
+			<option value="CONB">CONGO, REPUBLIC OF THE</option>
+			<option value="CKIS">COOK ISLANDS</option>
+			<option value="CSTR">COSTA RICA</option>
+			<option value="IVCO">COTE D`IVOIRE</option>
+			<option value="HRV">CROATIA</option>
+			<option value="CUBA">CUBA</option>
+			<option value="CUR">CURACAO</option>
+			<option value="CYPR">CYPRUS</option>
+			<option value="CZEC">CZECH REPUBLIC</option>
+			<option value="DEN">DENMARK</option>
+			<option value="DJI">DJIBOUTI</option>
+			<option value="DOMN">DOMINICA</option>
+			<option value="DOMR">DOMINICAN REPUBLIC</option>
+			<option value="ECUA">ECUADOR</option>
+			<option value="EGYP">EGYPT</option>
+			<option value="ELSL">EL SALVADOR</option>
+			<option value="EGN">EQUATORIAL GUINEA</option>
+			<option value="ERI">ERITREA</option>
+			<option value="EST">ESTONIA</option>
+			<option value="SZLD">ESWATINI</option>
+			<option value="ETH">ETHIOPIA</option>
+			<option value="FKLI">FALKLAND ISLANDS</option>
+			<option value="FRO">FAROE ISLANDS</option>
+			<option value="FIJI">FIJI</option>
+			<option value="FIN">FINLAND</option>
+			<option value="FRAN">FRANCE</option>
+			<option value="FPOL">FRENCH POLYNESIA</option>
+			<option value="FSAT">FRENCH SOUTHERN AND ANTARCTIC TERRITORIES</option>
+			<option value="GABN">GABON</option>
+			<option value="GAM">GAMBIA, THE</option>
+			<option value="XGZ">GAZA STRIP</option>
+			<option value="GEO">GEORGIA</option>
+			<option value="GER">GERMANY</option>
+			<option value="GHAN">GHANA</option>
+			<option value="GIB">GIBRALTAR</option>
+			<option value="GRC">GREECE</option>
+			<option value="GRLD">GREENLAND</option>
+			<option value="GREN">GRENADA</option>
+			<option value="GUAM">GUAM</option>
+			<option value="GUAT">GUATEMALA</option>
+			<option value="GNEA">GUINEA</option>
+			<option value="GUIB">GUINEA - BISSAU</option>
+			<option value="GUY">GUYANA</option>
+			<option value="HAT">HAITI</option>
+			<option value="HMD">HEARD AND MCDONALD ISLANDS</option>
+			<option value="VAT">HOLY SEE (VATICAN CITY)</option>
+			<option value="HOND">HONDURAS</option>
+			<option value="HOKO">HONG KONG BNO</option>
+			<option value="HNK">HONG KONG SAR</option>
+			<option value="XHI">HOWLAND ISLAND</option>
+			<option value="HUNG">HUNGARY</option>
+			<option value="ICLD">ICELAND</option>
+			<option value="XIR">IN THE AIR</option>
+			<option value="IND">INDIA</option>
+			<option value="IDSA">INDONESIA</option>
+			<option value="IRAN">IRAN</option>
+			<option value="IRAQ">IRAQ</option>
+			<option value="IRE">IRELAND</option>
+			<option value="ISRL">ISRAEL</option>
+			<option value="ITLY">ITALY</option>
+			<option value="JAM">JAMAICA</option>
+			<option value="JPN">JAPAN</option>
+			<option value="JRSM">JERUSALEM</option>
+			<option value="JORD">JORDAN</option>
+			<option value="KAZ">KAZAKHSTAN</option>
+			<option value="KENY">KENYA</option>
+			<option value="KIRI">KIRIBATI</option>
+			<option value="PRK">KOREA, DEMOCRATIC REPUBLIC OF (NORTH)</option>
+			<option value="KOR">KOREA, REPUBLIC OF (SOUTH)</option>
+			<option value="KSV">KOSOVO</option>
+			<option value="KUWT">KUWAIT</option>
+			<option value="KGZ">KYRGYZSTAN</option>
+			<option value="LAOS">LAOS</option>
+			<option value="LATV">LATVIA</option>
+			<option value="LEBN">LEBANON</option>
+			<option value="LES">LESOTHO</option>
+			<option value="LIBR">LIBERIA</option>
+			<option value="LBYA">LIBYA</option>
+			<option value="LCHT">LIECHTENSTEIN</option>
+			<option value="LITH">LITHUANIA</option>
+			<option value="LXM">LUXEMBOURG</option>
+			<option value="MAC">MACAU</option>
+			<option value="MKD">MACEDONIA, NORTH</option>
+			<option value="MADG">MADAGASCAR</option>
+			<option value="MALW">MALAWI</option>
+			<option value="MLAS">MALAYSIA</option>
+			<option value="MLDI">MALDEN ISLAND</option>
+			<option value="MLDV">MALDIVES</option>
+			<option value="MALI">MALI</option>
+			<option value="MLTA">MALTA</option>
+			<option value="RMI">MARSHALL ISLANDS</option>
+			<option value="MAUR">MAURITANIA</option>
+			<option value="MRTS">MAURITIUS</option>
+			<option value="MYT">MAYOTTE</option>
+			<option value="AGS">MEXICO - AGUASCALIENTES</option>
+			<option value="BC">MEXICO - BAJA CALIFORNIA NORTE</option>
+			<option value="BCSR">MEXICO - BAJA CALIFORNIA SUR</option>
+			<option value="CAMP">MEXICO - CAMPECHE</option>
+			<option value="CHIS">MEXICO - CHIAPAS</option>
+			<option value="CHIH">MEXICO - CHIHUAHUA</option>
+			<option value="COAH">MEXICO - COAHUILA</option>
+			<option value="COLI">MEXICO - COLIMA</option>
+			<option value="DF">MEXICO - DISTRITO FEDERAL</option>
+			<option value="DGO">MEXICO - DURANGO</option>
+			<option value="GTO">MEXICO - GUANAJUATO</option>
+			<option value="GRO">MEXICO - GUERRERO</option>
+			<option value="HGO">MEXICO - HIDALGO</option>
+			<option value="JAL">MEXICO - JALISCO</option>
+			<option value="MCH">MEXICO - MICHOACAN</option>
+			<option value="MOR">MEXICO - MORELOS</option>
+			<option value="NAY">MEXICO - NAYARIT</option>
+			<option value="NL">MEXICO - NUEVO LEON</option>
+			<option value="OAX">MEXICO - OAXACA</option>
+			<option value="PUE">MEXICO - PUEBLA</option>
+			<option value="QRO">MEXICO - QUERETARO</option>
+			<option value="QROO">MEXICO - QUINTANA ROO</option>
+			<option value="SLP">MEXICO - SAN LUIS POTOSI</option>
+			<option value="SIN">MEXICO - SINALOA</option>
+			<option value="SON">MEXICO - SONORA</option>
+			<option value="MXCO">MEXICO - STATE OF MEXICO</option>
+			<option value="TAB">MEXICO - TABASCO</option>
+			<option value="TAMP">MEXICO - TAMAULIPAS</option>
+			<option value="TLAX">MEXICO - TLAXCALA</option>
+			<option value="VER">MEXICO - VERACRUZ</option>
+			<option value="YUC">MEXICO - YUCATAN</option>
+			<option value="ZAC">MEXICO - ZACATECAS</option>
+			<option value="FSM">MICRONESIA</option>
+			<option value="MDWI">MIDWAY ISLANDS</option>
+			<option value="MLD">MOLDOVA</option>
+			<option value="MON">MONACO</option>
+			<option value="MONG">MONGOLIA</option>
+			<option value="MTG">MONTENEGRO</option>
+			<option value="MONT">MONTSERRAT</option>
+			<option value="MORO">MOROCCO</option>
+			<option value="MOZ">MOZAMBIQUE</option>
+			<option value="NAMB">NAMIBIA</option>
+			<option value="NAU">NAURU</option>
+			<option value="NEP">NEPAL</option>
+			<option value="NETH">NETHERLANDS</option>
+			<option value="NCAL">NEW CALEDONIA</option>
+			<option value="NZLD">NEW ZEALAND</option>
+			<option value="NIC">NICARAGUA</option>
+			<option value="NIR">NIGER</option>
+			<option value="NRA">NIGERIA</option>
+			<option value="NIUE">NIUE</option>
+			<option value="NFK">NORFOLK ISLAND</option>
+			<option value="MNP">NORTH MARIANA ISLANDS</option>
+			<option value="NIRE">NORTHERN IRELAND</option>
+			<option value="NORW">NORWAY</option>
+			<option value="OMAN">OMAN</option>
+			<option value="PKST">PAKISTAN</option>
+			<option value="PALA">PALAU</option>
+			<option value="PLMR">PALMYRA ATOLL</option>
+			<option value="PAN">PANAMA</option>
+			<option value="PNG">PAPUA NEW GUINEA</option>
+			<option value="PARA">PARAGUAY</option>
+			<option value="PERU">PERU</option>
+			<option value="PHIL">PHILIPPINES</option>
+			<option value="PITC">PITCAIRN ISLANDS</option>
+			<option value="POL">POLAND</option>
+			<option value="PORT">PORTUGAL</option>
+			<option value="PR">PUERTO RICO</option>
+			<option value="QTAR">QATAR</option>
+			<option value="ROM">ROMANIA</option>
+			<option value="RUS">RUSSIA</option>
+			<option value="RWND">RWANDA</option>
+			<option value="MAF">SAINT MARTIN</option>
+			<option value="WSAM">SAMOA</option>
+			<option value="SMAR">SAN MARINO</option>
+			<option value="STPR">SAO TOME AND PRINCIPE</option>
+			<option value="SARB">SAUDI ARABIA</option>
+			<option value="SENG">SENEGAL</option>
+			<option value="SBA">SERBIA</option>
+			<option value="SEYC">SEYCHELLES</option>
+			<option value="SLEO">SIERRA LEONE</option>
+			<option value="SING">SINGAPORE</option>
+			<option value="STM">SINT MAARTEN</option>
+			<option value="SVK">SLOVAKIA</option>
+			<option value="SVN">SLOVENIA</option>
+			<option value="SLMN">SOLOMON ISLANDS</option>
+			<option value="SOMA">SOMALIA</option>
+			<option value="SAFR">SOUTH AFRICA</option>
+			<option value="SGS">SOUTH GEORGIA AND THE SOUTH SANDWICH ISLAND</option>
+			<option value="SSDN">SOUTH SUDAN</option>
+			<option value="SPN">SPAIN</option>
+			<option value="SRL">SRI LANKA</option>
+			<option value="STBR">ST. BARTHELEMY</option>
+			<option value="SHEL">ST. HELENA</option>
+			<option value="STCN">ST. KITTS AND NEVIS</option>
+			<option value="SLCA">ST. LUCIA</option>
+			<option value="SPMI">ST. PIERRE AND MIQUELON</option>
+			<option value="STVN">ST. VINCENT AND THE GRENADINES</option>
+			<option value="SUDA">SUDAN</option>
+			<option value="SURM">SURINAME</option>
+			<option value="SJM">SVALBARD</option>
+			<option value="SWDN">SWEDEN</option>
+			<option value="SWTZ">SWITZERLAND</option>
+			<option value="SYR">SYRIA</option>
+			<option value="TWAN">TAIWAN</option>
+			<option value="TJK">TAJIKISTAN</option>
+			<option value="TAZN">TANZANIA</option>
+			<option value="THAI">THAILAND</option>
+			<option value="TMOR">TIMOR-LESTE</option>
+			<option value="TOGO">TOGO</option>
+			<option value="TKL">TOKELAU</option>
+			<option value="TONG">TONGA</option>
+			<option value="TRIN">TRINIDAD AND TOBAGO</option>
+			<option value="TNSA">TUNISIA</option>
+			<option value="TRKY">TURKEY</option>
+			<option value="TKM">TURKMENISTAN</option>
+			<option value="TCIS">TURKS AND CAICOS ISLANDS</option>
+			<option value="TUV">TUVALU</option>
+			<option value="UGAN">UGANDA</option>
+			<option value="UKR">UKRAINE</option>
+			<option value="UAE">UNITED ARAB EMIRATES</option>
+			<option value="GRBR">UNITED KINGDOM</option>
+			<option value="USA">UNITED STATES OF AMERICA</option>
+			<option value="URU">URUGUAY</option>
+			<option value="UZB">UZBEKISTAN</option>
+			<option value="VANU">VANUATU</option>
+			<option value="VENZ">VENEZUELA</option>
+			<option value="VTNM">VIETNAM</option>
+			<option value="VI">VIRGIN ISLANDS (U.S.)</option>
+			<option value="BRVI">VIRGIN ISLANDS, BRITISH</option>
+			<option value="WKI">WAKE ISLAND</option>
+			<option value="WAFT">WALLIS AND FUTUNA ISLANDS</option>
+			<option value="XWB">WEST BANK</option>
+			<option value="SSAH">WESTERN SAHARA</option>
+			<option value="YEM">YEMEN</option>
+			<option value="ZAMB">ZAMBIA</option>
+			<option value="ZIMB">ZIMBABWE</option>
+
+		</select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="help" style="margin-top: 20px">
+                        <h4>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_Label4" style="color:#891300;">Help:</span></span>
+                            <span><span class="tooltip_text" onmousemove="widetip=false; tip='Fecha de nacimiento'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp7">Date of Birth</span></span></span></h4>
+                        <p>
+                            <span class="tooltip_text" onmousemove="widetip=true; tip='Si desconoce el d&#237;a y el mes, entonces an&#243;telos tal y como aparecen en su pasaporte.'; delayToolTip(event,tip,widetip,60,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp8">If day or month is unknown, enter as shown in passport.</span></span>
+                        </p>
+                    </div>
+                    <div class="help" style="margin-top: 90px">
+                        <h4>
+                            
+                            <span class="tooltip_text" onmouseover="widetip=false; tip='Ayuda:'; delayToolTip(event,tip,widetip,50,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_Label5" style="color:#891300;">Help:</span></span>
+                            <span><span class="tooltip_text" onmousemove="widetip=false; tip='Pa&#237;s/Regi&#243;n'; delayToolTip(event,tip,widetip,0,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp10">Country/Region</span></span></span></h4>
+                        <p>
+                            <span class="tooltip_text" onmousemove="widetip=true; tip='Seleccione el nombre que se utiliza en la actualidad para indicar el lugar donde naci&#243;.'; delayToolTip(event,tip,widetip,60,0);return false"
+                                onmouseout="hideToolTip()">
+                                <span id="ctl00_SiteContentPlaceHolder_FormView1_lblHelp11">Select the name that is currently in use for the place where you were born.</span></span>
+                        </p>
+                    </div>
+                </fieldset>
+                <div class="hr">
+                </div>
+                <div style="font-size: 10px">
+                    <span class="tooltip_text" onmousemove="widetip=true; tip='La carga del reporte p&#250;blico de esta recopilaci&#243;n de informaci&#243;n promedia 90 minutos por respuesta, incluyendo el tiempo que uno se toma en la busqueda de los recursos de datos existentes; en la preparaci&#243;n de la documentaci&#243;n necesaria; al proveer dicha informaci&#243;n y/o documentos requeridos y en la revisi&#243;n final de todo lo recopilado. No es necesario proporcionar esta informaci&#243;n al menos que contenga un n&#250;mero de control OMB. Si tiene comentarios sobre la precisi&#243;n de esta carga estimada y/o recomendaciones para poder reducirla, s&#237;rvase enviarlos a: U.S. Department of State, A/ISS/DIR, 1800 G St. NW, Washington, DC 20520'; delayToolTip(event,tip,widetip,0,140);return false"
+                        onmouseout="hideToolTip()">
+                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblPublicBurdenNotice">Public reporting burden for this collection of information is estimated to average 90 minutes per response, including time required for searching existing data sources, gathering the necessary documentation, providing the information and/or documents required, and reviewing the final collection.  You do not have to supply this information unless this collection displays a currently valid OMB control number.  If you have comments on the accuracy of this burden estimate and/or recommendations for reducing it, please send them to:</span>
+                    </span>
+                    <b>
+                    <span class="tooltip_text" onmousemove="widetip=true; tip='A/ISS/DIR,Room 2400 SA-22,U.S. Department of State, Washington, DC 20522-22-2'; delayToolTip(event,tip,widetip,0,0);return false"
+                        onmouseout="hideToolTip()">
+                        
+                       <a href="mailto:PRA_BurdenComments@state.gov" tabindex="800">PRA_BurdenComments@state.gov</a>
+                        </span>
+                        </b>
+                    <br /><br />
+                    <span class="tooltip_text" onmousemove="widetip=true; tip='Secci&#243;n 222(f)del Acuerdo Nacional de Inmigraci&#243;n(INA)prove&#233; que los registros del Departamento de Estado y de las oficinas diplom&#225;ticas y consulares de los Estados Unidos de Norteam&#233;rica en relaci&#243;n a la emisi&#243;n y rechazo de visas o permisos para ingresar a territorio norteamericano, deber&#225;n considerarse confidenciales y usados &#250;nica y exclusivamente para la formulaci&#243;n, enmiendas, administraci&#243;n o para la ejecuci&#243;n de las leyes norteamericanas de inmigraci&#243;n, nacionalidad y otras m&#225;s. Copias certificadas de tales registros se pueden poner a la disposici&#243;n de los tribunales siempre y cuando estos certifiquen que la informaci&#243;n ah&#237; encontrada es indispensable en el juicio.'; delayToolTip(event,tip,widetip,0,140);return false"
+                        onmouseout="hideToolTip()">
+                        <span id="ctl00_SiteContentPlaceHolder_FormView1_lblPaperworkReductionNotice"><b>Confidentiality Statement</b><br/>
+The information asked for on this form is requested pursuant to Section 222 of the Immigration and Nationality Act. INA Section 222(f) provides that the records of the Department of State and of diplomatic and consular offices of the United States pertaining to the issuance and refusal of visas or permits to enter the United States shall be considered confidential and shall be used only for the formulation, amendment, administration, or enforcement of the immigration, nationality, and other laws of the United States. Certified copies of such records may be made available to a court provided the court certifies that the information contained in such records is needed in a case pending before the court.</span>
+                    </span>
+                </div>
+                <br />
+            </div>
+        </td>
+	</tr>
+</table>
+    <div class="fieldset-group">
+        <fieldset class="submits">
+            <div>
+                <span class="tooltip_text" onmouseover="widetip=false; tip='Regreso: Dando inicio'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="submit" name="ctl00$SiteContentPlaceHolder$UpdateButton1" value="Back: Getting Started" onclick="javascript:CheckNodeClicked(&#39;GetStarted&#39;);WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$UpdateButton1&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_SiteContentPlaceHolder_UpdateButton1" tabindex="5000" class="back" onfocus="return ValidNavigation();" />
+                </span><span class="tooltip_text" onmouseover="widetip=false; tip='Guardar'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="submit" name="ctl00$SiteContentPlaceHolder$UpdateButton2" value="Save" onclick="javascript:needToConfirm = false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$UpdateButton2&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_SiteContentPlaceHolder_UpdateButton2" tabindex="5010" class="save" onfocus="return ValidNavigation();" />
+                </span><span class="tooltip_text" onmouseover="widetip=false; tip='Siguiente: Informaci&#243;n Personal 2'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="submit" name="ctl00$SiteContentPlaceHolder$UpdateButton3" value="Next: Personal 2" onclick="javascript:needToConfirm = false;WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$SiteContentPlaceHolder$UpdateButton3&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_SiteContentPlaceHolder_UpdateButton3" accesskey="z" tabindex="5020" class="next" onfocus="return ValidNavigation();" />
+                </span>
+            </div>
+        </fieldset>
+    </div>
+    
+    
+    
+    
+    
+                    
+                                       
+                </div>
+                                
+            </div>
+            <div id="ctl00_pnlSiteInfo">
+	
+                <div id="ctl00_siteInfo_pnlSiteInfo">
+		
+    <div id="siteinfo">
+        <div id="siteinfo-legal" title="Site Information" style="text-align: left">
+            <p>
+                <span id="ctl00_siteInfo_siteinfoLabelToolTip" class="tooltip_text" onmouseover="widetip = false; tip = &#39;Este sitio está controlado por la Oficina de Asuntos Consulares del Departamento de Estado de los Estados Unidos de Norteamérica. Los vínculos externos  a otros sitios de internet no deben ser interpretados como promoción a sus contenidos.&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()"><span id="ctl00_siteInfo_siteinfoLabel">This site is managed by the Bureau of Consular Affairs, U.S. Department of State. External links to other Internet sites should not be construed as an endorsement of the views contained therein.</span></span>
+                <br />
+                <span id="ctl00_siteInfo_hplCopyrightToolTip" class="tooltip_text" onmouseover="widetip = false; tip = &#39;Información de Derechos de Autor&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()"><a id="ctl00_siteInfo_hplCopyright" href="../../Common/Copyright.aspx" target="_ceac1">Copyright Information</a></span>
+                &nbsp;
+                <span id="ctl00_siteInfo_hplDisclaimersToolTip" class="tooltip_text" onmouseover="widetip = false; tip = &#39;Renuncias &#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()"><a id="ctl00_siteInfo_hplDisclaimers" href="https://ceac.state.gov/ceac/Common/Disclaimer.aspx" target="_ceac2">Disclaimers</a></span>
+                &nbsp;
+                <span id="ctl00_siteInfo_hplPaperworkReductionToolTip" class="tooltip_text" onmouseover="widetip = false; tip = &#39;Decreto de Reducción de Papelería&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()"><a id="ctl00_siteInfo_hplPaperworkReduction" href="../../common/paperworkreduction.aspx" target="_ceac3">Paperwork Reduction Act</a></span>
+                &nbsp;
+                <span id="ctl00_siteInfo_hplFbiPrivacyActToolTip" class="tooltip_text" onmouseover="widetip = false; tip = &#39;&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()"><a id="ctl00_siteInfo_hplFbiPrivacyAct" href="../../common/fbiprivacyact.aspx" target="_ceac4">FBI Privacy Act</a></span>
+                <span style="float:right;">
+                    <span id="ctl00_siteInfo_lblIP" style="background-color:LightGrey;font-size:0.6em;">(230)</span>
+                </span>
+            </p>
+        </div>
+    </div>
+
+	</div>
+            
+</div>
+            
+            <br />
+        </div>
+        
+        
+        <input type="submit" name="ctl00$btnModalHolder" value="" onclick="return ValidNavigation();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$btnModalHolder&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_btnModalHolder" style="display:none" />
+        
+        <div id="ctl00_pnlWarning" class="modal-content" style="width:650px; padding:20px 20px; z-index:1000; display:none;">
+	
+            <div style="font-size:11px; font-weight:bold;color: #c90b01;">
+                
+                <span id="ctl00_TTLabel1Warning" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Su sesión expirará en un minuto. Oprimir/dar clik en \&#39;OK\&#39; para mantener activo el sistema por otros 20 minutos.&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Your session will expire in 1 minute.  Click ‘OK’ to keep your session active for another 20 minutes.</span>
+            </div>
+            <br />
+            <br />
+            <div style="text-align:center; margin-left:auto; margin-right:auto; width:650px;">
+                <span class="tooltip_text" onmouseover="widetip=false; tip='Está bién'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="submit" name="ctl00$btnWarning" value="OK" onclick="return ValidNavigation();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$btnWarning&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_btnWarning" class="blankbluebutton" />
+                </span>
+            </div>
+            
+        
+</div>
+        
+        <div id="ctl00_pnlTimeout" class="modal-content" style="width:650px; padding:20px 20px; display:none;">
+	
+            <div style="font-size:11px; font-weight:bold;color: #c90b01;">
+                
+                <span id="ctl00_TTLabelTimeout" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Su sesión ha expirado. Para recuperar su solicitud, requiere insertar la siguiente información:&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Your session has timed out.  To recover your application, you will need to enter the following information:</span>
+                <ul>
+                    <li>
+                        <span id="ctl00_TTLabel1" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Número de Identificación de la Solicitud:&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Application ID:</span>
+                        <span id="ctl00_lblRecoveryAppID">AA00F5NCG1</span>
+                    </li>
+                    <li>
+                        <span id="ctl00_TTLabel2" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Las 5 primeras letras del apellido del solicitante&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">First 5 letters of applicant’s surname</span>                    
+                    </li>
+                    <li>
+                        <span id="ctl00_TTLabel3" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Año de nacimiento del solicitante&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Applicant’s year of birth</span>                    
+                    </li>
+                    <li>
+                        <span id="ctl00_TTLabel4" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Responder a la pregunta de seguridad (seleccionar en que momento la solicitud fue creada por primera vez)&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Answer to the security question (selected when the application was first created)</span>                    
+                    </li>
+                </ul>
+            </div>
+            <br />
+            <br />
+            <div style="text-align:center; margin-left:auto; margin-right:auto; width:650px;">
+                <span class="tooltip_text" onmouseover="widetip=false; tip='Recuperar la solicitud'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="submit" name="ctl00$btnRecover" value="Recover Application" onclick="return ValidNavigation();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$btnRecover&quot;, &quot;&quot;, true, &quot;&quot;, &quot;../../Default.aspx&quot;, false, false))" id="ctl00_btnRecover" class="blankbluebutton" />
+                </span>
+            </div>
+            
+        
+</div>
+        
+        
+        
+        <div id="ctl00_pnlSaveWarning" class="modal-content" style="width:625px; padding:20px 20px; display:none;">
+	            
+            <div style="font-size:11px; padding-bottom:30px; text-align:center;">            
+                <span id="ctl00_lblWarning" class="tooltip_text" onmousemove="widetip=false; tip=&#39;¿Desea guardar la información en la página antes de continuar con su selección?&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Do you want to save the data on the page before continuing on to your selection?</span>
+            </div>
+            
+            <div style="float:left; margin-right:5px;">
+                <span class="tooltip_text" onmouseover="widetip=false; tip='Sí - Guardar y continuar'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                        <input type="submit" name="ctl00$btnOkWarning" value="Yes - Save and Continue" onclick="return ValidNavigation();return ValidNavigation();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$btnOkWarning&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_btnOkWarning" class="blankbluebutton" />
+                </span>                
+            </div>
+            <div style="float:left; margin-right:5px;">
+                <span class="tooltip_text" onmouseover="widetip=false; tip='No - Continuar sin guardar la información'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                    <input type="button" class="blankbluebutton"  value="No - Continue Without Saving" onclick="javascript:gotoPage();return ValidNavigation();" />                        
+                </span>
+            </div>
+            
+            <div>      
+                <span class="tooltip_text" onmouseover="widetip=false; tip='Cancelar: Mantenerse en la página'; delayToolTip(event,tip,widetip,0,-30);return false"
+                    onmouseout="hideToolTip()">
+                        <input type="submit" name="ctl00$btnCancelWarning" value="Cancel: Stay on Page" onclick="javascript:cancelPage();return ValidNavigation();WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$btnCancelWarning&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_btnCancelWarning" class="blankbluebutton" />
+                </span>
+            </div>
+        
+</div>
+                
+        <div id="ctl00_pnlExitWarning" class="modal-content" style="width:625px; padding:20px 20px; display:none;">
+	
+            <div style="font-size:11px; padding-bottom:30px; text-align:center;">            
+                <span id="ctl00_lblExitWarning" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Está intentando navegar a una página fuera de su solicitud DS-160. Va a requerir que con su número de solicitud recupere su formulario DS-160.&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">You are attempting to navigate to a page outside your DS-160 application.  You will need your Application ID to retrieve this DS-160.</span>
+            </div>
+            <div>
+                
+                
+                
+                <table style="margin-left:auto; margin-right:auto"><tr><td>
+                    <span class="tooltip_text" onmouseover="widetip=false; tip='Salir'; delayToolTip(event,tip,widetip,0,-30);return false"
+                        onmouseout="hideToolTip()">
+                                                        
+                            <input name="ctl00$btnClientExit" type="button" id="ctl00_btnClientExit" class="blankbluebutton" onclick="javascript:gotoPage();" value="Exit" />                        
+                    </span>
+                </td>
+                <td style="width:30px">
+                </td>
+                <td>
+                    <span class="tooltip_text" onmouseover="widetip=false; tip='Cancelar: Mantenerse en la página'; delayToolTip(event,tip,widetip,0,-30);return false"
+                        onmouseout="hideToolTip()">
+                            <input type="submit" name="ctl00$btnCancelExitWarning" value="Cancel: Stay on Page" onclick="javascript:cancelPage();return ValidNavigation();" id="ctl00_btnCancelExitWarning" class="blankbluebutton" />
+                    </span>
+                </td></tr></table>
+                
+                
+            </div>
+        
+</div>
+        
+        <div id="ctl00_ucNavigateOption_ucNavPanel_updConfirm">
+	  
+        <div id="ctl00_ucNavigateOption_ucNavPanel_pnlMessage" class="modal-content" style="width:500px; padding:20px 20px; display:none;">
+		
+                 
+            
+            <div style="max-height:500px; overflow-y:auto;">
+                
+        <div style="font-size:11px; padding-bottom:30px; text-align:center;">
+            <span id="ctl00_ucNavigateOption_ucNavPanel_ctl01_lblNavigate" class="tooltip_text" onmousemove="widetip=false; tip=&#39;Su solicitud DS - 160 está completa. ¿Requiere regresar a la sección de Repaso?&#39;; delayToolTip(event,tip,widetip,0,0);return false" onmouseout="hideToolTip()">Your DS-160 is complete.  Do you want to return to the Review section?</span>
+        </div>
+        <br />
+        <div id="ctl00_ucNavigateOption_ucNavPanel_ctl01_completeButtons" style="height:25px; text-align:center;">
+            <span class="tooltip_text" onmouseover="widetip=false; tip=''; delayToolTip(event,tip,widetip,0,-30);return false"
+                onmouseout="hideToolTip()">
+                <input type="submit" name="ctl00$ucNavigateOption$ucNavPanel$ctl01$btnReviewPage" value="Yes – Return to Review" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ucNavigateOption$ucNavPanel$ctl01$btnReviewPage&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_ucNavigateOption_ucNavPanel_ctl01_btnReviewPage" title="Sí - Regresar al Repaso" class="blankbluebutton2" style="width:200px;" />
+            </span>
+            <span class="tooltip_text" onmouseover="widetip=false; tip=''; delayToolTip(event,tip,widetip,0,-30);return false"
+                onmouseout="hideToolTip()">
+                <input type="submit" name="ctl00$ucNavigateOption$ucNavPanel$ctl01$btnNextPageComplete" value="No – Continue Form" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$ucNavigateOption$ucNavPanel$ctl01$btnNextPageComplete&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_ucNavigateOption_ucNavPanel_ctl01_btnNextPageComplete" class="blankbluebutton2" TooTip="" style="width:200px;" />
+            </span>
+        </div>
+        
+       
+            </div>       
+        
+	</div>
+
+        <a href="../../Common/Controls/#" id="ctl00_ucNavigateOption_ucNavPanel_anchorModalActivate" tabindex="-1"></a>
+         
+    
+</div>
+        
+        <input name="ctl00$HiddenSideBarItemClicked" type="hidden" id="ctl00_HiddenSideBarItemClicked" Text="" />
+        <a id="ctl00_anchorModalActivate" style="display:none; visibility:hidden;" onclick="return false"></a>
+        
+    
+<script type="text/javascript">
+//<![CDATA[
+var Page_ValidationSummaries =  new Array(document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary"));
+var Page_Validators =  new Array(document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_customValSurname"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_customValDOB"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv"), document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB"));
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+var ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary");
+ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary.headertext = "Please correct all areas in error as indicated below. Once you have finished, click ‘Save’ or ‘Next’ to continue completing your online application form.";
+var ctl00_SiteContentPlaceHolder_FormView1_customValSurname = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_customValSurname"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_customValSurname");
+ctl00_SiteContentPlaceHolder_FormView1_customValSurname.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME";
+ctl00_SiteContentPlaceHolder_FormView1_customValSurname.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases");
+ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME";
+ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_GIVEN_NAME";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_FULL_NAME_NATIVE";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_rblOtherNames";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_rblTelecodeQuestion";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_GENDER";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_MARITAL_STATUS";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_customValDOB = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_customValDOB"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_customValDOB");
+ctl00_SiteContentPlaceHolder_FormView1_customValDOB.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_DOB";
+ctl00_SiteContentPlaceHolder_FormView1_customValDOB.errormessage = "Invalid DOB";
+ctl00_SiteContentPlaceHolder_FormView1_customValDOB.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_CITY";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv");
+ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_POB_ST_PROVINCE";
+ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv.evaluationfunction = "CustomValidatorEvaluateIsValid";
+var ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB = document.all ? document.all["ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB"] : document.getElementById("ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB");
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB.controltovalidate = "ctl00_SiteContentPlaceHolder_FormView1_ddlAPP_POB_CNTRY";
+ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB.evaluationfunction = "CustomValidatorEvaluateIsValid";
+//]]>
 </script>
 
 
 <script type="text/javascript">
-(function(){
-  const FORM_ID   = 'ds160-help';
-  const NEXT_URL  = ''; // Opcional: pon aquí la siguiente página si quieres navegación automática
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDE9Q0i55FNi3Ch7q6ILTjWqmPknLw78iCuaLkJ2YpMGJnFCCoRxeftRusEY1IQGjZ/exec'; // REEMPLAZA ESTO POR TU URL DE WEB APP
+//<![CDATA[
 
-  const STORAGE_PREFIX = 'ds160:';
-  const JSON_KEY = STORAGE_PREFIX + FORM_ID + ':json';
-
-  function storageKey(field){
-    const idOrName = field.type === 'radio' ? field.name : (field.id || field.name);
-    return STORAGE_PREFIX + FORM_ID + ':' + idOrName;
-  }
-
-  function saveField(field){
-    try{
-      if(field.type === 'radio'){
-        if(field.checked) localStorage.setItem(storageKey(field), field.value);
-      }else if(field.type === 'checkbox'){
-        localStorage.setItem(storageKey(field), field.checked ? '1' : '0');
-      }else{
-        localStorage.setItem(storageKey(field), field.value);
-      }
-    }catch(e){}
-  }
-
-  function restoreField(field){
-    try{
-      const key = storageKey(field);
-      const v = localStorage.getItem(key);
-      if(v == null) return;
-      if(field.type === 'radio'){
-        field.checked = (field.value === v);
-      }else if(field.type === 'checkbox'){
-        field.checked = (v === '1');
-      }else{
-        field.value = v;
-      }
-    }catch(e){}
-  }
-
-  function autosave(form){
-    form.addEventListener('input',(e)=>{
-      const t = e.target;
-      if(!(t instanceof HTMLElement)) return;
-      if(t.matches('input,select,textarea')) saveField(t);
-    },true);
-    form.addEventListener('change',(e)=>{
-      const t = e.target;
-      if(!(t instanceof HTMLElement)) return;
-      if(t.matches('input,select,textarea')) saveField(t);
-    },true);
-  }
-
-  function collectFormData(form){
-    const data = {};
-    const radioHandled = new Set();
-    const elements = Array.from(form.elements).filter(el => el.name || el.id);
-
-    elements.forEach(el => {
-      const key = el.name || el.id;
-      if(!key) return;
-
-      if(el.type === 'radio'){
-        if(radioHandled.has(key)) return;
-        radioHandled.add(key);
-        const checked = form.querySelector(
-          'input[type="radio"][name="' + CSS.escape(key) + '"]:checked'
-        );
-        data[key] = checked ? checked.value : null;
-      }else if(el.type === 'checkbox'){
-        data[key] = !!el.checked;
-      }else{
-        data[key] = el.value;
-      }
-    });
-
-    return data;
-  }
-
-  function buildPayload(form){
-    const fields = collectFormData(form);
-    return {
-      page: document.title || FORM_ID,
-      formId: FORM_ID,
-      generatedAt: new Date().toISOString(),
-      fields: fields
-    };
-  }
-
-  async function sendJsonToScript(payload){
-    const jsonStr = JSON.stringify(payload, null, 2);
-    try{
-      localStorage.setItem(JSON_KEY, jsonStr);
-    }catch(e){}
-
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: jsonStr
-    });
-
-    if(!resp.ok){
-      throw new Error('HTTP ' + resp.status);
+(function(id) {
+    var e = document.getElementById(id);
+    if (e) {
+        e.dispose = function() {
+            Array.remove(Page_ValidationSummaries, document.getElementById(id));
+        }
+        e = null;
     }
-    const data = await resp.json();
-    if(!data.ok){
-      throw new Error(data.error || 'Error en Apps Script');
+})('ctl00_SiteContentPlaceHolder_FormView1_ValidationSummary');
+
+var Page_ValidationActive = false;
+if (typeof(ValidatorOnLoad) == "function") {
+    ValidatorOnLoad();
+}
+
+function ValidatorOnSubmit() {
+    if (Page_ValidationActive) {
+        return ValidatorCommonOnSubmit();
     }
-    return data;
-  }
+    else {
+        return true;
+    }
+}
+        
+theForm.oldSubmit = theForm.submit;
+theForm.submit = WebForm_SaveScrollPositionSubmit;
 
-  function downloadJson(filename, payload){
-    const jsonStr = JSON.stringify(payload, null, 2);
-    const blob = new Blob([jsonStr], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
+theForm.oldOnSubmit = theForm.onsubmit;
+theForm.onsubmit = WebForm_SaveScrollPositionOnSubmit;
+WebForm_AutoFocus('ctl00_SiteContentPlaceHolder_FormView1_tbxAPP_SURNAME');
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_customValSurname').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_customValSurname'));
+}
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById(FORM_ID);
-    if(!form) return;
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_csvAddlAliases'));
+}
 
-    form.querySelectorAll('input,select,textarea').forEach(restoreField);
-    autosave(form);
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValGivenname'));
+}
 
-    const dlBtn = document.getElementById('downloadJsonBtn');
-    const nextBtn = document.getElementById('nextBtn');
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValFULLNAME_NATIVE'));
+}
 
-    if(dlBtn){
-      dlBtn.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        const payload = buildPayload(form);
-        const filename = FORM_ID + '.json';
-        downloadJson(filename, payload);
-      });
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValOtehrNamesQuestion'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValTelecodeQuestion'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorSex'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorMarital'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_customValDOB').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_customValDOB'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidator1POBCity'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_cvrPOBStateProv'));
+}
+
+document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_SiteContentPlaceHolder_FormView1_CustomValidatorPOB'));
+}
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","CancelControlID":"ctl00_btnWarning","DropShadow":true,"OkControlID":"ctl00_btnWarning","OnOkScript":"onOk()","PopupControlID":"ctl00_pnlWarning","Y":150,"dynamicServicePath":"/GenNIV/General/complete/complete_personal.aspx","id":"warning"}, null, null, $get("ctl00_btnModalHolder"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","DropShadow":true,"PopupControlID":"ctl00_pnlTimeout","Y":150,"dynamicServicePath":"/GenNIV/General/complete/complete_personal.aspx","id":"timeout"}, null, null, $get("ctl00_btnModalHolder"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","CancelControlID":"ctl00_anchorModalActivate","DropShadow":true,"OkControlID":"ctl00_btnCancelWarning","PopupControlID":"ctl00_pnlSaveWarning","Y":150,"dynamicServicePath":"/GenNIV/General/complete/complete_personal.aspx","id":"modalSave"}, null, null, $get("ctl00_anchorModalActivate"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","CancelControlID":"ctl00_anchorModalActivate","DropShadow":true,"OkControlID":"ctl00_btnCancelExitWarning","PopupControlID":"ctl00_pnlExitWarning","Y":150,"dynamicServicePath":"/GenNIV/General/complete/complete_personal.aspx","id":"modalExitWarning"}, null, null, $get("ctl00_anchorModalActivate"));
+});
+Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.ModalPopupBehavior, {"BackgroundCssClass":"modalBackground","CancelControlID":"ctl00_ucNavigateOption_ucNavPanel_anchorModalActivate","DropShadow":true,"OkControlID":"ctl00_ucNavigateOption_ucNavPanel_anchorModalActivate","PopupControlID":"ctl00_ucNavigateOption_ucNavPanel_pnlMessage","Y":10,"dynamicServicePath":"/GenNIV/General/complete/complete_personal.aspx","id":"ctl00_ucNavigateOption_ucNavPanel_modalConfirm"}, null, null, $get("ctl00_ucNavigateOption_ucNavPanel_anchorModalActivate"));
+});
+//]]>
+</script>
+</form>
+
+<script>
+  // URL del WebApp publicado (la que termina en /exec)
+  const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwDE9Q0i55FNi3Ch7q6ILTjWqmPknLw78iCuaLkJ2YpMGJnFCCoRxeftRusEY1IQGjZ/exec'; // <-- cámbiala
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Form original del DS-160 offline
+    var form = document.getElementById('aspnetForm');
+
+    // Botón "Next: Personal 2"
+    var nextButton = document.getElementById('ctl00_SiteContentPlaceHolder_UpdateButton3');
+
+    if (!form || !nextButton) {
+      console.error('No se encontró el formulario o el botón siguiente');
+      return;
     }
 
-    if(nextBtn){
-      nextBtn.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        if(!form.checkValidity()){
-          form.reportValidity();
-          const firstInvalid = form.querySelector(':invalid');
-          if(firstInvalid) firstInvalid.scrollIntoView({behavior:'smooth', block:'center'});
+    // Interceptar clic en "Next: Personal 2"
+    nextButton.addEventListener('click', function (e) {
+      // Evitar que el formulario haga el post normal
+      e.preventDefault();
+
+      var data = {
+        formId: 'personal1',   // etiqueta para saber de qué página viene
+        fields: {}
+      };
+
+      // Recorrer todos los controles del formulario
+      var elements = form.elements;
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+
+        // saltar elementos sin name
+        if (!el.name) continue;
+
+        // Radios
+        if (el.type === 'radio') {
+          if (el.checked) {
+            data.fields[el.name] = el.value;
+          }
+          continue;
+        }
+
+        // Checkboxes (guardamos como arreglo)
+        if (el.type === 'checkbox') {
+          if (!data.fields[el.name]) {
+            data.fields[el.name] = [];
+          }
+          if (el.checked) {
+            data.fields[el.name].push(el.value);
+          }
+          continue;
+        }
+
+        // Otros tipos: text, select, textarea, hidden, etc.
+        data.fields[el.name] = el.value;
+      }
+
+      // Enviar JSON al WebApp de Apps Script
+      fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (resp) {
+        if (!resp.ok) {
+          alert('Error al guardar en Drive: ' + resp.error);
+          console.error(resp);
           return;
         }
 
-        const payload = buildPayload(form);
-
-        nextBtn.disabled = true;
-        nextBtn.textContent = 'Enviando...';
-
-        try{
-          await sendJsonToScript(payload);
-          if(NEXT_URL && NEXT_URL.trim()) {
-            window.location.assign(NEXT_URL);
-          } else {
-            nextBtn.textContent = 'Enviado';
-          }
-        }catch(err){
-          alert('Error al enviar datos a Google Drive:\n' + err);
-          console.error(err);
-          nextBtn.textContent = 'Siguiente';
-        }finally{
-          nextBtn.disabled = false;
-        }
+        // Aquí ya se creó el archivo JSON en tu carpeta de Drive
+        // Redirigir a la siguiente página de tu DS-160 offline
+        // Ajusta el nombre del archivo si es distinto
+        window.location.href = 'Nonimmigrant Visa - Personal Information 2.html';
+      })
+      .catch(function (err) {
+        alert('Error de red al guardar en Drive');
+        console.error(err);
       });
-    }
+    });
   });
-})();
 </script>
 
 </body>
